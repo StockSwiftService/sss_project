@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.company.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -23,15 +24,18 @@ public class Company extends BaseEntity {
     private String name;
 
     //사업자번호
+    @Column(unique = true)
     private String businessNumber;
 
     // 대표 이름
     private String repName;
 
     //회사 이메일(대표 or 기업메일)
+    @Column(unique = true)
     private String email;
 
     //기업 코드
+    @Column(unique = true)
     private String companyCode;
 
     //승인여부

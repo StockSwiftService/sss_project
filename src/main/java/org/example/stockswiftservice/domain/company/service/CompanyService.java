@@ -5,12 +5,15 @@ import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
-    public String newCode(){
+
+    public String newCode() {
         while (true) {
             String str = "";
             char[] charSet = new char[]{'A', 'B', 'C', 'D', 'E', 'F',
@@ -22,13 +25,12 @@ public class CompanyService {
                 str += charSet[idx];
             }
             Company code = this.companyRepository.findByCompanyCode(str).orElse(null);
-            if (code == null){
-              return str;
+            if (code == null) {
+                return str;
             }
         }
     }
-
-    public String join(String name, String businessNumber, String repName, String email) {
+    public Company join(String name, String businessNumber, String repName, String email) {
         String str = newCode();
         Company newCompany = Company.builder()
                 .name(name)
@@ -39,8 +41,13 @@ public class CompanyService {
                 .build();
 
         this.companyRepository.save(newCompany);
+        return newCompany;
+    }
+    public Optional<Company> findByName(String name) {
+        return companyRepository.findByName(name);
+    }
 
-
-        return str;
+    public Optional<Company> findByBusinessNumber(String businessNumber) {
+        return companyRepository.findByBusinessNumber(businessNumber);
     }
 }

@@ -22,7 +22,7 @@ public class Member extends BaseEntity {
     private String name;
 
     //직급
-    private String rank;
+    private String position;
 
     //아이디
     private String username;

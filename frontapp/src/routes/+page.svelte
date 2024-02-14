@@ -47,7 +47,7 @@
                 <div class="flex aic g4">
                     <a href="" class="cbbb f14">정보 찾기</a>
                     <span class="f14 cbbb">|</span>
-                    <a href="" class="cbbb f14">회원가입</a>
+                    <a href="/join" class="cbbb f14">회원가입</a>
                 </div>
             </div>
             <a href="" class="btn-type-1 bm w100per h50 bdr4 mt60">
