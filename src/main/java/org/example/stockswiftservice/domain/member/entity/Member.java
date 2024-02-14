@@ -1,6 +1,5 @@
 package org.example.stockswiftservice.domain.member.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 @Entity
 @Getter
@@ -24,7 +22,7 @@ public class Member extends BaseEntity {
     private String name;
 
     //직급
-    private String position;
+    private String rank;
 
     //아이디
     private String username;
@@ -42,13 +40,4 @@ public class Member extends BaseEntity {
     @ManyToOne
     private Company company;
 
-    public Map<String, Object> toClaims() {
-        return Map.of(
-                "id", getId(),
-                "username", getUsername(),
-                "position",getPosition(),
-                "authority",getAuthority(),
-                "company",getCompany()
-        );
-    }
 }
