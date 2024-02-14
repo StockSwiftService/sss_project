@@ -1,4 +1,4 @@
-package org.example.stockswiftservice.domain.global.config;
+package org.example.stockswiftservice.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

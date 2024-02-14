@@ -1,4 +1,4 @@
-package org.example.stockswiftservice.domain.global.baseentity;
+package org.example.stockswiftservice.global.baseentity;
 
 import jakarta.persistence.*;
 import lombok.*;
