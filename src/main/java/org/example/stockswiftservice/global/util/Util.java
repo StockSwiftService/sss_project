@@ -1,4 +1,4 @@
-package org.example.stockswiftservice.domain.global.util;
+package org.example.stockswiftservice.global.util;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
