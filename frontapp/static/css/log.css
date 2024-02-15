@@ -1,0 +1,34 @@
+/* 로그인 영역 */
+.login-area .cnt-in {
+    max-width: 520px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 0 40px;
+}
+.login-area .cnt-in .login-box h1 {
+    font-size: 32px;
+    line-height: 32px;
+}
+.login-area .cnt-in .login-box .login-btn {
+    margin-top: 40px;
+}
+.login-area .cnt-in .add-box {
+    margin-top: 16px;
+}
+.login-area .cnt-in .add-box .logo-box {
+    width: 129px;
+}
+.login-area .cnt-in .add-box .cs-center-box .text {
+    font-size: 14px;
+    line-height: 14px;
+    margin-right: 16px;
+}
+.login-area .cnt-in .add-box .cs-center-box .call {
+    font-size: 32px;
+    line-height: 32px;
+}
+.login-area .cnt-in .copyright {
+    font-size: 12px;
+    line-height: 12px;
+    bottom: 56px;
+}
