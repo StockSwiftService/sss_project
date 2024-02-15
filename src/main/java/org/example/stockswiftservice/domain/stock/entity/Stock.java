@@ -15,6 +15,7 @@ public class Stock extends BaseEntity {
     private String itemName;
     private String transactionDate;
     private String clientName;
-    private Long totalAmount;
     private Long quantity;
+    private Long unitPrice;
+    private Long totalAmount;
 }

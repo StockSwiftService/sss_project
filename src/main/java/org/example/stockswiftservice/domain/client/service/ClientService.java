@@ -42,4 +42,22 @@ public class ClientService {
 
         return RsData.of("S-3", "거래처 생성 성공", client);
     }
+
+    public RsData<Client> modify(Client client, String clientCode, String clientName, String repName, String phoneNumber, String mobileNumber, String address) {
+        client.setClientCode(clientCode);
+        client.setClientName(clientName);
+        client.setRepName(repName);
+        client.setPhoneNumber(phoneNumber);
+        client.setMobileNumber(mobileNumber);
+        client.setAddress(address);
+
+        clientRepository.save(client);
+
+        return RsData.of("S-4", "정보 수정", client);
+    }
+
+    public RsData<Client> delete(Client client) {
+        this.clientRepository.delete(client);
+        return RsData.of("S-5", "정보 삭제", client);
+    }
 }
