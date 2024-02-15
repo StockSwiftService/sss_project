@@ -1,4 +1,4 @@
-package org.example.stockswiftservice.domain.global.rs;
+package org.example.stockswiftservice.global.rs;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
