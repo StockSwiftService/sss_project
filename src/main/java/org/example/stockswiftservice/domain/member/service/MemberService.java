@@ -4,6 +4,7 @@ package org.example.stockswiftservice.domain.member.service;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
+import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.repository.MemberRepository;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
@@ -20,6 +21,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CompanyRepository companyRepository;
+
 
 
     public void repJoin(String repName, String username, String password, LocalDate birthday, Company companyCode) {
