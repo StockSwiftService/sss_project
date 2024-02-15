@@ -54,9 +54,9 @@ public class CompanyController {
     @PostMapping(value = "/join", consumes = APPLICATION_JSON_VALUE)
     public void join(@RequestBody JoinRequest joinRequest, HttpServletResponse resp){
 
-        String companyCode = this.companyService.join(joinRequest.name,joinRequest.businessNumber,joinRequest.repName,joinRequest.email);
+        Company companyCode = this.companyService.join(joinRequest.name,joinRequest.businessNumber,joinRequest.repName,joinRequest.email);
 
-        this.memberService.repJoin(joinRequest.repName,joinRequest.username,joinRequest.password,joinRequest.birthday);
+        this.memberService.repJoin(joinRequest.repName,joinRequest.username,joinRequest.password,joinRequest.birthday,companyCode);
 
     }
 }

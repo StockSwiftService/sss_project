@@ -28,7 +28,7 @@ public class CompanyService {
         }
     }
 
-    public String join(String name, String businessNumber, String repName, String email) {
+    public Company join(String name, String businessNumber, String repName, String email) {
         String str = newCode();
         Company newCompany = Company.builder()
                 .name(name)
@@ -41,6 +41,6 @@ public class CompanyService {
         this.companyRepository.save(newCompany);
 
 
-        return str;
+        return newCompany;
     }
 }
