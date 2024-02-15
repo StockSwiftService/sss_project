@@ -22,10 +22,10 @@
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
 
-    <!-- 질문 등록 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w600" class:active="{isActiveAdd}">
+    <!-- 거래처 등록 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
         <div class="top-box rel">
-            <h3 class="tb c121619 f18">질문 등록</h3>
+            <h3 class="tb c121619 f18">거래처 등록</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
@@ -33,18 +33,47 @@
         <div class="middle-box scr-type-1">
             <div class="flex fdc g36">
                 <div>
-                    <h2 class="c333 f15 tm mb8">제목<span class="cr f16 tm inblock">*</span></h2>
+                    <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="거래처명">
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
+                    </div>
+                    <div class="error-text-box">
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        <span class="f13 mt8 cr">중복된 거래처명입니다.</span>
+                        <span class="f13 mt8 cg">사용 가능한 거래처명입니다.</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="제목">
+                        <input type="text" placeholder="대표자명">
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                     </div>
                 </div>
                 <div>
-                    <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="textarea-type-1 f14 w100per">
-                        <textarea placeholder="내용"></textarea>
+                    <h2 class="c333 f15 tm mb8">연락처<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="input-type-1 f14 w100per">
+                        <input type="text" placeholder="연락처 (-자 빼고 입력해 주세요.)">
+                    </div>
+                    <div class="error-text-box">
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="주소">
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">찾기</button>
+                    </div>
+                    <div class="input-type-1 f14 w100per mt8">
+                        <input type="text" placeholder="상세주소">
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
@@ -58,10 +87,10 @@
         </div>
     </div>
 
-    <!-- 질문 수정 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w600" class:active="{isActiveModifi}">
+    <!-- 거래처 수정 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveModifi}">
         <div class="top-box rel">
-            <h3 class="tb c121619 f18">질문 수정</h3>
+            <h3 class="tb c121619 f18">거래처 수정</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
@@ -69,18 +98,47 @@
         <div class="middle-box scr-type-1">
             <div class="flex fdc g36">
                 <div>
-                    <h2 class="c333 f15 tm mb8">제목<span class="cr f16 tm inblock">*</span></h2>
+                    <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="거래처명">
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
+                    </div>
+                    <div class="error-text-box">
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        <span class="f13 mt8 cr">중복된 거래처명입니다.</span>
+                        <span class="f13 mt8 cg">사용 가능한 거래처명입니다.</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="제목" value="수정제목 수정제목">
+                        <input type="text" placeholder="대표자명">
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                     </div>
                 </div>
                 <div>
-                    <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="textarea-type-1 f14 w100per">
-                        <textarea placeholder="내용">수정내용입니다.</textarea>
+                    <h2 class="c333 f15 tm mb8">연락처<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="input-type-1 f14 w100per">
+                        <input type="text" placeholder="연락처 (-자 빼고 입력해 주세요.)">
+                    </div>
+                    <div class="error-text-box">
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="주소">
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">찾기</button>
+                    </div>
+                    <div class="input-type-1 f14 w100per mt8">
+                        <input type="text" placeholder="상세주소">
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
@@ -98,12 +156,29 @@
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">
-        <h1 class="tb c121619">질문 관리</h1>
+        <h1 class="tb c121619">거래처 관리</h1>
     </div>
     <div class="cnt-box-1 cnt-box">
+        <div class="top-area">
+            <div class="space-area-2 flex aic jce">
+                <div class="right-box flex aic">
+                    <div class="search-type-1 flex aic">
+                        <div class="search-box">
+                            <input type="search" placeholder="검색어 입력">
+                        </div>
+                        <button class="search-btn flex aic jcc">
+                            <span class="ico-box img-box w16">
+                                <img src="/img/ico_search.svg" alt="검색 아이콘">
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">0</span>건
+                전체 <span class="number inblock cm tm">0</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -115,9 +190,10 @@
                                     <label for="all"></label>
                                 </div> 
                             </th>
-                            <th class="wsn">제목</th>
-                            <th class="wsn">내용</th>
-                            <th class="wsn">공개 여부</th>
+                            <th class="wsn">거래처명</th>
+                            <th class="wsn">대표자명</th>
+                            <th class="wsn">연락처</th>
+                            <th class="wsn">주소</th>
                             <th class="wsn">수정</th>
                         </tr>
                     </thead>
@@ -129,15 +205,10 @@
                                     <label for="v1"></label>
                                 </div> 
                             </td>
-                            <td class="wsn tal">회원가입했는데 왜 거절당했나요?</td>
-                            <td class="tal lh140">
-                                안녕하세요. 저의 SSS를 사용해주셔서 감사합니다.<br>
-                                거절된 사유는 ㅇㅇㅇㅇㅇㅇ입니다.<br>
-                                다시 한 번 확인 후 가입 신청해주시길 바랍니다.
-                            </td>
-                            <td class="wsn">
-                                <span class="cr">비공개</span>
-                            </td>
+                            <td class="wsn">(주)네모컴퍼니</td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">01033333333</td>
+                            <td class="wsn">대전광역시 대덕구 덕암동 572-3번지</td>
                             <td class="wsn tac">
                                 <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
                             </td>
@@ -149,15 +220,10 @@
                                     <label for="v2"></label>
                                 </div> 
                             </td>
-                            <td class="wsn tal">회원가입했는데 왜 거절당했나요?</td>
-                            <td class="tal lh140">
-                                안녕하세요. 저의 SSS를 사용해주셔서 감사합니다.<br>
-                                거절된 사유는 ㅇㅇㅇㅇㅇㅇ입니다.<br>
-                                다시 한 번 확인 후 가입 신청해주시길 바랍니다.
-                            </td>
-                            <td class="wsn">
-                                <span class="cg">공개</span>
-                            </td>
+                            <td class="wsn">(주)네모컴퍼니</td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">01033333333</td>
+                            <td class="wsn">대전광역시 대덕구 덕암동 572-3번지</td>
                             <td class="wsn tac">
                                 <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
                             </td>

@@ -10,8 +10,8 @@
                         <input type="text" placeholder="아이디">
                     </div>
                     <div class="error-text-box">
-                        <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
-                        <span class="f13 mt4 cr">존재하지 않는 아이디입니다.</span>
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        <span class="f13 mt8 cr">존재하지 않는 아이디입니다.</span>
                     </div>
                 </div>
                 <div>
@@ -19,8 +19,8 @@
                         <input type="password" placeholder="비밀번호">
                     </div>
                     <div class="error-text-box">
-                        <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
-                        <span class="f13 mt4 cr">비밀번호가 일치하지 않습니다.</span>
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        <span class="f13 mt8 cr">비밀번호가 일치하지 않습니다.</span>
                     </div>
                 </div>
             </div>
