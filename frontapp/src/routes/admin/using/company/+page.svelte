@@ -24,7 +24,7 @@
                         </div>
                         <button class="search-btn flex aic jcc">
                             <span class="ico-box img-box w16">
-                                <img src="../img/ico_search.svg" alt="검색 아이콘">
+                                <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
                         </button>
                     </div>
@@ -36,7 +36,7 @@
             <div class="all-text c121619 f14">
                 전체 <span class="number inblock cm tm">0</span>건
             </div>
-            <div class="table-box-1 table-type-1 scr-type-1 mt12">
+            <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
                     <thead>
                         <tr>
@@ -47,11 +47,14 @@
                                 </div> 
                             </th>
                             <th class="wsn">승인여부</th>
-                            <th class="wsn">기업명</th>
+                            <th class="wsn">회사명</th>
+                            <th class="wsn">주소</th>
                             <th class="wsn">사업자 번호</th>
-                            <th class="wsn">대표자명</th>
-                            <th class="wsn">생년월일</th>
                             <th class="wsn">이메일</th>
+                            <th class="wsn">대표자명</th>
+                            <th class="wsn">연락처</th>
+                            <th class="wsn">생년월일</th>
+                            <th class="wsn">아이디</th>
                             <th class="wsn">회사코드</th>
                         </tr>
                     </thead>
@@ -67,10 +70,13 @@
                                 <span class="cr">미승인</span>
                             </td>
                             <td class="wsn">(주)네모컴퍼니</td>
+                            <td class="wsn">대전광역시 대덕구 덕암동 572-5</td>
                             <td class="wsn">465781226812</td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">1985-07-23</td>
                             <td class="wsn">nemo@gmail.com</td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">0244413333</td>
+                            <td class="wsn">1985-07-23</td>
+                            <td class="wsn">user1</td>
                             <td class="wsn">-</td>
                         </tr>
                         <tr>
@@ -83,11 +89,14 @@
                             <td class="wsn">
                                 <span class="cg">승인</span>
                             </td>
-                            <td class="wsn">(주)세모컴퍼니</td>
-                            <td class="wsn">1581578126812</td>
-                            <td class="wsn">김세모</td>
-                            <td class="wsn">1995-09-15</td>
-                            <td class="wsn">semo@gmail.com</td>
+                            <td class="wsn">(주)네모컴퍼니</td>
+                            <td class="wsn">대전광역시 대덕구 덕암동 572-5</td>
+                            <td class="wsn">465781226812</td>
+                            <td class="wsn">nemo@gmail.com</td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">0244413333</td>
+                            <td class="wsn">1985-07-23</td>
+                            <td class="wsn">user1</td>
                             <td class="wsn">1h8ea9</td>
                         </tr>
                     </tbody>

@@ -7,8 +7,8 @@
                     <span class="text-2 c121619 tar op60">대표</span>
                 </div>
             </a>
-            <a href="../login.html" class="logout-btn img-box">
-                <img src="../img/ico_logout.svg" alt="로그아웃 아이콘">
+            <a href="" class="logout-btn img-box">
+                <img src="/img/ico_logout.svg" alt="로그아웃 아이콘">
             </a>
         </div>
     </div>

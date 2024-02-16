@@ -43,7 +43,7 @@
                             <input type="text" placeholder="회사명">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -51,7 +51,7 @@
                             <input type="text" placeholder="사업자 번호 (-자 빼고 입력해 주세요.)">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -59,7 +59,7 @@
                             <input type="text" placeholder="이메일">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                 </div>
@@ -93,7 +93,7 @@
                             <input type="text" placeholder="회사코드">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -101,7 +101,7 @@
                             <input type="text" placeholder="이메일">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -109,7 +109,7 @@
                             <input type="text" placeholder="대표자명">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                 </div>
@@ -143,7 +143,7 @@
                             <input type="text" placeholder="회사코드">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -151,7 +151,7 @@
                             <input type="text" placeholder="아이디">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -159,7 +159,7 @@
                             <input type="text" placeholder="이메일">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                 </div>
@@ -180,7 +180,7 @@
                             <input type="password" placeholder="비밀번호">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         </div>
                     </div>  
                     <div>
@@ -188,8 +188,8 @@
                             <input type="password" placeholder="비밀번호 확인">
                         </div>
                         <div class="error-text-box">
-                            <span class="f13 mt4 cr">필수 입력 항목입니다.</span>
-                            <span class="f13 mt4 cr">비밀번호가 일치하지 않습니다.</span>
+                            <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                            <span class="f13 mt8 cr">비밀번호가 일치하지 않습니다.</span>
                         </div>
                     </div>  
                 </div>
