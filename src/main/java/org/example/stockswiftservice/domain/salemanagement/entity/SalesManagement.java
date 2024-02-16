@@ -1,17 +1,12 @@
 package org.example.stockswiftservice.domain.salemanagement.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -41,6 +36,4 @@ public class SalesManagement extends BaseEntity {
     // 월간 건수
     private int monthSalesNumber;
 
-    @OneToMany(mappedBy = "salesManagement" , cascade = CascadeType.REMOVE)
-    private List<Purchase> purchase;
 }
