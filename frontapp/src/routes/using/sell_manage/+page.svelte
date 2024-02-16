@@ -107,7 +107,7 @@
 
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
-            <div class="table-type-3 scr-type-2">
+            <div class="table-type-3 scr-type-2 rel">
                 <table>
                     <thead>
                         <tr>
@@ -119,8 +119,8 @@
                             </th>
                             <th class="wsn">품목명</th>
                             <th class="wsn" style="width: 100px; min-width:100px;">수량</th>
-                            <th class="wsn">단가</th>
-                            <th class="wsn">금액</th>
+                            <th class="wsn" style="width: 140px; min-width:140px;">단가</th>
+                            <th class="wsn" style="width: 160px; min-width:160px;">금액</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,14 +136,92 @@
                                     <input type="text" placeholder="품목명">
                                 </div>
                             </td>
-                            <td class="wsn" style="width: 100px;">
+                            <td class="wsn">
                                 <div class="input-type-2 f14">
                                     <input type="text" placeholder="수량">
                                 </div>
                             </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <tr class="last">
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn">12,000,000</td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">추가</button> <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
+                </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
                 <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">등록</button>

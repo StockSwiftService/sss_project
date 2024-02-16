@@ -667,6 +667,11 @@ table tr .tar {
 .table-type-3 tr td:last-child {
     border-right: none;
 }
+.table-type-3 tr.last td {
+    border: none;
+    font-family: "SUIT-Bold";
+    color: #2656F6;
+}
 
 /* ------------------------------------------------------------------------------- */
 
