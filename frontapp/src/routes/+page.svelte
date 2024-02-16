@@ -1,10 +1,26 @@
 <script>
 	import pkg from 'cookie';
+	import { onMount } from 'svelte';
 	const { setCookie, getCookie } = pkg;
+
+	onMount(async () => {
+		formData.username = getRememberId();
+		if(formData.username != ''){
+			rememberID = true;
+		}else{
+			rememberID = false;
+		}
+
+		formData.companyCode = getRememberCompanyCode();
+		if(formData.companyCode != ''){
+			rememberCompany = true;
+		}else{
+			rememberCompany = false;
+		}
+	});
 
 	let rememberID = false;
 	let rememberCompany = false;
-
 	let formData = {
 		companyCode: '',
 		username: '',
@@ -27,6 +43,16 @@
 
 				// 로그인이 성공한 경우
 				if (data.resultCode === 'S-1') {
+					if (rememberCompany) {
+						setCookies('companyCode', formData.companyCode, 365);
+					} else {
+						deleteCookie('companyCode');
+					}
+					if (rememberID) {
+						setCookies('userId', formData.username, 365);
+					} else {
+						deleteCookie('userId');
+					}
 					window.location.href = '/using/user_manage';
 				} else {
 					// 로그인이 실패한 경우
@@ -37,8 +63,8 @@
 				}
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
-				if(!response.ok && response.status != 401) {
-				alert('다시 입력 해주세요.');
+				if (!response.ok && response.status != 401) {
+					alert('다시 입력 해주세요.');
 				}
 			}
 		} catch (error) {
@@ -50,22 +76,41 @@
 	function check() {
 		console.log(1);
 	}
-	function checkboxID(event) {
-		rememberID = event.target.checked;
-		if (rememberID) {
-			setCookie('username', formData.username, { expires: 365 }); // 1년 동안 쿠키를 유지하도록 설정
-		} else {
-			setCookie('username', '', { expires: -1 }); // 쿠키 삭제
-		}
+
+	function setCookies(name, value, expirationDays) {
+		const d = new Date();
+		d.setTime(d.getTime() + expirationDays * 24 * 60 * 60 * 1000);
+		const expires = 'expires=' + d.toUTCString();
+		document.cookie = name + '=' + value + ';' + expires + ';path=/';
 	}
 
-	function checkboxCompany(event) {
-		rememberCompany = event.target.checked;
-		if (rememberCompany) {
-			setCookie('companyCode', '사용자 아이디', { expires: 365 }); // 1년 동안 쿠키를 유지하도록 설정
-		} else {
-			setCookie('companyCode', '', { expires: -1 }); // 쿠키 삭제
+	function deleteCookie(name) {
+		document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+	}
+
+	function getRememberId() {
+		const name = 'userId' + '=';
+		const decodedCookie = decodeURIComponent(document.cookie);
+		const cookieArray = decodedCookie.split(';');
+		for (let i = 0; i < cookieArray.length; i++) {
+			let cookie = cookieArray[i].trim();
+			if (cookie.indexOf(name) === 0) {
+				return cookie.substring(name.length, cookie.length);
+			}
 		}
+		return '';
+	}
+	function getRememberCompanyCode() {
+		const name = 'companyCode' + '=';
+		const decodedCookie = decodeURIComponent(document.cookie);
+		const cookieArray = decodedCookie.split(';');
+		for (let i = 0; i < cookieArray.length; i++) {
+			let cookie = cookieArray[i].trim();
+			if (cookie.indexOf(name) === 0) {
+				return cookie.substring(name.length, cookie.length);
+			}
+		}
+		return '';
 	}
 </script>
 
@@ -97,11 +142,11 @@
 			<div class="flex aic jcsb mt12">
 				<div class="check-text-box-area flex aic g16">
 					<div class="check-text-box-1 check-text-type-1">
-						<input type="checkbox" id="v1" />
+						<input type="checkbox" id="v1" bind:checked={rememberCompany} />
 						<label for="v1">회사코드 저장</label>
 					</div>
 					<div class="check-text-box-2 check-text-type-1">
-						<input type="checkbox" id="v2" />
+						<input type="checkbox" id="v2" bind:checked={rememberID} />
 						<label for="v2">아이디 저장</label>
 					</div>
 				</div>
