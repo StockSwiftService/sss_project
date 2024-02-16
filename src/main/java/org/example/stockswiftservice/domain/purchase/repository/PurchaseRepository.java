@@ -14,7 +14,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query(value = "SELECT SUM(purchase_total) FROM Purchase WHERE YEAR(purchase_date) = :year AND WEEK(purchase_date, 3) = :week", nativeQuery = true)
     Long getSalesByWeek(@Param("year") int year, @Param("week") int week);
 
-
     @Query("SELECT SUM(p.purchaseTotal) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
     Long getSalesByMonth(@Param("year") int year, @Param("month") int month);
 }
