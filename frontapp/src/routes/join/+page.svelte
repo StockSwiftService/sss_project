@@ -93,10 +93,11 @@
             </div>
         </div>
     </div>
+
     <!-- 입력값이 모두 통과하면
     "회원가입 신청이 완료되었습니다.\n관리자의 승인 후 서비스를 이용하실 수 있습니다.\n승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다."
     alert 호출 후 닫으면 페이지 닫히게-->
-    <a href="#" class="btn-type-1 bm w100per h50 bdr8 mt60" id="test">
+    <a href="#" class="btn-type-1 bm w100per h50 bdr4 mt60">
         <span class="text f16 tb cfff">회원가입</span>
     </a>
 </div>

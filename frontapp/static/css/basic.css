@@ -170,6 +170,8 @@ span, a {display: block;}
 .h50 {height: 5rem;}
 .h40 {height: 4rem;}
 .h30 {height: 3rem;}
+.h28 {height: 2.8rem;}
+.h24 {height: 2.4rem;}
 .h20 {height: 2rem;}
 .h16 {height: 1.6rem;}
 .h12 {height: 1.2rem;}
@@ -481,6 +483,8 @@ span, a {display: block;}
 .bdFF6093 {border: 1px solid #FF6093;}
 .bdDDE1E6 {border: 1px solid #DDE1E6;}
 .bdA2A9B0 {border: 1px solid #A2A9B0;}
+.bdm {border: 1px solid #2656F6;}
+.bdbbb {border: 1px solid #bbb;}
 
 .cm {color: #2656F6;}
 .cs {color: #;}
