@@ -56,19 +56,13 @@ public class StockController {
     @Data
     public static class CreateRequest {
         @NotBlank
-        private String itemCode;
+        private String clientName;
         @NotBlank
         private String itemName;
-        @NotBlank
-        private String transactionDate;
-        @NotBlank
-        private String clientName;
         @NotNull
         private Long quantity;
-        @NotNull
-        private Long unitPrice;
-        @NotNull
-        private Long totalAmount;
+        private Long purchasePrice;
+        private Long salesPrice;
     }
 
     @Getter
@@ -81,9 +75,8 @@ public class StockController {
     public RsData<CreateResponse> create(
             @Valid @RequestBody CreateRequest createRequest
     ) {
-        RsData<Stock> stockRs = stockService.create(createRequest.getItemCode(), createRequest.getItemName(),
-                createRequest.getTransactionDate(),createRequest.getClientName(),  createRequest.getQuantity(),
-                createRequest.getUnitPrice(),createRequest.getTotalAmount());
+        RsData<Stock> stockRs = stockService.create(createRequest.getClientName(), createRequest.getItemName(),
+                  createRequest.getQuantity(), createRequest.getPurchasePrice(), createRequest.getSalesPrice());
 
         if (stockRs.isFail()) return (RsData) stockRs;
 
@@ -102,22 +95,19 @@ public class StockController {
 
     @Data
     public static class ModifyRequest {
-        private String itemCode;
-        private String itemName;
-        private String transactionDate;
         private String clientName;
+        private String itemName;
         private Long quantity;
-        private Long unitPrice;
-        private Long totalAmount;
+        private Long purchasePrice;
+        private Long salesPrice;
     }
 
     @PatchMapping("/{id}")
     public RsData<Stock> modify(@Valid @RequestBody ModifyRequest modifyRequest, @PathVariable("id") Long id) {
         Stock stock = this.stockService.getStock(id);
 
-        RsData<Stock> modifyStock = stockService.modify(stock, modifyRequest.getItemCode(), modifyRequest.getItemName(),
-                modifyRequest.getTransactionDate(), modifyRequest.getClientName(), modifyRequest.getQuantity(),
-                modifyRequest.getUnitPrice(), modifyRequest.getTotalAmount());
+        RsData<Stock> modifyStock = stockService.modify(stock,
+                modifyRequest.getClientName(), modifyRequest.getItemName(), modifyRequest.getQuantity(), modifyRequest.getPurchasePrice(), modifyRequest.getSalesPrice());
 
         return modifyStock;
     }
@@ -143,41 +133,29 @@ public class StockController {
         // Header
         row = sheet.createRow(rowNum++);
         cell = row.createCell(0);
-        cell.setCellValue("번호");
-        cell = row.createCell(1);
-        cell.setCellValue("품목코드");
-        cell = row.createCell(2);
-        cell.setCellValue("품목명");
-        cell = row.createCell(3);
-        cell.setCellValue("거래일자");
-        cell = row.createCell(4);
         cell.setCellValue("거래처명");
-        cell = row.createCell(5);
+        cell = row.createCell(1);
+        cell.setCellValue("품목명");
+        cell = row.createCell(2);
         cell.setCellValue("수량");
-        cell = row.createCell(6);
-        cell.setCellValue("단가");
-        cell = row.createCell(7);
-        cell.setCellValue("금액합계");
+        cell = row.createCell(3);
+        cell.setCellValue("구매단가");
+        cell = row.createCell(4);
+        cell.setCellValue("판매단가");
 
         // Body
         for (Stock stock : list) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
-            cell.setCellValue(stock.getId());
-            cell = row.createCell(1);
-            cell.setCellValue(stock.getItemCode());
-            cell = row.createCell(2);
-            cell.setCellValue(stock.getItemName());
-            cell = row.createCell(3);
-            cell.setCellValue(stock.getTransactionDate());
-            cell = row.createCell(4);
             cell.setCellValue(stock.getClientName());
-            cell = row.createCell(5);
+            cell = row.createCell(1);
+            cell.setCellValue(stock.getItemName());
+            cell = row.createCell(2);
             cell.setCellValue(stock.getQuantity());
-            cell = row.createCell(6);
-            cell.setCellValue(stock.getUnitPrice());
-            cell = row.createCell(7);
-            cell.setCellValue(stock.getTotalAmount());
+            cell = row.createCell(3);
+            cell.setCellValue(stock.getPurchasePrice());
+            cell = row.createCell(4);
+            cell.setCellValue(stock.getSalesPrice());
         }
 
         // 컨텐츠 타입과 파일명 지정

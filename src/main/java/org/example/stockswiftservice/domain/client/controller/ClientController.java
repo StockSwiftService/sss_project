@@ -45,15 +45,11 @@ public class ClientController {
     @Data
     public static class CreateRequest {
         @NotBlank
-        private String clientCode;
-        @NotBlank
         private String clientName;
         @NotBlank
         private String repName;
         @NotBlank
         private String phoneNumber;
-        @NotBlank
-        private String mobileNumber;
         @NotBlank
         private String address;
     }
@@ -65,9 +61,9 @@ public class ClientController {
     }
 
     @PostMapping("")
-    public RsData<CreateResponse> create (@Valid @RequestBody CreateRequest createRequest) {
-        RsData<Client> client = clientService.create(createRequest.getClientCode(), createRequest.getClientName(),
-                createRequest.getRepName(), createRequest.getPhoneNumber(), createRequest.getMobileNumber(), createRequest.getAddress());
+    public RsData<CreateResponse> create (@Valid CreateRequest createRequest) {
+        RsData<Client> client = clientService.create(createRequest.getClientName(), createRequest.getRepName(),
+                createRequest.getPhoneNumber(), createRequest.getAddress());
         if (client.isFail()) return (RsData) client;
 
         return RsData.of(client.getResultCode(), client.getMsg(), new CreateResponse(client.getData()));
@@ -81,19 +77,18 @@ public class ClientController {
 
     @Data
     public static class ModifyRequest {
-        private String clientCode;
         private String clientName;
         private String repName;
         private String phoneNumber;
-        private String mobileNumber;
         private String address;
     }
 
     @PatchMapping("/{id}")
-    public RsData<Client> modify(@Valid @RequestBody ModifyRequest modifyRequest, @PathVariable("id") Long id) {
+    public RsData<Client> modify(@Valid ModifyRequest modifyRequest, @PathVariable("id") Long id) {
         Client client = this.clientService.getClient(id);
 
-        RsData<Client> modifyClient = clientService.modify(client, modifyRequest.getClientCode(), modifyRequest.getClientName(), modifyRequest.getRepName(), modifyRequest.getPhoneNumber(), modifyRequest.getMobileNumber(), modifyRequest.getAddress());
+        RsData<Client> modifyClient = clientService.modify(client, modifyRequest.getClientName(), modifyRequest.getRepName(),
+                modifyRequest.getPhoneNumber(), modifyRequest.getAddress());
 
         return modifyClient;
     }

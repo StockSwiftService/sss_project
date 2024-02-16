@@ -11,11 +11,9 @@ import org.example.stockswiftservice.global.baseentity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Stock extends BaseEntity {
-    private String itemCode;
-    private String itemName;
-    private String transactionDate;
     private String clientName;
+    private String itemName;
     private Long quantity;
-    private Long unitPrice;
-    private Long totalAmount;
+    private Long purchasePrice;
+    private Long salesPrice;
 }

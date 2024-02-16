@@ -28,13 +28,11 @@ public class ClientService {
         return optionalClient.get();
     }
 
-    public RsData<Client> create(String clientCode, String clientName, String repName, String phoneNumber, String mobileNumber, String address){
+    public RsData<Client> create(String clientName, String repName, String phoneNumber, String address){
         Client client = Client.builder()
-                .clientCode(clientCode)
                 .clientName(clientName)
                 .repName(repName)
                 .phoneNumber(phoneNumber)
-                .mobileNumber(mobileNumber)
                 .address(address)
                 .build();
 
@@ -43,12 +41,10 @@ public class ClientService {
         return RsData.of("S-3", "거래처 생성 성공", client);
     }
 
-    public RsData<Client> modify(Client client, String clientCode, String clientName, String repName, String phoneNumber, String mobileNumber, String address) {
-        client.setClientCode(clientCode);
+    public RsData<Client> modify(Client client, String clientName, String repName, String phoneNumber, String address) {
         client.setClientName(clientName);
         client.setRepName(repName);
         client.setPhoneNumber(phoneNumber);
-        client.setMobileNumber(mobileNumber);
         client.setAddress(address);
 
         clientRepository.save(client);

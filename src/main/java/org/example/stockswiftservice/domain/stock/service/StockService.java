@@ -28,16 +28,13 @@ public class StockService {
         return optionalStock.get();
     }
 
-    public RsData<Stock> create(String itemCode, String itemName, String transactionDate, String clientName,
-                                Long quantity, Long unitPrice,Long totalAmount){
+    public RsData<Stock> create(String clientName, String itemName, Long quantity, Long purchasePrice, Long salesPrice){
         Stock stock = Stock.builder()
-                .itemCode(itemCode)
-                .itemName(itemName)
-                .transactionDate(transactionDate)
                 .clientName(clientName)
+                .itemName(itemName)
                 .quantity(quantity)
-                .unitPrice(unitPrice)
-                .totalAmount(totalAmount)
+                .purchasePrice(purchasePrice)
+                .salesPrice(salesPrice)
                 .build();
 
         stockRepository.save(stock);
@@ -45,15 +42,12 @@ public class StockService {
         return RsData.of("S-3", "재고 생성 성공", stock);
     }
 
-    public RsData<Stock> modify(Stock stock, String itemCode, String itemName, String transactionDate, String clientName,
-                                Long quantity, Long unitPrice, Long totalAmount) {
-        stock.setItemCode(itemCode);
-        stock.setItemName(itemName);
-        stock.setTransactionDate(transactionDate);
+    public RsData<Stock> modify(Stock stock, String clientName, String itemName, Long quantity, Long purchasePrice, Long salesPrice) {
         stock.setClientName(clientName);
+        stock.setItemName(itemName);
         stock.setQuantity(quantity);
-        stock.setUnitPrice(unitPrice);
-        stock.setTotalAmount(totalAmount);
+        stock.setPurchasePrice(purchasePrice);
+        stock.setSalesPrice(salesPrice);
 
         stockRepository.save(stock);
 

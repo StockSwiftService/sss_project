@@ -11,10 +11,8 @@ import org.example.stockswiftservice.global.baseentity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Client extends BaseEntity {
-    private String clientCode;
     private String clientName;
     private String repName;
     private String phoneNumber;
-    private String mobileNumber;
     private String address;
 }
