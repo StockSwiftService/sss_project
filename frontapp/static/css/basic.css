@@ -104,6 +104,7 @@ body.active {overflow: hidden;}
 .bdr16 {border-radius: 16px;}
 .bdr20 {border-radius: 20px;}
 .bdr20 {border-radius: 30px;}
+.bdr999 {border-radius: 999px;}
 .bdr50 {border-radius: 50%;}
 .ofh {overflow: hidden;}
 span, a {display: block;}
@@ -132,6 +133,7 @@ span, a {display: block;}
 .wvh50 {width: 50vh;}
 .w100per {width: 100%;}
 .w50per {width: 50%;}
+.w1000 {width: 100rem;}
 .w800 {width: 80rem;}
 .w600 {width: 60rem;}
 .w540 {width: 54rem;}
@@ -139,6 +141,7 @@ span, a {display: block;}
 .w420 {width: 42rem;}
 .w360 {width: 36rem;}
 .w300 {width: 30rem;}
+.w200 {width: 20rem;}
 .w160 {width: 16rem;}
 .w150 {width: 15rem;}
 .w140 {width: 14rem;}
@@ -167,6 +170,7 @@ span, a {display: block;}
 .hvh50 {height: 50vh;}
 .h100per {height: 100%;}
 .h50per {height: 50%;}
+.h200 {height: 20rem;}
 .h120 {height: 12rem;}
 .h110 {height: 11rem;}
 .h100 {height: 10rem;}
