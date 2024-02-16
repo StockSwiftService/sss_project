@@ -1,6 +1,7 @@
 package org.example.stockswiftservice.domain.member.controller;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -11,12 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/member", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
@@ -24,15 +27,6 @@ public class MemberController {
     private final MemberService memberService;
 
 
-    @Data
-    public static class LoginRequest {
-        @NotNull
-        private String username;
-        @NotNull
-        private String password;
-        @NotNull
-        private String companyCode;
-    }
     @Getter
     public static class loginresponse {
 
@@ -44,12 +38,23 @@ public class MemberController {
             this.refreshToken = refreshToken;
         }
     }
+
+    @Data
+    public static class LoginRequest {
+        @NotNull
+        private String username;
+        @NotNull
+        private String password;
+        @NotNull
+        private String companyCode;
+    }
+
     @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
     public RsData<loginresponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse resp) {
 
-        boolean userCheck = this.memberService.userCheck(loginRequest.companyCode,loginRequest.username,loginRequest.password);
+        boolean userCheck = this.memberService.userCheck(loginRequest.companyCode, loginRequest.username, loginRequest.password);
 
-        if(userCheck) {
+        if (userCheck) {
             String accessToken = memberService.genAccessToken(loginRequest.getUsername(), loginRequest.getCompanyCode());
             String refreshToken = memberService.genRefreshToken(loginRequest.getUsername(), loginRequest.getCompanyCode());
 
@@ -58,19 +63,54 @@ public class MemberController {
             }
 
             // 쿠키에 액세스 토큰 저장
-            Cookie accessCookie = new Cookie("access_token", accessToken);
-            accessCookie.setHttpOnly(false);
-            resp.addCookie(accessCookie);
+//            Cookie accessCookie = new Cookie("access_token", accessToken);
+//            accessCookie.setSecure(true); //https 옵션 설정
+            ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
+                    .path("/")
+                    .sameSite("None")
+                    .secure(true)
+                    .httpOnly(true)
+                    .build();
 
-            // 쿠키에 리프레시 토큰 저장
-            Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-            refreshCookie.setHttpOnly(true);
-            resp.addCookie(refreshCookie);
+
+//            // 쿠키에 리프레시 토큰 저장
+//            Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
+//            refreshCookie.setHttpOnly(true);
+//            refreshCookie.setDomain("");
+//            refreshCookie.setMaxAge(60 * 60 * 24 * 365);
+//            resp.addCookie(refreshCookie);
+            ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
+                    .path("/")
+                    .sameSite("None")
+                    .secure(true)
+                    .httpOnly(true)
+                    .build();
+
+            resp.addHeader("Set-Cookie", accessCookie.toString());
+            resp.addHeader("Set-Cookie", refreshCookie.toString());
+//            resp.addHeader("Authentication", refreshCookie.toString());
+
 
             return RsData.of("S-1", "토큰이 생성되었습니다.", null);
-        }else {
+        } else {
             return RsData.of("Invalid username or password", null);
         }
 
+    }
+
+    public void TokenExtension(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("access_token".equals(cookie.getName())) {
+                    String accessToken = cookie.getValue();
+                    // 토큰을 사용하는 로직
+                }
+                if ("refresh_token".equals(cookie.getName())) {
+                    String refreshToken = cookie.getValue();
+                    // 토큰을 사용하는 로직
+                }
+            }
+        }
     }
 }

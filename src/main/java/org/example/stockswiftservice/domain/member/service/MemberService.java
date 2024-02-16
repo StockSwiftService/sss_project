@@ -42,15 +42,15 @@ public class MemberService {
 
 
 
-        return jwtProvider.genToken(member.toClaims(), 60 * 5);
+        return jwtProvider.genToken(member.toClaims(), 60 * 60 * member.getTokenLifeSpan());
     }
 
     private Optional<Member> findByUsernameAndCompanyCode(String username,String companyCode) {
-        Company optionalCompany = this.companyRepository.findByCompanyCode(companyCode).orElse(null);
-        return this.memberRepository.findByUsernameAndCompany(username,optionalCompany);
+        Company company = this.companyRepository.findByCompanyCode(companyCode).orElse(null);
+        return this.memberRepository.findByUsernameAndCompany(username,company);
     }
 
-    private Optional<Member> findByUsername(String username) {
+    public Optional<Member> findByUsername(String username) {
         return this.memberRepository.findByUsername(username);
     }
 
@@ -67,7 +67,7 @@ public class MemberService {
 
         if (member == null) return null;
 
-        return jwtProvider.genToken(member.toClaims(), 60 * 5);
+        return jwtProvider.genToken(member.toClaims(), 60 * 60 * member.getTokenLifeSpan());
     }
 
     public boolean userCheck(String companyCode, String username, String password) {

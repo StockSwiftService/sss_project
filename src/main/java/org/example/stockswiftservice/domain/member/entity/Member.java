@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
@@ -37,6 +38,10 @@ public class Member extends BaseEntity {
 
     //권한
     private int authority;
+
+    //토큰유지시간
+    @Setter
+    private int tokenLifeSpan = 4;
 
     //회사
     @ManyToOne

@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.member.service;
 
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
