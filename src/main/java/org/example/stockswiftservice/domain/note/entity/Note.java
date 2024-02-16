@@ -17,4 +17,7 @@ public class Note extends BaseEntity {
     private String sender;
     private String receiver;
     private Boolean isChecked;
+//    private Boolean isDeletedBySender;
+//    private Boolean isDeletedByReceiver;
+
 }

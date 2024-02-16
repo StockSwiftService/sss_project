@@ -5,7 +5,9 @@ import org.example.stockswiftservice.domain.note.entity.Note;
 import org.example.stockswiftservice.domain.note.repository.NoteRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,10 +32,10 @@ public class NoteService {
                 .build();
         return this.noteRepository.save(note);
     }
-    public Note modifyNote(Note note, String content) {
-        note.setContent(content);
-        return this.noteRepository.save(note);
-    }
+//    public Note modifyNote(Note note, String content) {
+//        note.setContent(content);
+//        return this.noteRepository.save(note);
+//    }
     public void deleteNote(Note note) {
         this.noteRepository.delete(note);
     }
@@ -64,4 +66,35 @@ public class NoteService {
         return count;
     }
 
+    public List<List<Note>> getCheckedList() {
+        List<Note> notes = this.noteRepository.findAll();
+        List<Note> checkedNoteList = new ArrayList<>();
+        List<Note> unCheckedNoteList = new ArrayList<>();
+        for (Note note : notes) {
+            if (note.getIsChecked()) {
+                checkedNoteList.add(note);
+            } else if(!note.getIsChecked()) {
+                unCheckedNoteList.add(note);
+            }
+        }
+        List<List<Note>> result = new ArrayList<>();
+        result.add(checkedNoteList);
+        result.add(unCheckedNoteList);
+        return result;
+    }
+    public Boolean deleteAfterDate(Note note) {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime sentDate = note.getCreateDate();
+        Duration duration = Duration.between(sentDate, today);
+        Long durationToDay = duration.toDays();
+
+        if (durationToDay >= 7) {
+            this.noteRepository.delete(note);
+            return true;
+        } else
+            return false;
+    }
+//    public List<Note> findNotesBySender() {
+//        this.noteRepository.findNotesByUsername()
+//    }
 }
