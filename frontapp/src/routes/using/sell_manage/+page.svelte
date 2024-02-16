@@ -27,6 +27,25 @@
     }
 </script>
 
+<style>
+    .approval-btn-box > button {
+        font-size: 12px;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #eee;
+        color: #777;
+    }
+    .approval-btn-box > button.active {
+        font-size: 12px;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #2656F6;
+        color: #fff;
+    }
+</style>
+
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
 
     <!-- 재고 등록 모달 -->
@@ -224,7 +243,9 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="w120">2024-02-16</td>
+                            <td class="w120">
+                                <button class="tdu c162b60">2024-02-16</button>
+                            </td>
                             <td class="w60">
                                 <span class="inblock cb">판매</span>
                             </td>
@@ -232,7 +253,9 @@
                             <td>50개</td>
                         </tr>
                         <tr>
-                            <td class="w120">2024-02-16</td>
+                            <td>
+                                <button class="tdu c162b60">2024-02-16</button>
+                            </td>
                             <td>
                                 <span class="inblock cr">구매</span>
                             </td>
@@ -247,7 +270,9 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="w120">2024-02-16</td>
+                            <td class="w120">
+                                <button class="tdu c162b60">2024-02-18</button>
+                            </td>
                             <td class="w60">
                                 <span class="inblock cb">판매</span>
                             </td>
@@ -255,7 +280,9 @@
                             <td>3개</td>
                         </tr>
                         <tr>
-                            <td class="w120">2024-02-16</td>
+                            <td>
+                                <button class="tdu c162b60">2024-02-18</button>
+                            </td>
                             <td>
                                 <span class="inblock cb">판매</span>
                             </td>
@@ -272,11 +299,23 @@
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">
-        <h1 class="tb c121619">재고 관리</h1>
+        <h1 class="tb c121619">판매 관리</h1>
     </div>
     <div class="cnt-box-1 cnt-box">
         <div class="top-area">
-            <div class="space-area-2 flex aic jce">
+            <div class="space-area-2 flex aic jcsb">
+                <div class="left-box flex aic">
+                    <div class="flex aic g8">
+                        <div class="input-type-2 f14 w200">
+                            <input type="date" placeholder="조회">
+                        </div>
+                        <span class="f14">~</span>
+                        <div class="input-type-2 f14 w200">
+                            <input type="date" placeholder="조회">
+                        </div>
+                        <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
+                    </div>
+                </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
                         <div class="search-box">
@@ -293,7 +332,11 @@
         </div>
         <div class="line"></div>
         <div class="middle-area">
-            <div class="all-text c121619 f14">
+            <div class="approval-btn-box flex aic g8">
+                <button class="active">미승인</button>
+                <button>승인</button>
+            </div>
+            <div class="all-text c121619 f14 mt16">
                 전체 <span class="number inblock cm tm">0</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
@@ -306,12 +349,11 @@
                                     <label for="all"></label>
                                 </div> 
                             </th>
-                            <th class="wsn">거래처명</th>
+                            <th class="wsn">일자</th>
+                            <th class="wsn">거래처</th>
                             <th class="wsn">품목명</th>
                             <th class="wsn">수량</th>
-                            <th class="wsn">구매 단가</th>
-                            <th class="wsn">판매 단가</th>
-                            <th class="wsn">이력</th>
+                            <th class="wsn">금액</th>
                             <th class="wsn">수정</th>
                         </tr>
                     </thead>
@@ -323,33 +365,11 @@
                                     <label for="v1"></label>
                                 </div> 
                             </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn tal">네모네모 스낵 100g</td>
-                            <td class="wsn">300</td>
-                            <td class="wsn">1,000</td>
-                            <td class="wsn">1,500</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={activateModalRecord}>이력</button>
-                            </td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v2">
-                                    <label for="v2"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn tal">네모네모 사탕 30g</td>
-                            <td class="wsn">500</td>
-                            <td class="wsn">500</td>
-                            <td class="wsn">800</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13">이력</button>
-                            </td>
+                            <td class="wsn">2024-02-14</td>
+                            <td class="wsn">(주)네모주식회사</td>
+                            <td class="wsn tal">네모네모 스낵 100g 외 2건</td>
+                            <td class="wsn">12개</td>
+                            <td class="wsn">120,000원</td>
                             <td class="wsn tac">
                                 <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
                             </td>
@@ -359,6 +379,7 @@
             </div>
             <div class="flex aic jcsb mt8">
                 <div class="flex aic g4">
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">승인</button>
                     <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
                 </div>
                 <div class="flex aic g4">
