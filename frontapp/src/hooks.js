@@ -6,7 +6,8 @@ export function fetchInterceptor(fetch) {
         const response = await fetch(input, init);
         if (!response.ok && response.status === 401) {
             alert("로그인 후 이용해 주세요.");
-            deleteAllCookies();
+            deleteAccessToken();
+            deleteRefreshToken();
           window.location.href = 'http://localhost:5173/';
         }
         return response;
@@ -15,7 +16,7 @@ export function fetchInterceptor(fetch) {
         throw error;
       }
     };
-  }
+}
 
 export function useFetch() {
   const fetch = window.fetch;
@@ -23,13 +24,14 @@ export function useFetch() {
 }
 
 
-function deleteAllCookies() {
-    const cookies = document.cookie.split(';');
+    function deleteCookie(name) {
+    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+     }
 
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf('=');
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-    }
-  }
+    function deleteAccessToken() {
+    deleteCookie('access_token');
+      }
+
+     function deleteRefreshToken() {
+    deleteCookie('refresh_token');
+     }
