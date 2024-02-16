@@ -38,6 +38,12 @@ public class Company extends BaseEntity {
     @Column(unique = true)
     private String companyCode;
 
+    //주소
+    private String address;
+
+    //상세주소
+    private String detailAddress;
+
     //승인여부
     @Setter
     private boolean isApproved = false;
