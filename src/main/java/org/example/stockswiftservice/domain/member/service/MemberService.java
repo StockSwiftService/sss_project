@@ -50,7 +50,7 @@ public class MemberService {
         return this.memberRepository.findByUsernameAndCompany(username,optionalCompany);
     }
 
-    private Optional<Member> findByUsername(String username) {
+    public Optional<Member> findByUsername(String username) {
         return this.memberRepository.findByUsername(username);
     }
 

@@ -57,7 +57,7 @@ public class CompanyController {
         @NotNull
         private String username;
 
-//        @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}")
+        //        @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}")
         //대표 비밀번호
         @NotNull
         private String password;
@@ -65,6 +65,14 @@ public class CompanyController {
         //대표 생일
         @NotNull
         private LocalDate birthday;
+
+        //주소
+        @NotNull
+        private String address;
+
+        //상세 주소
+        @NotNull
+        private String detailAddress;
     }
 
     @AllArgsConstructor
@@ -76,7 +84,7 @@ public class CompanyController {
     @PostMapping(value = "/join", consumes = APPLICATION_JSON_VALUE)
     public RsData<CompanyReponse> join(@Valid @RequestBody JoinRequest joinRequest, HttpServletResponse resp) {
 
-        Company companyCode = this.companyService.join(joinRequest.name, joinRequest.businessNumber, joinRequest.repName, joinRequest.email);
+        Company companyCode = this.companyService.join(joinRequest.name, joinRequest.businessNumber, joinRequest.repName, joinRequest.email, joinRequest.address, joinRequest.detailAddress);
         this.memberService.repJoin(joinRequest.repName, joinRequest.username, joinRequest.password, joinRequest.birthday, companyCode);
 
         return RsData.of("S-1", "가입 성공", null);
@@ -111,6 +119,7 @@ public class CompanyController {
     public static class BusinessNumberResponse {
         private final Optional<Company> company;
     }
+
     @Data
     public static class BusinessNumberRequest {
         @NotNull
@@ -125,7 +134,7 @@ public class CompanyController {
         if (businessNumber.isPresent()) {
             return RsData.of("S-2", "존재하는 사업자 번호", new BusinessNumberResponse(businessNumber));
         } else {
-            return RsData.of("S-3", "사업자 번호 사용 가능", null);
+            return RsData.of("S-3", "사업자 번호 등록 가능", null);
         }
     }
 
@@ -135,6 +144,7 @@ public class CompanyController {
     public static class UsernameResponse {
         private final Optional<Member> member;
     }
+
     @Data
     public static class UsernameRequest {
         @NotNull
@@ -148,6 +158,35 @@ public class CompanyController {
             return RsData.of("S-7", "아이디 중복", new UsernameResponse(username));
         } else {
             return RsData.of("S-8", "아이디 사용가능", null);
+        }
+    }
+
+
+    //아이디 찾기
+    @Data
+    public static class SearchCodeValue {
+        @NotNull
+        private String name;
+        @NotNull
+        @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
+        private String email;
+        @NotNull
+        private String businessNumber;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class CodeSearchResponse {
+        private final String company;
+    }
+
+    @PostMapping(value = "/code-search", consumes = ALL_VALUE)
+    public RsData<CodeSearchResponse> codeSearch(@Valid @RequestBody SearchCodeValue searchCodeValue) {
+        Optional<Company> company = companyService.findByNameAndEmailAndBusinessNumber(searchCodeValue.getName(), searchCodeValue.getEmail(), searchCodeValue.getBusinessNumber());
+        if (company != null) {
+            return RsData.of("S-9", "해당 회원의 아이디", new CodeSearchResponse("회원님의 회사 코드는 \"" + company.get().getCompanyCode() + "\" 입니다."));
+        } else {
+            return RsData.of("S-10", "해당 회원 없음", null);
         }
     }
 }

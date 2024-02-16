@@ -30,7 +30,7 @@ public class CompanyService {
             }
         }
     }
-    public Company join(String name, String businessNumber, String repName, String email) {
+    public Company join(String name, String businessNumber, String repName, String email, String address, String detailAddress) {
         String str = newCode();
         Company newCompany = Company.builder()
                 .name(name)
@@ -38,6 +38,8 @@ public class CompanyService {
                 .repName(repName)
                 .email(email)
                 .companyCode(str)
+                .address(address)
+                .detailAddress(detailAddress)
                 .build();
 
         this.companyRepository.save(newCompany);
@@ -49,5 +51,9 @@ public class CompanyService {
 
     public Optional<Company> findByBusinessNumber(String businessNumber) {
         return companyRepository.findByBusinessNumber(businessNumber);
+    }
+    public Optional<Company> findByNameAndEmailAndBusinessNumber(String name, String email, String businessNumber) {
+        return companyRepository.findByNameAndEmailAndBusinessNumber(name, email, businessNumber);
+
     }
 }

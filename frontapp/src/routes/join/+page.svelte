@@ -11,6 +11,8 @@
         password: '',
         passwordConfirm: '',
         birthday: '',
+        address: '',
+        detailAddress: ''
     };
     //인증번호 담을 변수
     let emailNum;
@@ -36,6 +38,81 @@
     //패스워드 확인
     let passwordConfirmErrorMessage = '';
     let passwordConfirmSuccessMessage = '';
+
+    let isEmailConfirmed = false; // 이메일 인증 여부
+    let isbusinessNumberConfirm = false; // 사업자 번호 인증 여부
+    let isAddress = false;
+    let isEmailDisabled = false;
+
+    let element_layer;
+
+    //주소 찾기 스크립트 추가
+    function loadScript() {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+            script.async = true;  //비동기로 로드됨
+            script.onload = resolve;  //호출 성공
+            script.onerror = reject;  //호출 실패
+            document.body.appendChild(script);  //생성된 script를 body에 추가
+        });
+    }
+
+    //클릭 시 창 열림
+    async function initDaumPostcode() {
+        element_layer = document.getElementById('layer');
+        await loadScript();
+        new daum.Postcode({
+            oncomplete: function (data) {
+                var addr = ''; // 주소 변수
+
+                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                    addr = data.roadAddress;
+                } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                    addr = data.jibunAddress;
+                }
+
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById("address").value = addr;
+                formData.address = addr;
+                document.getElementById("detailAddress").focus();
+                isAddress = true;
+                element_layer.style.display = 'none';
+            },
+            width: '100%',
+            height: '100%',
+            maxSuggestItems: 5
+        }).embed(element_layer);
+
+        element_layer.style.display = 'block';
+        initLayerPosition();
+
+        // 외부 클릭 이벤트를 감지
+        window.addEventListener('click', closeOnOutsideClick);
+    }
+
+    //창 닫기
+    function closeOnOutsideClick(event) {
+        // 클릭 이벤트가 주소 검색 창 외부에서 발생했을 경우, 주소 검색 창 닫기
+        if (element_layer && !element_layer.contains(event.target)) {
+            element_layer.style.display = 'none';
+            // 외부 클릭 이벤트 리스너를 제거
+            window.removeEventListener('click', closeOnOutsideClick);
+        }
+    }
+
+    function initLayerPosition() {
+        var width = 300; //우편번호서비스가 들어갈 element의 width
+        var height = 400; //우편번호서비스가 들어갈 element의 height
+        var borderWidth = 5; //샘플에서 사용하는 border의 두께
+
+        element_layer.style.width = width + 'px';
+        element_layer.style.height = height + 'px';
+        element_layer.style.border = borderWidth + 'px solid';
+
+        element_layer.style.left = (((window.innerWidth || document.documentElement.clientWidth) - width) / 2 - borderWidth) + 'px';
+        element_layer.style.top = (((window.innerHeight || document.documentElement.clientHeight) - height) / 2 - borderWidth) + 'px';
+    }
 
 
     //기업명 중복 검사
@@ -90,9 +167,11 @@
                 if (data.resultCode == 'S-3') {
                     businessNumberErrorMessage = ''
                     businessNumberSuccessMessage = '등록 가능한 사업자 번호 입니다'
+                    isbusinessNumberConfirm = true
                 } else {
                     businessNumberErrorMessage = '사용하실 수 없는 사업자 번호 입니다'
                     businessNumberSuccessMessage = ''
+                    isbusinessNumberConfirm = false
                 }
             }
         } catch (error) {
@@ -149,16 +228,18 @@
             if (userVerificationCode === emailNum && userVerificationCode !== null) {
                 emailNumberSuccessMessage = '인증이 완료되었습니다';
                 emailNumberErrorMessage = '';
+                isEmailConfirmed = true;
             } else {
                 emailNumberSuccessMessage = '';
                 emailNumberErrorMessage = '인증번호가 일치하지 않습니다';
+                isEmailConfirmed = false;
             }
         } catch (error) {
             console.error('오류 발생:', error);
         }
     }
 
-  //대표자 아이디 검증
+    //대표자 아이디 검증
     async function checkUsernameDuplicate() {
         try {
             const response = await fetch('http://localhost:8080/api/v1/company/check-username', {
@@ -209,32 +290,41 @@
 
     //회원가입 제출
     const joinSubmit = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/company/join', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // 회원가입 성공
-                if (data.resultCode === 'S-1') {
-                    window.location.href = '/';
-                    alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
+        if (formData != null && !isAddress) {
+            alert('주소를 입력해 주세요.')
+        } else if (formData != null && !isbusinessNumberConfirm) {
+            alert('사업자 번호를 다시 확인 해주세요.')
+        } else if (formData != null && !isEmailConfirmed) {
+            alert('이메일 코드를 다시 확인 해주세요.')
+        } else {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/company/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    // 회원가입 성공
+                    if (data.resultCode === 'S-1') {
+                        // window.location.href = '/';
+                        alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
+                    } else {
+                        // 회원가입 실패
+                        const errorMessage = data.errorMessage;
+                        console.error('가입 실패:', errorMessage);
+                    }
                 } else {
-                    // 회원가입 실패
-                    const errorMessage = data.errorMessage;
-                    console.error('가입 실패:', errorMessage);
+                    console.error('서버 응답 오류:', response.statusText);
+                    alert('양식을 모두 입력 해주세요.');
+                    return;
                 }
-            } else {
-                console.error('서버 응답 오류:', response.statusText);
-                alert('양식을 모두 입력 해주세요.');
-                return;
+            } catch (error) {
+                console.error('오류 발생:', error);
             }
-        } catch (error) {
-            console.error('오류 발생:', error);
         }
     }
 
@@ -254,6 +344,34 @@
                 <span class="f13 mt4 cg">{confirmNameSuccessMessage}</span>
             {/if}
         </div>
+
+        <div id="layer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
+        </div>
+        <div>
+            <h2 class="c333 f16 tm mb8">사업장 소재지<span class="cr f16 tm inblock">*</span></h2>
+            <div class="flex g8">
+                <div class="input-type-1 w100per">
+                    <input type="text" id="postcode" placeholder="우편번호" style="background-color: floralwhite"
+                           disabled>
+                </div>
+                <button class="btn-type-1 w80 f15 bdr4 b333 cfff" on:click|preventDefault={initDaumPostcode}>주소 검색
+                </button>
+                <br>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="c333 f16 tm mb8">[상세 주소]</h3>
+            <div class="input-type-1 w100per">
+                <input type="text" id="address" placeholder="주소" style="background-color: floralwhite" disabled
+                       >
+            </div>
+            <br>
+            <div class="input-type-1 w100per">
+                <input type="text" id="detailAddress" placeholder="상세주소" bind:value={formData.detailAddress}>
+            </div>
+        </div>
+
         <div>
             <h2 class="c333 f16 tm mb8">사업자 번호<span class="cr f16 tm inblock">*</span></h2>
             <div class="flex g8">
@@ -306,7 +424,8 @@
         <div>
             <h2 class="c333 f16 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
             <div class="input-type-1 w100per">
-                <input type="text" placeholder="아이디" bind:value={formData.username} on:input={checkUsernameDuplicate}>
+                <input type="text" placeholder="아이디" bind:value={formData.username}
+                       on:input={checkUsernameDuplicate}>
             </div>
             {#if usernameErrorMessage}
                 <span class="f13 mt4 cr">{usernameErrorMessage}</span>
@@ -318,7 +437,8 @@
         <div>
             <h2 class="c333 f16 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
             <div class="input-type-1 w100per">
-                <input type="password" placeholder="비밀번호" bind:value={formData.password} on:input={validatePassword}>
+                <input type="password" placeholder="비밀번호" bind:value={formData.password}
+                       on:input={validatePassword}>
             </div>
             {#if passwordErrorMessage}
                 <span class="f13 mt4 cr">{passwordErrorMessage}</span>
@@ -327,7 +447,8 @@
                 <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
             {/if}
             <div class="input-type-1 w100per mt8">
-                <input type="password" placeholder="비밀번호 확인" bind:value={formData.passwordConfirm} on:input={confirmValidatePassword}>
+                <input type="password" placeholder="비밀번호 확인" bind:value={formData.passwordConfirm}
+                       on:input={confirmValidatePassword}>
             </div>
             {#if passwordConfirmErrorMessage}
                 <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
