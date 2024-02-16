@@ -17,28 +17,28 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
 
 @RestController
-@RequestMapping(value = "/api/v1", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/purchase", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class PurchaseController {
     private final PurchaseService purchaseService;
 
     @Data
-    public static class CreatePurchase {
+    public static class ApprovalPurchase {
         private Long purchaseTotal;
         private String purchaseDate;
     }
 
     @AllArgsConstructor
     @Getter
-    public static class CreatePur {
+    public static class ApprovalPur {
         private final Purchase purchase;
     }
 
-    @PostMapping(value = "/create", consumes = ALL_VALUE)
-    public RsData<CreatePur> create(@Valid @RequestBody CreatePurchase createPurchase ){
+    @PostMapping(value = "/approval", consumes = ALL_VALUE)
+    public RsData<ApprovalPur> create(@Valid @RequestBody ApprovalPurchase createPurchase ){
 
         Purchase purchases = purchaseService.create(createPurchase.getPurchaseTotal(), createPurchase.getPurchaseDate());
 
-        return RsData.of("R-1", "성공", new CreatePur(purchases));
+        return RsData.of("R-1", "성공", new ApprovalPur(purchases));
     }
 }

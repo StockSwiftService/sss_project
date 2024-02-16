@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
-import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagemant;
+import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
 
 @RestController
-@RequestMapping(value = "/api/v1", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/salesmanagement", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class SalesManagementController {
     private final SalesManagementService saleManagementService;
@@ -30,13 +30,14 @@ public class SalesManagementController {
     @AllArgsConstructor
     @Getter
     public static class CreateSM {
-        private final SalesManagemant salesManagemant;
+        private SalesManagement salesManagement;
     }
 
+    // 승인 요청을 받았을 경우
     @PostMapping(value = "/sales", consumes = ALL_VALUE)
     public RsData<CreateSM> CreateSalesM(@RequestBody CreateSalesManagement createSalesManagement){
-       SalesManagemant salesManagemant = saleManagementService.getTrueParchaseTotal(createSalesManagement.getPurchase());
+       SalesManagement salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchase());
 
-        return RsData.of("R-1", "성공", new CreateSM(salesManagemant));
+        return RsData.of("R-1", "성공", new CreateSM(salesManagement));
     }
 }

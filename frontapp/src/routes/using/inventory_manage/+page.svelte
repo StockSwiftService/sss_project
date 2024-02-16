@@ -41,16 +41,11 @@
             <div class="flex fdc g36">
                 <div>
                     <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="거래처명" readonly>
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">찾기</button>
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 선택 항목입니다.</span>

@@ -27,5 +27,15 @@
 		"vite": "^5.0.3",
 		"vitest": "^1.2.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@fullcalendar/core": "^6.1.10",
+		"@fullcalendar/daygrid": "^6.1.10",
+		"calendarize": "^1.1.1",
+		"dayjs": "^1.11.10",
+		"fullcalendar": "^6.1.10",
+		"fullcalendar-scheduler": "^6.1.10",
+		"just-throttle": "^4.2.0",
+		"svelte-calendar": "^3.1.6"
+	}
 }

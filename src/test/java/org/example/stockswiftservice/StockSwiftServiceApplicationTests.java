@@ -2,7 +2,7 @@ package org.example.stockswiftservice;
 
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
-import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagemant;
+import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.repository.SalesManagementRepository;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class StockSwiftServiceApplicationTests {
 //            System.out.println(0);
 //        }
 
-        SalesManagemant salesManagemant = salesManagementService.getTrueParchaseTotal(purchase);
+        SalesManagement salesManagemant = salesManagementService.printTotalSales(purchase);
 //        System.out.println(salesManagemant);
     }
 }
