@@ -42,7 +42,6 @@
     let isEmailConfirmed = false; // 이메일 인증 여부
     let isbusinessNumberConfirm = false; // 사업자 번호 인증 여부
     let isAddress = false;
-    let isEmailDisabled = false;
 
     let element_layer;
 
@@ -181,6 +180,7 @@
 
     //이메일
     async function emailButton() {
+
         try {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식을 나타내는 정규 표현식
             if (!emailRegex.test(formData.email.trim())) {
@@ -364,7 +364,7 @@
             <h3 class="c333 f16 tm mb8">[상세 주소]</h3>
             <div class="input-type-1 w100per">
                 <input type="text" id="address" placeholder="주소" style="background-color: floralwhite" disabled
-                       >
+                >
             </div>
             <br>
             <div class="input-type-1 w100per">
@@ -388,33 +388,77 @@
                 <span class="f13 mt4 cg">{businessNumberSuccessMessage}</span>
             {/if}
         </div>
-        <div>
-            <h2 class="c333 f16 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
-            <div class="flex g8">
-                <div class="input-type-1 w100per">
-                    <input type="text" placeholder="이메일" bind:value={formData.email}>
+
+        {#if !isEmailConfirmed}
+            <div>
+                <h2 class="c333 f16 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
+                <div class="flex g8">
+                    <div class="input-type-1 w100per">
+                        <input type="text" placeholder="이메일" bind:value={formData.email}>
+                    </div>
+                    <button class="btn-type-1 w80 f15 bdr4 b333 cfff" on:click|preventDefault={emailButton}>
+                        전송
+                    </button>
                 </div>
-                <button class="btn-type-1 w80 f15 bdr4 b333 cfff" on:click|preventDefault={emailButton}>전송</button>
-            </div>
-            {#if emailErrorMessage}
-                <span class="f13 mt4 cr">{emailErrorMessage}</span>
-            {/if}
-            {#if emailSuccessMessage}
-                <span class="f13 mt4 cg">{emailSuccessMessage}</span>
-            {/if}
-            <div class="flex g8 mt8">
-                <div class="input-type-1 w100per">
-                    <input type="text" placeholder="인증 번호" id="userVerificationCode">
+                {#if emailErrorMessage}
+                    <span class="f13 mt4 cr">{emailErrorMessage}</span>
+                {/if}
+                {#if emailSuccessMessage}
+                    <span class="f13 mt4 cg">{emailSuccessMessage}</span>
+                {/if}
+
+                <div class="flex g8 mt8">
+                    <div class="input-type-1 w100per">
+                        <input type="text" placeholder="인증 번호" id="userVerificationCode">
+                    </div>
+                    <button class="btn-type-1 w80 f15 bdr4 b333 cfff" on:click|preventDefault={emailConfirm}>
+                        확인
+                    </button>
                 </div>
-                <button class="btn-type-1 w80 f15 bdr4 b333 cfff" on:click|preventDefault={emailConfirm}>확인</button>
+                {#if emailNumberErrorMessage}
+                    <span class="f13 mt4 cr">{emailNumberErrorMessage}</span>
+                {/if}
+                {#if emailNumberSuccessMessage}
+                    <span class="f13 mt4 cg">{emailNumberSuccessMessage}</span>
+                {/if}
             </div>
-            {#if emailNumberErrorMessage}
-                <span class="f13 mt4 cr">{emailNumberErrorMessage}</span>
-            {/if}
-            {#if emailNumberSuccessMessage}
-                <span class="f13 mt4 cg">{emailNumberSuccessMessage}</span>
-            {/if}
-        </div>
+        {/if}
+
+        {#if isEmailConfirmed}
+            <div>
+                <h2 class="c333 f16 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
+                <div class="flex g8">
+                    <div class="input-type-1 w100per">
+                        <input type="text" placeholder="이메일" style="background-color: floralwhite" bind:value={formData.email} disabled>
+                    </div>
+                    <button class="btn-type-1 w80 f15 bdr4 b333 cfff" disabled on:click|preventDefault={emailButton}>
+                        전송
+                    </button>
+                </div>
+                {#if emailErrorMessage}
+                    <span class="f13 mt4 cr">{emailErrorMessage}</span>
+                {/if}
+                {#if emailSuccessMessage}
+                    <span class="f13 mt4 cg">{emailSuccessMessage}</span>
+                {/if}
+
+                <div class="flex g8 mt8">
+                    <div class="input-type-1 w100per">
+                        <input type="text" placeholder="인증 완료" id="userVerificationCode" style="background-color: floralwhite" disabled>
+                    </div>
+                    <button class="btn-type-1 w80 f15 bdr4 b333 cfff" disabled on:click|preventDefault={emailConfirm}>
+                        확인
+                    </button>
+                </div>
+                <!--{#if emailNumberErrorMessage}-->
+                <!--    <span class="f13 mt4 cr">{emailNumberErrorMessage}</span>-->
+                <!--{/if}-->
+                <!--{#if emailNumberSuccessMessage}-->
+                <!--    <span class="f13 mt4 cg">{emailNumberSuccessMessage}</span>-->
+                <!--{/if}-->
+            </div>
+        {/if}
+
         <div>
             <h2 class="c333 f16 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
             <div class="input-type-1 w100per">
