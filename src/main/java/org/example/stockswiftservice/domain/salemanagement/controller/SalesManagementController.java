@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -30,13 +32,13 @@ public class SalesManagementController {
     @AllArgsConstructor
     @Getter
     public static class CreateSM {
-        private final SalesManagement salesManagement;
+        private final List<SalesManagement> salesManagement;
     }
 
     // 승인 요청을 받았을 경우
     @PostMapping(value = "/sales", consumes = MediaType.APPLICATION_JSON_VALUE)
     public RsData<CreateSM> CreateSalesM(@RequestBody CreateSalesManagement createSalesManagement){
-        SalesManagement salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchaseId());
+        List<SalesManagement> salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchaseId());
         return RsData.of("R-1", "성공", new CreateSM(salesManagement));
     }
 
