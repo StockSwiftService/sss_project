@@ -36,6 +36,8 @@
 		"fullcalendar": "^6.1.10",
 		"fullcalendar-scheduler": "^6.1.10",
 		"just-throttle": "^4.2.0",
-		"svelte-calendar": "^3.1.6"
+		"svelte-calendar": "^3.1.6",
+        "@types/jquery": "^3.5.29",
+        "jquery": "^3.7.1"
 	}
 }

@@ -1,8 +1,10 @@
 <script>
     let isActive = false;
+    let isActive2 = false;
     let isActiveAdd = false;
     let isActiveModifi = false;
     let isActiveRecord = false;
+    let isActiveAccountSearch = false;
 
     function activateModalAdd() {
         isActive = true;
@@ -19,15 +21,25 @@
         isActiveRecord = true;
     }
 
+    function activateModalAccountSearch() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
+    }
+
     function deactivateModal() {
         isActive = false;
         isActiveAdd = false;
         isActiveModifi = false;
         isActiveRecord = false;
     }
+
+    function deactivateAccountSearchModal() {
+        isActive2 = false;
+        isActiveAccountSearch = false;
+    }
 </script>
 
-<div class="modal-area wh100per fixed zi9" class:active="{isActive}">
+<div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
 
     <!-- 재고 등록 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
@@ -45,7 +57,7 @@
                         <div class="input-type-1 f14 w100per">
                             <input type="text" placeholder="거래처명" readonly>
                         </div>
-                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">찾기</button>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기</button>
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
@@ -112,16 +124,11 @@
             <div class="flex fdc g36">
                 <div>
                     <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="거래처명" readonly>
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기</button>
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
@@ -139,6 +146,15 @@
                         <span class="f13 mt8 cr">중복된 품목명입니다.</span>
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                         <span class="f13 mt8 cg">사용할 수 있는 품목명입니다.</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">수량<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="input-type-1 f14 w100per">
+                        <input type="text" placeholder="수량">
+                    </div>
+                    <div class="error-text-box">
+                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
                     </div>
                 </div>
                 <div>
@@ -188,11 +204,11 @@
                     </span>
                 </div>
                 <div class="flex aic g8">
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <span class="f14">~</span>
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
@@ -265,6 +281,52 @@
 
 </div>
 
+<div class="modal-area-2 modal-area wh100per fixed zi10" class:active="{isActive2}">
+
+    <!-- 거래처 찾기 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi10 w480" class:active="{isActiveAccountSearch}">
+        <div class="top-box rel">
+            <h3 class="tb c121619 f18">거래처 찾기</h3>
+            <button class="x-btn img-box abs" on:click="{deactivateAccountSearchModal}">
+                <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
+            </button>
+        </div>
+        <div class="middle-box scr-type-1">
+            <div class="search-type-1 flex aic">
+                <div class="search-box w100per">
+                    <input type="search" placeholder="거래처명">
+                </div>
+                <button class="search-btn flex aic jcc">
+                    <span class="ico-box img-box w16">
+                        <img src="/img/ico_search.svg" alt="검색 아이콘">
+                    </span>
+                </button>
+            </div>
+            <div class="table-type-3 scr-type-2 mt20">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="wsn">거래처명</th>
+                            <th class="wsn">대표자명</th>
+                            <th class="wsn">연락처</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="wsn">
+                                <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
+                            </td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">01033333333</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">
         <h1 class="tb c121619">재고 관리</h1>
@@ -274,7 +336,7 @@
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box">
+                        <div class="search-box w200">
                             <input type="search" placeholder="검색어 입력">
                         </div>
                         <button class="search-btn flex aic jcc">

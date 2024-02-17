@@ -19,7 +19,7 @@
                 </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box">
+                        <div class="search-box w200">
                             <input type="search" placeholder="검색어 입력">
                         </div>
                         <button class="search-btn flex aic jcc">

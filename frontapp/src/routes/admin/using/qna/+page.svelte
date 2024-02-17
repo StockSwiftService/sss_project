@@ -20,7 +20,7 @@
     }
 </script>
 
-<div class="modal-area wh100per fixed zi9" class:active="{isActive}">
+<div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
 
     <!-- 질문 등록 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w600" class:active="{isActiveAdd}">
@@ -43,7 +43,7 @@
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="textarea-type-1 f14 w100per">
+                    <div class="textarea-type-1 f14 w100per h200">
                         <textarea placeholder="내용"></textarea>
                     </div>
                     <div class="error-text-box">
@@ -79,7 +79,7 @@
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="textarea-type-1 f14 w100per">
+                    <div class="textarea-type-1 f14 w100per h200">
                         <textarea placeholder="내용">수정내용입니다.</textarea>
                     </div>
                     <div class="error-text-box">
