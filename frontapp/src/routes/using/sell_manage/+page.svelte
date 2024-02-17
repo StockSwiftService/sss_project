@@ -46,75 +46,181 @@
     }
 </style>
 
-<div class="modal-area wh100per fixed zi9" class:active="{isActive}">
+<div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
 
-    <!-- 재고 등록 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
+    <!-- 판매 등록 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveAdd}">
         <div class="top-box rel">
-            <h3 class="tb c121619 f18">재고 등록</h3>
+            <h3 class="tb c121619 f18">판매 등록</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <div class="flex fdc g36">
-                <div>
-                    <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">품목명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="flex g8">
-                        <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="품목명">
+            <div class="chit-box flex fdc g12">
+                <ul class="w100per flex aic g20">
+                    <li class="flex aic g12">
+                        <span class="title-text f14 c333">일자</span>
+                        <div class="input-box input-type-2 f14 w140">
+                            <input type="date" placeholder="일자">
                         </div>
-                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">중복된 품목명입니다.</span>
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                        <span class="f13 mt8 cg">사용할 수 있는 품목명입니다.</span>
+                    </li>
+                    <li class="flex aic g12">
+                        <span class="title-text f14 c333">거래처</span>
+                        <div class="input-box flex aic g8 w200">
+                            <div class="input-type-2 f14 w100per">
+                                <input type="text" placeholder="거래처명" readonly>
+                            </div>
+                            <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" style="min-width: 60px;">찾기</button>
+                        </div>
+                    </li>
+                    <li class="flex aic g12">
+                        <span class="title-text f14 c333">연락처</span>
+                        <div class="input-box input-type-2 f14">
+                            <input type="text" placeholder="연락처" readonly>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="w100per flex aic g20">
+                    <li class="flex aic g12" style="width:67%">
+                        <span class="title-text f14 c333">주소</span>
+                        <div class="input-box input-type-2 f14 w100per">
+                            <input type="text" placeholder="주소" readonly>
+                        </div>
+                    </li>
+                    <li class="flex aic g12" style="width:calc(33% - 20px)">
+                        <span class="title-text f14 c333">출고 여부</span>
+                        <div class="check-type-1">
+                            <input type="checkbox" id="w1">
+                            <label for="w1"></label>
+                        </div>
+                    </li>
+                </ul>
+                <div class="w100per">
+                    <div class="flex aic g12">
+                        <span class="title-text f14 c333">특이사항</span>
+                        <div class="input-box textarea-type-1 f14 w100per h60">
+                            <textarea placeholder="특이사항"></textarea>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">수량<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="수량">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">구매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="구매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">판매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="판매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
+
+            </div>
+            <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
+            <div class="table-type-3 scr-type-2 rel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="wsn" style="width: 44px; min-width:44px;">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="all">
+                                    <label for="all"></label>
+                                </div> 
+                            </th>
+                            <th class="wsn">품목명</th>
+                            <th class="wsn" style="width: 100px; min-width:100px;">수량</th>
+                            <th class="wsn" style="width: 140px; min-width:140px;">단가</th>
+                            <th class="wsn" style="width: 160px; min-width:160px;">금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량">
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <tr class="last">
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn"></td>
+                            <td class="wsn">12,000,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">추가</button> <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
@@ -212,11 +318,11 @@
                     </span>
                 </div>
                 <div class="flex aic g8">
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <span class="f14">~</span>
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
@@ -306,11 +412,11 @@
             <div class="space-area-2 flex aic jcsb">
                 <div class="left-box flex aic">
                     <div class="flex aic g8">
-                        <div class="input-type-2 f14 w200">
+                        <div class="input-type-2 f14 w140">
                             <input type="date" placeholder="조회">
                         </div>
                         <span class="f14">~</span>
-                        <div class="input-type-2 f14 w200">
+                        <div class="input-type-2 f14 w140">
                             <input type="date" placeholder="조회">
                         </div>
                         <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
@@ -318,7 +424,7 @@
                 </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box">
+                        <div class="search-box w200">
                             <input type="search" placeholder="검색어 입력">
                         </div>
                         <button class="search-btn flex aic jcc">
@@ -354,7 +460,7 @@
                             <th class="wsn">품목명</th>
                             <th class="wsn">수량</th>
                             <th class="wsn">금액</th>
-                            <th class="wsn">수정</th>
+                            <th class="wsn">출고 여부</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -365,14 +471,30 @@
                                     <label for="v1"></label>
                                 </div> 
                             </td>
-                            <td class="wsn">2024-02-14</td>
-                            <td class="wsn">(주)네모주식회사</td>
+                            <td class="wsn">
+                                <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">2024-02-14</button>
+                            </td>
+                            <td class="wsn">김철수</td>
                             <td class="wsn tal">네모네모 스낵 100g 외 2건</td>
                             <td class="wsn">12개</td>
                             <td class="wsn">120,000원</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
+                            <td class="wsm"></td>
+                        </tr>
+                        <tr>
+                            <td class="wsn" style="width: 44px;">   
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v2">
+                                    <label for="v2"></label>
+                                </div> 
                             </td>
+                            <td class="wsn">
+                                <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">2024-02-14</button>
+                            </td>
+                            <td class="wsn">김유리</td>
+                            <td class="wsn tal">네모네모 사탕 30g 외 10건</td>
+                            <td class="wsn">24개</td>
+                            <td class="wsn">540,000원</td>
+                            <td class="wsm">완료</td>
                         </tr>
                     </tbody>
                 </table>
