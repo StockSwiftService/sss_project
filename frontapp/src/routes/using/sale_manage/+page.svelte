@@ -46,7 +46,7 @@
         calendar.render();
 
         try {
-            let purchaseId = 1;  // 필요한 purchaseId 값을 지정하세요.
+            let purchaseId = 1;
 
             const response = await fetch('http://localhost:8080/api/v1/sales', {
                 method: 'POST',
@@ -62,7 +62,6 @@
 
                 localStorage.setItem('salesData', JSON.stringify(salesData));
 
-                // 판매 관리 목록을 순회하면서 각 항목을 이벤트로 추가합니다.
                 salesData.data.salesManagement.forEach(sale => {
                     console.log(sale.dailyTotalSales)
                     console.log(sale.dailySalesNumber)
@@ -77,7 +76,7 @@
                 });
             }
         } catch (error) {
-            console.error('오류 발생:', error);
+            console.error('우에엥 오류발생했떠여:', error);
         }
     });
 </script>
