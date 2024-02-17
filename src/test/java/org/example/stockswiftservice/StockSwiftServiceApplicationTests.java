@@ -3,7 +3,6 @@ package org.example.stockswiftservice;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
-import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ class StockSwiftServiceApplicationTests {
 
         LocalDate date = purchase.getPurchaseDate();
 
-        SalesManagement salesManagemant = salesManagementService.printTotalSales(1L);
+        salesManagementService.printTotalSales(1L);
 //        System.out.println(salesManagemant);
     }
 }

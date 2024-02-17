@@ -59,27 +59,27 @@
             if (response.ok) {
                 const salesData = await response.json();
                 console.log(salesData.data.salesManagement)
-                console.log(salesData.data.salesManagement.id)
 
                 localStorage.setItem('salesData', JSON.stringify(salesData));
 
-                let sale = salesData.data.salesManagement;
-                console.log(sale.dailyTotalSales)
-                console.log(sale.dailySalesNumber)
-                console.log(sale.salesDate)
-                calendar.addEvent({
-                    title: sale.dailyTotalSales + '원',
-                    description: sale.dailySalesNumber + '건',
-                    start: sale.salesDate,
-                    color: 'white',
-                    textColor: 'black',
+                // 판매 관리 목록을 순회하면서 각 항목을 이벤트로 추가합니다.
+                salesData.data.salesManagement.forEach(sale => {
+                    console.log(sale.dailyTotalSales)
+                    console.log(sale.dailySalesNumber)
+                    console.log(sale.salesDate)
+                    calendar.addEvent({
+                        title: sale.dailyTotalSales + '원',
+                        description: sale.dailySalesNumber + '건',
+                        start: sale.salesDate,
+                        color: 'white',
+                        textColor: 'black',
+                    });
                 });
             }
         } catch (error) {
             console.error('오류 발생:', error);
         }
     });
-
 </script>
 
 <div class="store-management-area cnt-area w100per">

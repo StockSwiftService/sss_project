@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,7 +40,7 @@ public class SalesManagementService {
             return createSalesManagement;
         }
     }
-    public SalesManagement printTotalSales(Long purchaseId){
+    public List<SalesManagement> printTotalSales(Long purchaseId){
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
 
@@ -68,12 +69,14 @@ public class SalesManagementService {
         salesManagement.setWeekTotalSales(weeklySales);
         salesManagement.setMonthTotalSales(monthlySales);
         salesManagement.setDailySalesNumber(dailyNum);
-        salesManagement.setWeekSalesNumber(weekNum );
+        salesManagement.setWeekSalesNumber(weekNum);
         salesManagement.setMonthSalesNumber(monthNum);
 
         saleManagementRepository.save(salesManagement);
 
-        return salesManagement;
+        List<SalesManagement> salesManagementList = saleManagementRepository.findAll();
+
+        return salesManagementList;
     }
 
 //    public SalesManagement getSalesManagement(Purchase purchase){
