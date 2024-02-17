@@ -10,9 +10,16 @@
     let isActiveRecord = false;
     let isActive = false;
 
-    function handleEventClick() {
+    // 날짜의 매출을 클릭하면 해당 날짜가 포함된 구매 혹은 판매 리스트를 출력 시키게 구현 해야함
+    function handleEventClick(info) {
         isActiveRecord = true;
         isActive = true;
+
+        let startDate = info.event.start;
+        // 날짜형식을 yyyy-mm-dd형식으로 바꾸는 구문
+        let startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+        // 여기에 fetch를 사용해서 해당 날짜가 포함된 구매 판매 리스트를 갖고올 예정 post형식으로
+        console.log(startDateStr)
     }
 
     function deactivateModal() {
@@ -60,12 +67,10 @@
                 const salesData = await response.json();
                 console.log(salesData.data.salesManagement)
 
-                localStorage.setItem('salesData', JSON.stringify(salesData));
-
                 salesData.data.salesManagement.forEach(sale => {
-                    console.log(sale.dailyTotalSales)
-                    console.log(sale.dailySalesNumber)
-                    console.log(sale.salesDate)
+                    // console.log(sale.dailyTotalSales)
+                    // console.log(sale.dailySalesNumber)
+                    // console.log(sale.salesDate)
                     calendar.addEvent({
                         title: sale.dailyTotalSales + '원',
                         description: sale.dailySalesNumber + '건',
@@ -95,7 +100,7 @@
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
 <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveRecord}">
     <div class="top-box rel">
-        <h3 class="tb c121619 f18">재고 이력</h3>
+        <h3 class="tb c121619 f18">매출 관리</h3>
         <button class="x-btn img-box abs" on:click="{deactivateModal}">
             <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
         </button>
