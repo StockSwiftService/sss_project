@@ -1,4 +1,4 @@
-package org.example.stockswiftservice.domain.global.mvcConfig;
+package org.example.stockswiftservice.global.mvcConfig;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
