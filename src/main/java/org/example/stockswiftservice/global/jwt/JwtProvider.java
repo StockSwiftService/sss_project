@@ -1,9 +1,9 @@
-package org.example.stockswiftservice.domain.global.jwt;
+package org.example.stockswiftservice.global.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.example.stockswiftservice.domain.global.util.Util;
+import org.example.stockswiftservice.global.util.Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
