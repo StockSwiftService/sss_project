@@ -1,8 +1,11 @@
 <script>
     let isActive = false;
+    let isActive2 = false;
+
     let isActiveAdd = false;
     let isActiveModifi = false;
-    let isActiveRecord = false;
+    let isActiveAccountSearch = false;
+    let isActiveStockSearch = false;
 
     function activateModalAdd() {
         isActive = true;
@@ -14,17 +17,42 @@
         isActiveModifi = true;
     }
 
-    function activateModalRecord() {
-        isActive = true;
-        isActiveRecord = true;
+    function activateModalAccountSearch() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
     }
 
     function deactivateModal() {
         isActive = false;
         isActiveAdd = false;
         isActiveModifi = false;
-        isActiveRecord = false;
     }
+
+    function deactivateAccountSearchModal() {
+        isActive2 = false;
+        isActiveAccountSearch = false;
+        isActiveStockSearch = false;
+    }
+
+    //날짜 value 오늘 날짜로 초기 데이터 입력
+    let today = new Date().toISOString().split('T')[0];
+
+    let itemName = '';
+    let searchItemName = '';
+
+    function itemNameKeyUp(event) {
+        if (event.key === 'Enter') {
+            isActive2 = true;
+            isActiveStockSearch = true;
+            searchItemName = itemName;
+        }
+    }
+
+
+    // const accountFind = async () => {
+    //     let response = await fetch('http://localhost:8080/api/v1/purchase/accountFind');
+    //     let result = await response.json();
+    // };
 </script>
 
 <style>
@@ -62,7 +90,7 @@
                     <li class="flex aic g12">
                         <span class="title-text f14 c333">일자</span>
                         <div class="input-box input-type-2 f14 w140">
-                            <input type="date" placeholder="일자">
+                            <input type="date" bind:value={today} placeholder="일자">
                         </div>
                     </li>
                     <li class="flex aic g12">
@@ -71,7 +99,7 @@
                             <div class="input-type-2 f14 w100per">
                                 <input type="text" placeholder="거래처명" readonly>
                             </div>
-                            <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" style="min-width: 60px;">찾기</button>
+                            <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" style="min-width: 60px;" on:click={activateModalAccountSearch}>찾기</button>
                         </div>
                     </li>
                     <li class="flex aic g12">
@@ -133,7 +161,7 @@
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명">
+                                    <input type="text" placeholder="품목명" bind:value={itemName} on:keydown={itemNameKeyUp}>
                                 </div>
                             </td>
                             <td class="wsn">
@@ -297,103 +325,87 @@
         </div>
     </div>
 
-    <!-- 재고 이력 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveRecord}">
+</div>
+
+<div class="modal-area-2 modal-area wh100per fixed zi10" class:active="{isActive2}">
+
+    <!-- 거래처 찾기 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi10 w480" class:active="{isActiveAccountSearch}">
         <div class="top-box rel">
-            <h3 class="tb c121619 f18">재고 이력</h3>
-            <button class="x-btn img-box abs" on:click="{deactivateModal}">
+            <h3 class="tb c121619 f18">거래처 찾기</h3>
+            <button class="x-btn img-box abs" on:click="{deactivateAccountSearchModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <div class="flex aic jcsb">
-                <div class="select-type-4 w100 f14 rel">
-                    <select name="account">
-                        <option value="">전체</option>
-                        <option value="">판매</option>
-                        <option value="">구매</option>
-                    </select>
-                    <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
+            <div class="search-type-1 flex aic">
+                <div class="search-box w100per">
+                    <input type="search" placeholder="거래처명">
+                </div>
+                <button class="search-btn flex aic jcc">
+                    <span class="ico-box img-box w16">
+                        <img src="/img/ico_search.svg" alt="검색 아이콘">
                     </span>
-                </div>
-                <div class="flex aic g8">
-                    <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <span class="f14">~</span>
-                    <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
-                </div>
+                </button>
             </div>
-            <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
-            <h1 class="f14 c777 tm">거래처명 : (주)네모컴퍼니 | 품목명 : 네모네모 스넥 100g</h1>
-            <div class="table-type-2 mt12">
+            <div class="table-type-3 scr-type-2 mt20">
                 <table>
                     <thead>
                         <tr>
-                            <th colspan="4">2024-02-10</th>
+                            <th class="wsn">거래처명</th>
+                            <th class="wsn">대표자명</th>
+                            <th class="wsn">연락처</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="4">기존 재고 : 50개</td>
+                            <td class="wsn">
+                                <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
+                            </td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">01033333333</td>
                         </tr>
                     </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--  품목 찾기 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi10 w480" class:active="{isActiveStockSearch}">
+        <div class="top-box rel">
+            <h3 class="tb c121619 f18">품목 찾기</h3>
+            <button class="x-btn img-box abs" on:click="{deactivateAccountSearchModal}">
+                <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
+            </button>
+        </div>
+        <div class="middle-box scr-type-1">
+            <div class="search-type-1 flex aic">
+                <div class="search-box w100per">
+                    <input type="search" placeholder="거래처명" bind:value={searchItemName}>
+                </div>
+                <button class="search-btn flex aic jcc">
+                    <span class="ico-box img-box w16">
+                        <img src="/img/ico_search.svg" alt="검색 아이콘">
+                    </span>
+                </button>
+            </div>
+            <div class="table-type-3 scr-type-2 mt20">
+                <table>
                     <thead>
                         <tr>
-                            <th colspan="4">2024-02-16</th>
+                            <th class="wsn">거래처명</th>
+                            <th class="wsn">대표자명</th>
+                            <th class="wsn">연락처</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="w120">
-                                <button class="tdu c162b60">2024-02-16</button>
+                            <td class="wsn">
+                                <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
                             </td>
-                            <td class="w60">
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>김네모</td>
-                            <td>50개</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <button class="tdu c162b60">2024-02-16</button>
-                            </td>
-                            <td>
-                                <span class="inblock cr">구매</span>
-                            </td>
-                            <td>(주)네모컴퍼니</td>
-                            <td>50개</td>
-                        </tr>
-                    </tbody>
-                    <thead>
-                        <tr>
-                            <th colspan="4">2024-02-18</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="w120">
-                                <button class="tdu c162b60">2024-02-18</button>
-                            </td>
-                            <td class="w60">
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>김철수</td>
-                            <td>3개</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <button class="tdu c162b60">2024-02-18</button>
-                            </td>
-                            <td>
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>박지수</td>
-                            <td>1개</td>
+                            <td class="wsn">김네모</td>
+                            <td class="wsn">01033333333</td>
                         </tr>
                     </tbody>
                 </table>

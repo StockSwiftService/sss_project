@@ -1,6 +1,7 @@
 <script>
     let isActive = false;
     let isActive2 = false;
+    
     let isActiveAdd = false;
     let isActiveModifi = false;
     let isActiveRecord = false;
