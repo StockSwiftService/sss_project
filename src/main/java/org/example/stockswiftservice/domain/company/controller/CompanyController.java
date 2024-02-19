@@ -189,6 +189,89 @@ public class CompanyController {
             return RsData.of("S-10", "해당 회원 없음", null);
         }
     }
+
+    @AllArgsConstructor
+    @Getter
+    public static class UsernameSearchResponse {
+        private final String member;
+
+    }
+
+    @Data
+    public static class UsernameSearchValue {
+        @NotNull
+        private String companyCode;
+        @NotNull
+        @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
+        private String email;
+        @NotNull
+        private String repName;
+    }
+
+
+    //대표 아이디 찾기
+    @PostMapping(value = "/id-search", consumes = ALL_VALUE)
+    public RsData<UsernameSearchResponse> UsernameSearch(@Valid @RequestBody UsernameSearchValue usernameSearchValue) {
+        String findUsername = memberService.findRepUsernameByCompany(usernameSearchValue.getCompanyCode());
+        return RsData.of("S-11", "사용자 찾음", new UsernameSearchResponse("회원님의 아이디는 \"" + findUsername + "\" 입니다."));
+    }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class PwSearchResponse {
+        private final Member member;
+
+    }
+
+    @Data
+    public static class PwSearchValue {
+        @NotNull
+        private String companyCode;
+        @NotNull
+        private String username;
+        @NotNull
+//        @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
+        private String email;
+
+    }
+
+    //대표 비번 찾기
+    @PostMapping(value = "/pw-search", consumes = ALL_VALUE)
+    public RsData<PwSearchResponse> PwSearch(@Valid @RequestBody PwSearchValue pwSearchValue) {
+        Optional<Member> om = memberService.findByUsernameAndCompanyCode(pwSearchValue.getUsername(), pwSearchValue.getCompanyCode());
+        if (om.isPresent()) {
+            return RsData.of("S-12", "비번 수정 가능", new PwSearchResponse(om.get()));
+        }
+        return RsData.of("S-13", "사용자 불일치", null);
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class PwModifyResponse {
+        private final Member member;
+
+    }
+
+    @Data
+    public static class PwModifyValue {
+        @NotNull
+        private String companyCode;
+        @NotNull
+        private String username;
+        @NotNull
+//        @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
+        private String email;
+        @NotNull
+        private String password;
+    }
+
+    @PostMapping(value = "/pw-modify", consumes = ALL_VALUE)
+    public RsData<PwModifyResponse> PwModify(@Valid @RequestBody PwModifyValue pwModifyValue) {
+        Member om = this.memberService.PwModify(pwModifyValue.getPassword(), pwModifyValue.getUsername(), pwModifyValue.getCompanyCode());
+        return RsData.of("S-14", "비번 수정 가능", new PwModifyResponse(om));
+    }
 }
+
 
 

@@ -36,18 +36,26 @@ public class MemberService {
     }
 
     public String genAccessToken(String username, String companyCode) {
-        Member member = findByUsernameAndCompanyCode(username,companyCode).orElse(null);
+        Member member = findByUsernameAndCompanyCode(username, companyCode).orElse(null);
 
         if (member == null) return null;
-
 
 
         return jwtProvider.genToken(member.toClaims(), 60 * 60 * member.getTokenLifeSpan());
     }
 
-    private Optional<Member> findByUsernameAndCompanyCode(String username,String companyCode) {
+    public Optional<Member> findByUsernameAndCompanyCode(String username, String companyCode) {
         Company company = this.companyRepository.findByCompanyCode(companyCode).orElse(null);
-        return this.memberRepository.findByUsernameAndCompany(username,company);
+        return this.memberRepository.findByUsernameAndCompany(username, company);
+    }
+
+    public String findRepUsernameByCompany(String companyCode) {
+        Company company = this.companyRepository.findByCompanyCode(companyCode).orElse(null); //코드로 회사 찾기
+        Optional<Member> member = this.memberRepository.findByCompany(company);
+        if (member.isPresent() && member.get().getAuthority() == 2) {
+            return member.get().getUsername(); //아이디 얻기
+        }
+        return null;
     }
 
     public Optional<Member> findByUsername(String username) {
@@ -55,7 +63,7 @@ public class MemberService {
     }
 
     public String genRefreshToken(String username, String companyCode) {
-        Member member = findByUsernameAndCompanyCode(username,companyCode).orElse(null);
+        Member member = findByUsernameAndCompanyCode(username, companyCode).orElse(null);
 
         if (member == null) return null;
 
@@ -79,5 +87,28 @@ public class MemberService {
         } else {
             return false;
         }
+    }
+
+    //비번 수정
+    public Member PwModify(String newPassword, String username, String companyCode) {
+        Member member = findByUsernameAndCompanyCode(username, companyCode).orElse(null);
+//        Member member = memberRepository.findByUsername(username) //유저 찾기
+//                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
+//        Company company = companyRepository.findByCompanyCode(companyCode).orElse(null);
+//
+        Member modifiedMember = Member.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .position(member.getPosition())
+                .username(member.getUsername())
+                .password(passwordEncoder.encode(newPassword))
+                .birthday(member.getBirthday())
+                .authority(member.getAuthority())
+                .tokenLifeSpan(member.getTokenLifeSpan())
+                .company(member.getCompany())
+                .build();
+
+        memberRepository.save(modifiedMember);
+        return modifiedMember;
     }
 }

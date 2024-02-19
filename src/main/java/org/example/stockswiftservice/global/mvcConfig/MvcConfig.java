@@ -33,6 +33,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/api/v1/company/check-name",
                         "/api/v1/company/join",
                         "/api/v1/company/id-search",
+                        "/api/v1/company/pw-search",
                         "/api/v1/company/pw-modify",
                         "/api/v1/member/login");  // 이 경로들에는 적용하지 않습니다.
 
