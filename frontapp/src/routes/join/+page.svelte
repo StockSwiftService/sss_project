@@ -29,9 +29,6 @@
     //이메일 인증코드 검증
     let emailNumberSuccessMessage = ''
     let emailNumberErrorMessage = ''
-    //대표자 아이디 검증
-    let usernameErrorMessage = ''
-    let usernameSuccessMessage = ''
     //패스워드
     let passwordSuccessMessage = '';
     let passwordErrorMessage = '';
@@ -239,31 +236,6 @@
         }
     }
 
-    //대표자 아이디 검증
-    async function checkUsernameDuplicate() {
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/company/check-username', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({username: formData.username}),
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.resultCode == 'S-7') {
-                    usernameErrorMessage = '중복된 아이디 입니다'
-                    usernameSuccessMessage = ''
-                } else {
-                    usernameErrorMessage = ''
-                    usernameSuccessMessage = '사용가능한 아이디 입니다'
-                }
-            }
-        } catch (error) {
-            console.error('오류 발생:', error);
-        }
-
-    }
 
     function validatePassword() {
         const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\W)(?=\S+$).{8,16}$/;
@@ -311,7 +283,7 @@
                     console.log(data)
                     // 회원가입 성공
                     if (data.resultCode === 'S-1') {
-                        // window.location.href = '/';
+                        window.location.href = '/';
                         alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
                     } else {
                         // 회원가입 실패
@@ -329,7 +301,16 @@
         }
     }
 </script>
-<div class="w100per bsb pt120 pb120 mgc" style="max-width: 480px;">
+<div class="cnt-in pt60 wh100per flex fdc aic jcc">
+    <div class="login-box w100per bfff">
+        <a href="/">
+            <div class="logo-box img-box mgc" style="width: 220px;">
+                <img src="/img/logo.svg" alt="">
+            </div>
+        </a>
+    </div>
+</div>
+<div class="w100per bsb pt40 pb120 mgc" style="max-width: 480px;">
     <h1 class="c121619 tb tac f32">회원가입</h1>
     <form class="flex fdc g36 mt60" on:submit|preventDefault={joinSubmit}>
         <button type="submit" class="hidden"></button>
@@ -430,7 +411,8 @@
                 <h2 class="c333 f16 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
                 <div class="flex g8">
                     <div class="input-type-1 w100per">
-                        <input type="text" placeholder="이메일" style="background-color: floralwhite" bind:value={formData.email} disabled>
+                        <input type="text" placeholder="이메일" style="background-color: floralwhite"
+                               bind:value={formData.email} disabled>
                     </div>
                     <button class="btn-type-1 w80 f15 bdr4 b333 cfff" disabled on:click|preventDefault={emailButton}>
                         전송
@@ -445,7 +427,8 @@
 
                 <div class="flex g8 mt8">
                     <div class="input-type-1 w100per">
-                        <input type="text" placeholder="인증 완료" id="userVerificationCode" style="background-color: floralwhite" disabled>
+                        <input type="text" placeholder="인증 완료" id="userVerificationCode"
+                               style="background-color: floralwhite" disabled>
                     </div>
                     <button class="btn-type-1 w80 f15 bdr4 b333 cfff" disabled on:click|preventDefault={emailConfirm}>
                         확인
@@ -469,15 +452,8 @@
         <div>
             <h2 class="c333 f16 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
             <div class="input-type-1 w100per">
-                <input type="text" placeholder="아이디" bind:value={formData.username}
-                       on:input={checkUsernameDuplicate}>
+                <input type="text" placeholder="아이디" bind:value={formData.username}>
             </div>
-            {#if usernameErrorMessage}
-                <span class="f13 mt4 cr">{usernameErrorMessage}</span>
-            {/if}
-            {#if usernameSuccessMessage}
-                <span class="f13 mt4 cg">{usernameSuccessMessage}</span>
-            {/if}
         </div>
         <div>
             <h2 class="c333 f16 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>

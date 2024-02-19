@@ -242,8 +242,16 @@
         border-bottom: 4px solid #2656F6;
     }
 </style>
-
-<div class="w100per bsb pt120 pb120 mgc" style="max-width: 480px;">
+<div class="cnt-in pt60 wh100per flex fdc aic jcc">
+    <div class="login-box w100per bfff">
+        <a href="/">
+            <div class="logo-box img-box mgc" style="width: 220px;">
+                <img src="/img/logo.svg" alt="">
+            </div>
+        </a>
+    </div>
+</div>
+<div class="w100per bsb pt40 pb120 mgc" style="max-width: 480px;">
     <h1 class="c121619 tb tac f32">정보 찾기</h1>
     <p class="tac f16 c555 mt28 tac">회사의 대표자가 아닌 직원의 경우 대표자에게 문의하세요.</p>
     <ul class="tab-menu-box flex mt60">
@@ -373,7 +381,8 @@
                     <div class="flex fdc g8">
                         <div>
                             <div class="input-type-1 w100per">
-                                <input type="password" placeholder="비밀번호" bind:value={pwFormData.password} on:input={validatePassword}>
+                                <input type="password" placeholder="비밀번호" bind:value={pwFormData.password}
+                                       on:input={validatePassword}>
                             </div>
                             {#if pwErrorMessage}
                                 <span class="f13 mt4 cr">{pwErrorMessage}</span>
@@ -384,7 +393,8 @@
                         </div>
                         <div>
                             <div class="input-type-1 w100per">
-                                <input type="password" placeholder="비밀번호 확인" bind:value={pwFormData.passwordConfirm} on:input={confirmValidatePassword}>
+                                <input type="password" placeholder="비밀번호 확인" bind:value={pwFormData.passwordConfirm}
+                                       on:input={confirmValidatePassword}>
                             </div>
                             {#if pwConfirmErrorMessage}
                                 <span class="f13 mt4 cr">{pwConfirmErrorMessage}</span>

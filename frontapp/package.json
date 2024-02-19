@@ -29,8 +29,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"cookie": "^0.6.0",
 		"@types/jquery": "^3.5.29",
+		"cookie": "^0.6.0",
+		"crypto-js": "^4.2.0",
 		"jquery": "^3.7.1"
 	}
 }
