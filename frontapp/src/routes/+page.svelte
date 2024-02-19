@@ -140,17 +140,17 @@
 			<div class="flex fdc g8 mt60">
 				<form>
 					<div>
-						<div class="input-type-1 w100per">
+						<div class="input-type-1 w100per mt4">
 							<input bind:value={formData.companyCode} type="text" placeholder="회사코드" />
 						</div>
 					</div>
 					<div>
-						<div class="input-type-1 w100per">
+						<div class="input-type-1 w100per mt4">
 							<input bind:value={formData.username} type="text" placeholder="아이디" />
 						</div>
 					</div>
 					<div>
-						<div class="input-type-1 w100per">
+						<div class="input-type-1 w100per mt4">
 							<input bind:value={formData.password} type="password" placeholder="비밀번호" />
 						</div>
 					</div>
