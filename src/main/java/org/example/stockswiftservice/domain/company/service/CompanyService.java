@@ -3,6 +3,8 @@ package org.example.stockswiftservice.domain.company.service;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
+import org.example.stockswiftservice.domain.member.entity.Member;
+import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,6 +14,7 @@ import java.util.Optional;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final MemberService memberService;
 
     public String newCode() {
         while (true) {
@@ -30,6 +33,7 @@ public class CompanyService {
             }
         }
     }
+
     public Company join(String name, String businessNumber, String repName, String email, String address, String detailAddress) {
         String str = newCode();
         Company newCompany = Company.builder()
@@ -45,6 +49,7 @@ public class CompanyService {
         this.companyRepository.save(newCompany);
         return newCompany;
     }
+
     public Optional<Company> findByName(String name) {
         return companyRepository.findByName(name);
     }
@@ -52,8 +57,12 @@ public class CompanyService {
     public Optional<Company> findByBusinessNumber(String businessNumber) {
         return companyRepository.findByBusinessNumber(businessNumber);
     }
+
+    public Optional<Company> findByCompanyCode (String companyCode) {
+        return companyRepository.findByCompanyCode(companyCode);
+    }
+
     public Optional<Company> findByNameAndEmailAndBusinessNumber(String name, String email, String businessNumber) {
         return companyRepository.findByNameAndEmailAndBusinessNumber(name, email, businessNumber);
-
     }
 }

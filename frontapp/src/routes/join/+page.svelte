@@ -290,6 +290,7 @@
 
     //회원가입 제출
     const joinSubmit = async () => {
+
         if (formData != null && !isAddress) {
             alert('주소를 입력해 주세요.')
         } else if (formData != null && !isbusinessNumberConfirm) {
@@ -327,11 +328,11 @@
             }
         }
     }
-
 </script>
 <div class="w100per bsb pt120 pb120 mgc" style="max-width: 480px;">
     <h1 class="c121619 tb tac f32">회원가입</h1>
     <form class="flex fdc g36 mt60" on:submit|preventDefault={joinSubmit}>
+        <button type="submit" class="hidden"></button>
         <div>
             <h2 class="c333 f16 tm mb8">회사명<span class="cr f16 tm inblock">*</span></h2>
             <div class="input-type-1 w100per">
