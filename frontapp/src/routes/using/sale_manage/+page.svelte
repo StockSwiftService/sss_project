@@ -45,12 +45,72 @@
             events: [],
             eventContent: function(arg) {
                 return {
-                    html: '<b>' + arg.event.title + '</b><br>' + arg.event.extendedProps.description,
+                    html: '<span class="tar c777 f16 mt4">' + arg.event.title + '</span>' + '<span  class="tar c777 f16 mt4">' + arg.event.extendedProps.description + '</span>'
                 };
             },
             eventClick: handleEventClick
         });
         calendar.render();
+
+        //th 합계 텍스트 추가
+        const totalTh = document.createElement('th');
+        const thInner = document.createElement('span');
+        thInner.textContent = '합계';
+        totalTh.appendChild(thInner);
+
+        const targetThSelector = 'table thead tr th table thead tr';
+        calendarEl.querySelector(targetThSelector).appendChild(totalTh);
+
+        //각 열 td 합계 
+        function addTotalHeader(rowNumber) {
+            const totalTd = document.createElement('td');
+            totalTd.classList.add('bfafafa');
+
+            const tdInner = document.createElement('div');
+            tdInner.classList.add('w100per','h100per','flex', 'fdc', 'aic', 'jcc');
+
+            const tdInner1 = document.createElement('span');
+            tdInner1.textContent = "10,000,000원";
+            tdInner1.classList.add('f16','c333','tac');
+            
+            const tdInner2 = document.createElement('span');
+            tdInner2.textContent = "999건";
+            tdInner2.classList.add('f16','c333','tac', 'mt4');
+
+            totalTd.appendChild(tdInner).appendChild(tdInner1);
+            totalTd.appendChild(tdInner).appendChild(tdInner2);
+
+            const targetTdSelector = `table tbody tr td table tbody tr:nth-child(${rowNumber})`;
+            calendarEl.querySelector(targetTdSelector).appendChild(totalTd);
+        }
+
+        for (let i = 1; i <= 6; i++) {
+            addTotalHeader(i);
+        }
+
+        //총 값
+        const allTotalTr = document.createElement('tr');
+
+        const allTotalTd = document.createElement('td');
+        allTotalTd.setAttribute('colspan', '8');
+        allTotalTd.classList.add('h100','bfafafa');
+
+        const allTdInner = document.createElement('div');
+        allTdInner.classList.add('w100per','h100per','flex', 'fdc', 'aic', 'jcc');
+
+        const AlltdInner1 = document.createElement('span');
+        AlltdInner1.textContent = "10,000,000원";
+        AlltdInner1.classList.add('f16','cm','tac', 'pb');
+        
+        const AlltdInner2 = document.createElement('span');
+        AlltdInner2.textContent = "999건";
+        AlltdInner2.classList.add('f16','cm','tac', 'mt4', 'pb');
+
+        allTotalTr.appendChild(allTotalTd).appendChild(allTdInner).appendChild(AlltdInner1);
+        allTotalTr.appendChild(allTotalTd).appendChild(allTdInner).appendChild(AlltdInner2);
+
+        const targetAllTdSelector = 'table tbody tr td table tbody';
+        calendarEl.querySelector(targetAllTdSelector).appendChild(allTotalTr);
 
         try {
             let purchaseId = 1;
@@ -85,6 +145,12 @@
         }
     });
 </script>
+
+<style>
+    #calendar > * {
+    font-family: "Pretendard-Regular";
+}
+</style>
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">

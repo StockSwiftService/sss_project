@@ -7,7 +7,22 @@
     color: blue;
 }
 #calendar {
-    width: 80%;
-    margin-top: 20px;
+    width: 100%;
     font-size: 20px;
+}
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: transparent !important;
+}
+.fc .fc-daygrid-day-number {
+    font-size: 14px !important;
+}
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    background-color: #2656F6;
+    border-radius: 50%;
+    color: #fff !important;
+}
+.fc-theme-standard .fc-scrollgrid-sync-table td {
+    box-sizing: border-box;
+    padding: 6px;
+    text-align: left !important;
 }
