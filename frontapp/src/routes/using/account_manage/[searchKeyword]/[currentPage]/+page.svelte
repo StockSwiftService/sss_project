@@ -1,8 +1,13 @@
 <script>
+    // import {goto} from "$app/navigation";
+
+    import {goto} from "$app/navigation";
+
+    export let data;
+
     let isActive = false;
     let isActiveAdd = false;
     let isActiveModify = false;
-
     const resetForm = () => {
         const form = document.querySelector('form');
         if (form) {
@@ -30,18 +35,25 @@
         isActiveModify = false;
     }
 
+    let formData = {
+        clientName: '',
+        repName: '',
+        phoneNumber: '',
+        address: '',
+        detailAddress: ''
+    };
+
     const submitClientForm = async (event) => {
         event.preventDefault();
-        console.log('Submit button clicked');
 
         const form = event.target;
-        const formData = new FormData(form);
 
         // 클라이언트 측 유효성 검사 수행
-        const clientName = formData.get('clientName');
-        const repName = formData.get('repName');
-        const phoneNumber = formData.get('phoneNumber');
-        const address = formData.get('address');
+        const clientName = formData.clientName;
+        const repName = formData.repName;
+        const phoneNumber = formData.phoneNumber;
+        const address = formData.address;
+        const detailAddress = formData.detailAddress;
 
         const errors = {};
 
@@ -61,6 +73,10 @@
             errors.address = '주소를 입력하세요.';
         }
 
+        if (!detailAddress.trim()) {
+            errors.detailAddress = '상세주소를 입력하세요.';
+        }
+
         // 클라이언트 측에서 유효성 검사 실패 시 제출 중단
         if (Object.keys(errors).length > 0) {
             updateErrorMessages(errors);
@@ -72,14 +88,18 @@
             const response = await fetch('http://localhost:8080/api/v1/clients', {
                 method: 'POST',
                 credentials: 'include',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
             });
 
             if (response.ok) {
                 const responseData = await response.json();
                 console.log(responseData);
                 window.alert('저장되었습니다.');
-                // 적절한 페이지로 이동하도록 수정
+                // deactivateModal();
+                location.reload();
             } else {
                 const responseData = await response.json();
                 console.error(responseData);
@@ -143,7 +163,6 @@
                     addr = data.jibunAddress;
                 }
 
-                document.getElementById('postcode').value = data.zonecode;
                 document.getElementById("address").value = addr;
                 formData.address = addr;
                 document.getElementById("detailAddress").focus();
@@ -184,6 +203,84 @@
         element_layer.style.left = (((window.innerWidth || document.documentElement.clientWidth) - width) / 2 - borderWidth) + 'px';
         element_layer.style.top = (((window.innerHeight || document.documentElement.clientHeight) - height) / 2 - borderWidth) + 'px';
     }
+
+    let confirmNameErrorMessage = '';
+    let confirmNameSuccessMessage = '';
+    const checkDuplicate = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/clients/check', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ clientName: formData.clientName}),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                if (responseData.resultCode === 'S-6') {
+                    confirmNameErrorMessage = '중복된 거래처명입니다.';
+                    confirmNameSuccessMessage = '';
+
+                } else {
+                    confirmNameSuccessMessage = '중복되지 않는 거래처명입니다.';
+                    confirmNameErrorMessage = '';
+                }
+            } else {
+                const responseData = await response.json();
+                console.error(responseData);
+                window.alert('내용을 입력하세요.');
+            }
+        } catch (error) {
+            console.error('Error checking duplicate:', error);
+        }
+    };
+
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
+
+    async function changePage(searchKeyword, page) {
+        try {
+            console.log("검색어 : " + searchKeyword);
+            console.log("페이지 : " + page);
+
+            const response = await fetch(`http://localhost:8080/api/v1/clients?kw=${searchKeyword}&page=${page + 1}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // 데이터 업데이트
+            data.result = data;
+
+            // 페이지 이동 시 브라우저의 주소도 업데이트
+            goto(`/using/account_manage/${searchKeyword}/${page}`);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    let searchQuery = '';
+    let currentPage = 0;
+    function performSearch() {
+        const searchKeyword = searchQuery.trim();
+        if (searchKeyword !== '') {
+            goto(`/using/account_manage/${encodeURIComponent(searchKeyword)}/${currentPage}`);
+        }
+    }
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    }
 </script>
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -203,21 +300,27 @@
                     <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex g8">
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" name="clientName" placeholder="거래처명">
+                            <input bind:value={formData.clientName} type="text" name="clientName" placeholder="거래처명">
                         </div>
-                        <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
+                        <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={checkDuplicate}>확인</button>
                     </div>
 
                     <div class="error-text-box" data-field="clientName">
                         <span class="error-text f13 mt8 cr"></span>
-                        <span class="f13 mt8 cr">중복된 거래처명입니다.</span>
-                        <span class="f13 mt8 cg">사용 가능한 거래처명입니다.</span>
+<!--                        <span class="f13 mt8 cr message-duplicate">중복된 거래처명입니다.</span>-->
+<!--                        <span class="f13 mt8 cg message-available">사용 가능한 거래처명입니다.</span>-->
                     </div>
+                    {#if confirmNameErrorMessage}
+                        <span class="f13 mt8 cr">{confirmNameErrorMessage}</span>
+                    {/if}
+                    {#if confirmNameSuccessMessage}
+                        <span class="f13 mt8 cg">{confirmNameSuccessMessage}</span>
+                    {/if}
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" name="repName" placeholder="대표자명">
+                        <input type="text" name="repName" placeholder="대표자명" bind:value={formData.repName}>
                     </div>
                     <div class="error-text-box" data-field="repName">
                         <span class="error-text f13 mt8 cr"></span>
@@ -226,24 +329,29 @@
                 <div>
                     <h2 class="c333 f15 tm mb8">연락처<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" name="phoneNumber" placeholder="연락처 (-자 빼고 입력해 주세요.)">
+                        <input type="text" name="phoneNumber" bind:value={formData.phoneNumber} placeholder="연락처 (-자 빼고 입력해 주세요.)">
                     </div>
                     <div class="error-text-box" data-field="phoneNumber">
                         <span class="error-text f13 mt8 cr"></span>
                     </div>
                 </div>
+                <div id="layer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
+                </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex g8">
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" name="address" placeholder="주소">
+                            <input type="text" id="address" name="address" placeholder="주소">
                         </div>
                         <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click|preventDefault={initDaumPostcode}>찾기</button>
                     </div>
-                    <div class="input-type-1 f14 w100per mt8">
-                        <input type="text" placeholder="상세주소">
-                    </div>
                     <div class="error-text-box" data-field="address">
+                        <span class="error-text f13 mt8 cr"></span>
+                    </div>
+                    <div class="input-type-1 f14 w100per mt8">
+                        <input  type="text" id="detailAddress" name="detailAddress" bind:value={formData.detailAddress} placeholder="상세주소">
+                    </div>
+                    <div class="error-text-box" data-field="detailAddress">
                         <span class="error-text f13 mt8 cr"></span>
                     </div>
                 </div>
@@ -303,7 +411,7 @@
                     <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex g8">
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="주소">
+                            <input type="text" id="address" placeholder="주소">
                         </div>
                         <button class="btn-type-1 w80 f14 bdr4 b333 cfff">찾기</button>
                     </div>
@@ -334,9 +442,9 @@
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
                         <div class="search-box">
-                            <input type="search" placeholder="검색어 입력">
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off" on:keypress={handleKeyPress}>
                         </div>
-                        <button class="search-btn flex aic jcc">
+                        <button class="search-btn flex aic jcc" on:click={performSearch} >
                             <span class="ico-box img-box w16">
                                 <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
@@ -348,7 +456,7 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">0</span>개
+                전체 <span class="number inblock cm tm">{data.result.data.clients.content.length}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -358,7 +466,7 @@
                                 <div class="check-type-1">
                                     <input type="checkbox" id="all">
                                     <label for="all"></label>
-                                </div> 
+                                </div>
                             </th>
                             <th class="wsn">거래처명</th>
                             <th class="wsn">대표자명</th>
@@ -368,36 +476,23 @@
                         </tr>
                     </thead>
                     <tbody>
+                    {#each data.result.data.clients.content as client}
                         <tr>
-                            <td class="wsn" style="width: 44px;">   
+                            <td class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
                                     <input type="checkbox" id="v1">
                                     <label for="v1"></label>
-                                </div> 
+                                </div>
                             </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">01033333333</td>
-                            <td class="wsn">대전광역시 대덕구 덕암동 572-3번지</td>
+                            <td class="wsn">{client.clientName}</td>
+                            <td class="wsn">{client.repName}</td>
+                            <td class="wsn">{client.phoneNumber}</td>
+                            <td class="wsn">{client.address} {client.detailAddress}</td>
                             <td class="wsn tac">
                                 <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModify}">수정</button>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v2">
-                                    <label for="v2"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">01033333333</td>
-                            <td class="wsn">대전광역시 대덕구 덕암동 572-3번지</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModify}">수정</button>
-                            </td>
-                        </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>
@@ -411,27 +506,32 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if data.result.data.clients.number > 0}
+                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn" on:click={() => changePage(data.searchKeyword, data.result.data.clients.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(data.result.data.clients.totalPages) as button}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li
+                                class="num"
+                                on:click={() => data.result.data.clients.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                        >
+                            <a href="" class:active={data.result.data.clients.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if data.result.data.clients.number < data.result.data.clients.totalPages - 1}
+                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn" on:click={() => changePage(data.searchKeyword, data.result.data.clients.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>

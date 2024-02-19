@@ -15,4 +15,5 @@ public class Client extends BaseEntity {
     private String repName;
     private String phoneNumber;
     private String address;
+    private String detailAddress;
 }

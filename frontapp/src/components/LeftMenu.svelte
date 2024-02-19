@@ -26,7 +26,7 @@
         </a>
     </li>
     <li>
-        <a href="/using/account_manage" class="flex aic" on:click="{(event) => setActive(1, event)}" class:active="{activeIndex === 1}">
+        <a href="/using/account_manage/%20/0" class="flex aic" on:click="{(event) => setActive(1, event)}" class:active="{activeIndex === 1}">
             <span class="ico-box img-box">
                 <img src="/img/menu_ico_7.svg" alt="메뉴 아이콘">
                 <img src="/img/menu_ico_7_active.svg" alt="메뉴 액티브 아이콘" class="on">

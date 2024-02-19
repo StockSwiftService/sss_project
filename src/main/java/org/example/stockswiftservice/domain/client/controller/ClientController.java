@@ -2,13 +2,16 @@ package org.example.stockswiftservice.domain.client.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.client.service.ClientService;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/clients")
@@ -19,12 +22,12 @@ public class ClientController {
     @Getter
     @AllArgsConstructor
     public static class ClientsResponse {
-        private final List<Client> clients;
+        private final Page<Client> clients;
     }
 
     @GetMapping("")
-    public RsData<ClientsResponse> clients() {
-        List<Client> clients = this.clientService.getList();
+    public RsData<ClientsResponse> clients(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Client> clients = this.clientService.getList(kw, page);
 
         return RsData.of("S-1", "성공", new ClientsResponse(clients));
     }
@@ -52,6 +55,8 @@ public class ClientController {
         private String phoneNumber;
         @NotBlank
         private String address;
+        @NotBlank
+        private String detailAddress;
     }
 
     @Getter
@@ -61,9 +66,9 @@ public class ClientController {
     }
 
     @PostMapping("")
-    public RsData<CreateResponse> create (@Valid CreateRequest createRequest) {
+    public RsData<CreateResponse> create (@Valid @RequestBody CreateRequest createRequest) {
         RsData<Client> client = clientService.create(createRequest.getClientName(), createRequest.getRepName(),
-                createRequest.getPhoneNumber(), createRequest.getAddress());
+                createRequest.getPhoneNumber(), createRequest.getAddress(), createRequest.getDetailAddress());
         if (client.isFail()) return (RsData) client;
 
         return RsData.of(client.getResultCode(), client.getMsg(), new CreateResponse(client.getData()));
@@ -81,6 +86,7 @@ public class ClientController {
         private String repName;
         private String phoneNumber;
         private String address;
+        private String detailAddress;
     }
 
     @PatchMapping("/{id}")
@@ -88,7 +94,7 @@ public class ClientController {
         Client client = this.clientService.getClient(id);
 
         RsData<Client> modifyClient = clientService.modify(client, modifyRequest.getClientName(), modifyRequest.getRepName(),
-                modifyRequest.getPhoneNumber(), modifyRequest.getAddress());
+                modifyRequest.getPhoneNumber(), modifyRequest.getAddress(), modifyRequest.getDetailAddress());
 
         return modifyClient;
     }
@@ -99,4 +105,26 @@ public class ClientController {
         RsData<Client> clientRsData = this.clientService.delete(client);
         return clientRsData;
     }
+    @AllArgsConstructor
+    @Getter
+    public static class NameResponse {
+        private final Optional<Client> client;
+    }
+
+    @Data
+    public static class NameRequest {
+        @NotBlank
+        private String clientName;
+    }
+
+    @PostMapping("/check")
+    public RsData<NameResponse> checkClientName(@Valid @RequestBody NameRequest nameRequest) {
+        Optional<Client> clientName = clientService.findByClientName(nameRequest.getClientName());
+        if (clientName.isPresent()) {
+            return RsData.of("S-6", "중복된 거래처명", new NameResponse(clientName));
+        } else {
+            return RsData.of("S-7", "사용 가능", null);
+        }
+    }
+
 }
