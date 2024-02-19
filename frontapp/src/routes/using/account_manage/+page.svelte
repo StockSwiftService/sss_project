@@ -20,7 +20,7 @@
     }
 </script>
 
-<div class="modal-area wh100per fixed zi9" class:active="{isActive}">
+<div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
 
     <!-- 거래처 등록 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
@@ -163,7 +163,7 @@
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box">
+                        <div class="search-box w200">
                             <input type="search" placeholder="검색어 입력">
                         </div>
                         <button class="search-btn flex aic jcc">
