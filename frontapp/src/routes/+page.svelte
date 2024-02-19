@@ -1,20 +1,35 @@
 <script>
 	import pkg from 'cookie';
 	import { onMount } from 'svelte';
+	import CryptoJS from 'crypto-js';
+
 	const { setCookie, getCookie } = pkg;
+//
+	// 데이터 암호화 함수
+	function encryptData(data, key) {
+		return CryptoJS.AES.encrypt(data, key).toString();
+	}
+
+	// 데이터 복호화 함수
+	function decryptData(encryptedData, key) {
+		const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+		return bytes.toString(CryptoJS.enc.Utf8);
+	}
+	//시크릿 키
+	const secret_key = import.meta.env.VITE_SECRET_KEY;
 
 	onMount(async () => {
-		formData.username = getRememberId();
-		if(formData.username != ''){
+		formData.username = decryptData(getRememberId(), secret_key);
+		if (formData.username != '') {
 			rememberID = true;
-		}else{
+		} else {
 			rememberID = false;
 		}
 
-		formData.companyCode = getRememberCompanyCode();
-		if(formData.companyCode != ''){
+		formData.companyCode = decryptData(getRememberCompanyCode(), secret_key);
+		if (formData.companyCode != '') {
 			rememberCompany = true;
-		}else{
+		} else {
 			rememberCompany = false;
 		}
 	});
@@ -44,12 +59,14 @@
 				// 로그인이 성공한 경우
 				if (data.resultCode === 'S-1') {
 					if (rememberCompany) {
-						setCookies('companyCode', formData.companyCode, 365);
+						const remComCode = encryptData(formData.companyCode, secret_key);
+						setCookies('companyCode', remComCode, 365);
 					} else {
 						deleteCookie('companyCode');
 					}
 					if (rememberID) {
-						setCookies('userId', formData.username, 365);
+						const remUserId = encryptData(formData.username, secret_key);
+						setCookies('userId', remUserId, 365);
 					} else {
 						deleteCookie('userId');
 					}
@@ -64,12 +81,12 @@
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
 				if (!response.ok && response.status != 401) {
-					alert('다시 입력 해주세요.');
+					alert('다시 시도 해주세요.');
 				}
 			}
 		} catch (error) {
 			console.error('오류 발생:', error);
-			alert('존재하지 않는 계정입니다.');
+			alert('다시 시도 해주세요.');
 		}
 	};
 
@@ -137,6 +154,7 @@
 							<input bind:value={formData.password} type="password" placeholder="비밀번호" />
 						</div>
 					</div>
+					<button on:click={loginButton} class="hidden"></button>
 				</form>
 			</div>
 			<div class="flex aic jcsb mt12">
