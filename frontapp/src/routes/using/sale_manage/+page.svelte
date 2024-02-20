@@ -48,9 +48,20 @@
                     html: '<span class="tar c777 f16 mt4">' + arg.event.title + '</span>' + '<span  class="tar c777 f16 mt4">' + arg.event.extendedProps.description + '</span>'
                 };
             },
-            eventClick: handleEventClick
+            eventClick: handleEventClick,
+            datesSet: function() { // 날짜가 설정될 때마다 이 함수가 호출됩니다.
+                removeTotalHeaders(); // 기존 합계를 삭제합니다.
+                for (let i = 1; i <= 6; i++) {
+                    addTotalHeader(i); // 새로운 합계를 추가합니다.
+                }
+            }
         });
         calendar.render();
+
+        function removeTotalHeaders() {
+            const totalHeaders = calendarEl.querySelectorAll('.weekplus');
+            totalHeaders.forEach(header => header.remove());
+        }
 
         //th 합계 텍스트 추가
         const totalTh = document.createElement('th');
@@ -64,7 +75,7 @@
         //각 열 td 합계 
         function addTotalHeader(rowNumber) {
             const totalTd = document.createElement('td');
-            totalTd.classList.add('bfafafa');
+            totalTd.classList.add('bfafafa', 'weekplus');
 
             const tdInner = document.createElement('div');
             tdInner.classList.add('w100per','h100per','flex', 'fdc', 'aic', 'jcc');
@@ -82,10 +93,6 @@
 
             const targetTdSelector = `table tbody tr td table tbody tr:nth-child(${rowNumber})`;
             calendarEl.querySelector(targetTdSelector).appendChild(totalTd);
-        }
-
-        for (let i = 1; i <= 6; i++) {
-            addTotalHeader(i);
         }
 
         //총 값
