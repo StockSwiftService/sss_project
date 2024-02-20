@@ -1,4 +1,4 @@
-<script>
+<script>    
     let isActive = false;
     let isActive2 = false;
 
@@ -17,9 +17,27 @@
         isActiveModifi = true;
     }
 
-    function activateModalAccountSearch() {
+    let clients = [];
+    let selectedClient = { clientName: '', phoneNumber: '', address: '' };
+    
+    async function activateModalAccountSearch() {
         isActive2 = true;
         isActiveAccountSearch = true;
+
+        const response = await fetch('http://localhost:8080/api/v1/clients');
+        if (response.ok) {
+            const responseData = await response.json();
+            clients = responseData.data.clients;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    function selectClient(client) {
+        selectedClient = client;
+
+        isActive2 = false;
+        isActiveAccountSearch = false;
     }
 
     function deactivateModal() {
@@ -37,22 +55,56 @@
     //날짜 value 오늘 날짜로 초기 데이터 입력
     let today = new Date().toISOString().split('T')[0];
 
+    //재고 영역 품목명 입력 후 검색
+    let stocks = [];
+    let selectedStock = { itemName: '', salesPrice: ''};
     let itemName = '';
     let searchItemName = '';
+    let stockQuantity = 0;
+    let stockPrice = 0;
+    let stockTotalAmount = 0; 
 
-    function itemNameKeyUp(event) {
+    async function itemNameKeyUp(event) {
         if (event.key === 'Enter') {
-            isActive2 = true;
-            isActiveStockSearch = true;
             searchItemName = itemName;
+            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${searchItemName}`);
+            if (response.ok) {
+                const responseData = await response.json();
+                stocks = responseData.data.stocks;
+
+                if (stocks.length == 1) {
+                    selectedStock = stocks[0];
+                    itemName = selectedStock.itemName;
+                    stockQuantity = 1;
+                    stockPrice = selectedStock.salesPrice;
+                    stockTotalAmount = stockPrice * stockQuantity;
+                }
+                else {
+                    isActive2 = true;
+                    isActiveStockSearch = true;
+                }
+            } else {
+                console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+            }
         }
     }
 
+    function selectStock(stock) {
+        selectedStock = stock;
+        itemName = stock.itemName;
+        stockPrice = stock.salesPrice;
 
-    // const accountFind = async () => {
-    //     let response = await fetch('http://localhost:8080/api/v1/purchase/accountFind');
-    //     let result = await response.json();
-    // };
+        isActive2 = false;
+        isActiveAccountSearch = false;
+
+        stockQuantity = 1;
+        stockTotalAmount = stockPrice * stockQuantity;
+    }
+
+    function quantityChange(event) {
+        stockQuantity = event.target.value;
+        stockTotalAmount = stockPrice * stockQuantity;
+    }
 </script>
 
 <style>
@@ -97,7 +149,7 @@
                         <span class="title-text f14 c333">거래처</span>
                         <div class="input-box flex aic g8 w200">
                             <div class="input-type-2 f14 w100per">
-                                <input type="text" placeholder="거래처명" readonly>
+                                <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
                             </div>
                             <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" style="min-width: 60px;" on:click={activateModalAccountSearch}>찾기</button>
                         </div>
@@ -105,7 +157,7 @@
                     <li class="flex aic g12">
                         <span class="title-text f14 c333">연락처</span>
                         <div class="input-box input-type-2 f14">
-                            <input type="text" placeholder="연락처" readonly>
+                            <input type="text" placeholder="연락처" readonly value={selectedClient.phoneNumber}>
                         </div>
                     </li>
                 </ul>
@@ -113,7 +165,7 @@
                     <li class="flex aic g12" style="width:67%">
                         <span class="title-text f14 c333">주소</span>
                         <div class="input-box input-type-2 f14 w100per">
-                            <input type="text" placeholder="주소" readonly>
+                            <input type="text" placeholder="주소" readonly value={selectedClient.address}>
                         </div>
                     </li>
                     <li class="flex aic g12" style="width:calc(33% - 20px)">
@@ -166,73 +218,17 @@
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량">
+                                    <input type="text" placeholder="수량" bind:value={stockQuantity} on:input={quantityChange}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly>
+                                    <input type="text" placeholder="단가" readonly bind:value={stockPrice}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="금액" readonly>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="wsn">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명">
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량">
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="금액" readonly>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="wsn">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명">
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량">
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="금액" readonly>
+                                    <input type="text" placeholder="금액" readonly bind:value={stockTotalAmount}>
                                 </div>
                             </td>
                         </tr>
@@ -248,7 +244,8 @@
                     </tbody>
                 </table>
                 <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
-                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">추가</button> <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">추가</button>
+                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
@@ -358,13 +355,15 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {#each clients as client}
                         <tr>
                             <td class="wsn">
-                                <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
+                                <button class="inblock tdu c162b60" on:click={() => selectClient(client)}>{client.clientName}</button>
                             </td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">01033333333</td>
+                            <td class="wsn">{client.repName}</td>
+                            <td class="wsn">{client.phoneNumber}</td>
                         </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>
@@ -394,19 +393,23 @@
                 <table>
                     <thead>
                         <tr>
+                            <th class="wsn">품목명</th>
                             <th class="wsn">거래처명</th>
-                            <th class="wsn">대표자명</th>
-                            <th class="wsn">연락처</th>
+                            <th class="wsn">재고</th>
+                            <th class="wsn">가격</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {#each stocks as stock}
                         <tr>
                             <td class="wsn">
-                                <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
+                                <button class="inblock tdu c162b60" on:click={() => selectStock(stock)}>{stock.itemName}</button>
                             </td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">01033333333</td>
+                            <td class="wsn">{stock.clientName}</td>
+                            <td class="wsn">{stock.quantity}</td>
+                            <td class="wsn">{stock.salesPrice}</td>
                         </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>

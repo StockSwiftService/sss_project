@@ -2,6 +2,7 @@ package org.example.stockswiftservice.domain.purchase.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
@@ -19,8 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Purchase extends BaseEntity {
     private LocalDate purchaseDate;
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
-    private List<Client> clients;
     private boolean deliveryStatus;
     private String significant;
+    @ManyToOne
+    private Client client;
 }

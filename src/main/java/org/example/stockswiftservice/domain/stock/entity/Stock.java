@@ -1,6 +1,7 @@
 package org.example.stockswiftservice.domain.stock.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
 

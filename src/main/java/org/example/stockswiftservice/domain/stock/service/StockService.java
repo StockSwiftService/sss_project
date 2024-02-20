@@ -6,6 +6,7 @@ import org.example.stockswiftservice.domain.stock.repository.StockRepository;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,5 +59,9 @@ public class StockService {
         this.stockRepository.delete(stock);
         return RsData.of("S-5", "재고 삭제 성공", stock);
 
+    }
+
+    public List<Stock> searchByName(String searchItemName) {
+        return this.stockRepository.findByItemNameContaining(searchItemName);
     }
 }

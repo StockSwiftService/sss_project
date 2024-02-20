@@ -22,7 +22,10 @@ class StockSwiftServiceApplicationTests {
 
     @Test
     void contextLoads2() {
-        stockService.create("네모주식회사", "네모스낵 500g", 50L, 15000L, 20000L);
+//        stockService.create("네모주식회사", "네모스낵 500g", 50L, 15000L, 20000L);
+//        stockService.create("네모주식회사", "네모사탕 30g", 100L, 500L, 1500L);
+        stockService.create("세모주식회사", "세모젤리 50g", 100L, 800L, 2300L);
+        stockService.create("영심이분식", "떡만튀 밀키트 500g", 50L, 3000L, 5400L);
     }
 
 }
