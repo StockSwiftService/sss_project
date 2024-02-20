@@ -1,10 +1,10 @@
 <script>
     // import {goto} from "$app/navigation";
-
-    import {goto} from "$app/navigation";
+    import { page } from "$app/stores";
+    import {goto, invalidate, replaceState} from "$app/navigation";
+    import {onMount} from "svelte";
 
     export let data;
-
     let isActive = false;
     let isActiveAdd = false;
     let isActiveModify = false;
@@ -268,19 +268,30 @@
         }
     }
 
+
     let searchQuery = '';
     let currentPage = 0;
-    function performSearch() {
+    const performSearch = async () => {
         const searchKeyword = searchQuery.trim();
         if (searchKeyword !== '') {
-            goto(`/using/account_manage/${encodeURIComponent(searchKeyword)}/${currentPage}`);
+            $page.url.searchParams.set('kw',searchQuery);
+            $page.url.searchParams.set('page',currentPage);
+
+            await goto(`?${$page.url.searchParams.toString()}`, { replaceState });
         }
+
+
     }
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
             performSearch();
         }
     }
+
+    onMount(() => {
+        console.log(1)
+    })
+
 </script>
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -307,8 +318,6 @@
 
                     <div class="error-text-box" data-field="clientName">
                         <span class="error-text f13 mt8 cr"></span>
-<!--                        <span class="f13 mt8 cr message-duplicate">중복된 거래처명입니다.</span>-->
-<!--                        <span class="f13 mt8 cg message-available">사용 가능한 거래처명입니다.</span>-->
                     </div>
                     {#if confirmNameErrorMessage}
                         <span class="f13 mt8 cr">{confirmNameErrorMessage}</span>
@@ -480,8 +489,8 @@
                         <tr>
                             <td class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
+                                    <input type="checkbox" id="{client.id}">
+                                    <label for="{client.id}"></label>
                                 </div>
                             </td>
                             <td class="wsn">{client.clientName}</td>
