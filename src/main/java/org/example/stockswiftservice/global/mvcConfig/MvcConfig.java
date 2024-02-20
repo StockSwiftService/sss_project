@@ -36,7 +36,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/api/v1/company/pw-search",
                         "/api/v1/company/pw-modify",
                         "/api/v1/email/send",
-                        "/api/v1/member/login");  // 이 경로들에는 적용하지 않습니다.
+                        "/api/v1/member/login"
+                );  // 이 경로들에는 적용하지 않습니다.
 
     }
 //

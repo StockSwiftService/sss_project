@@ -58,27 +58,12 @@ public class MemberController {
             String accessToken = memberService.genAccessToken(loginRequest.getUsername(), loginRequest.getCompanyCode());
             String refreshToken = memberService.genRefreshToken(loginRequest.getUsername(), loginRequest.getCompanyCode());
 
-            if (accessToken == null) {
-                return RsData.of("Invalid username or password", null);
-            }
-
-            // 쿠키에 액세스 토큰 저장
-//            Cookie accessCookie = new Cookie("access_token", accessToken);
-//            accessCookie.setSecure(true); //https 옵션 설정
             ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
                     .path("/")
                     .sameSite("None")
                     .secure(true)
                     .httpOnly(true)
                     .build();
-
-
-//            // 쿠키에 리프레시 토큰 저장
-//            Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-//            refreshCookie.setHttpOnly(true);
-//            refreshCookie.setDomain("");
-//            refreshCookie.setMaxAge(60 * 60 * 24 * 365);
-//            resp.addCookie(refreshCookie);
             ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
                     .path("/")
                     .sameSite("None")
@@ -88,17 +73,19 @@ public class MemberController {
 
             resp.addHeader("Set-Cookie", accessCookie.toString());
             resp.addHeader("Set-Cookie", refreshCookie.toString());
-//            resp.addHeader("Authentication", refreshCookie.toString());
 
-
-            return RsData.of("S-1", "토큰이 생성되었습니다.", null);
+            if (this.memberService.adminCheck(loginRequest.getCompanyCode(), loginRequest.getUsername())) {
+                return RsData.of("S-0", "관리자 토큰이 생성되었습니다", null);
+            } else {
+                return RsData.of("S-1", "토큰이 생성되었습니다.", null);
+            }
         } else {
             return RsData.of("Invalid username or password", null);
         }
 
     }
 
-    public void TokenExtension(HttpServletRequest request){
+    public void TokenExtension(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

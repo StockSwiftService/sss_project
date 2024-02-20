@@ -31,6 +31,7 @@ public class MemberService {
                 .birthday(birthday)
                 .company(companyCode)
                 .authority(2)
+                .tokenLifeSpan(4)
                 .build();
         this.memberRepository.save(rep);
     }
@@ -83,10 +84,21 @@ public class MemberService {
         Member searchMember = optionalMember.orElse(null);
 
         if (searchMember != null) {
-            return passwordEncoder.matches(password, searchMember.getPassword());
+            if (searchMember.getCompany().isApproved()) {
+                return passwordEncoder.matches(password, searchMember.getPassword());
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
+    }
+
+    public boolean adminCheck(String companyCode, String username){
+        Optional<Member> optionalMember = findByUsernameAndCompanyCode(username, companyCode);
+        Member searchMember = optionalMember.orElse(null);
+
+        return searchMember != null && searchMember.getAuthority() == 1;
     }
 
     //비번 수정

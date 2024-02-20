@@ -10,8 +10,13 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -51,9 +56,27 @@ public class Member extends BaseEntity {
         return Map.of(
                 "id", getId(),
                 "username", getUsername(),
-                "position",getPosition(),
-                "authority",getAuthority(),
-                "company",getCompany()
+                "position", getPosition(),
+                "authority", getAuthority(),
+                "company", getCompany()
         );
     }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("MEMBER"));
+
+        if (isAdmin()) {
+            authorities.add(new SimpleGrantedAuthority("admin"));
+        }
+
+        return authorities;
+    }
+
+    public boolean isAdmin() {
+        return authority == 1;
+
+    }
+
+
 }
