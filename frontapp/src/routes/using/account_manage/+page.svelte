@@ -292,6 +292,16 @@
         console.log(1)
     })
 
+
+    let allChecked = false;
+
+    function toggleAll() {
+        allChecked = !allChecked;
+
+        data.result.data.clients.content.forEach(client => {
+            client.checked = allChecked;
+        });
+    }
 </script>
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -473,7 +483,7 @@
                         <tr>
                             <th class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="all">
+                                    <input type="checkbox" id="all" bind:checked={allChecked} on:change={toggleAll}>
                                     <label for="all"></label>
                                 </div>
                             </th>
@@ -489,7 +499,7 @@
                         <tr>
                             <td class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="{client.id}">
+                                    <input type="checkbox" bind:checked={client.checked} id="{client.id}">
                                     <label for="{client.id}"></label>
                                 </div>
                             </td>
