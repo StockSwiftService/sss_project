@@ -56,12 +56,12 @@ public class ScheduleController {
         private LocalDate endDate;
     }
     @PostMapping("")
-    public RsData<ScheduleResponse> createSchedule(@Valid ScheduleRequest scheduleRequest) {
+    public RsData<ScheduleResponse> createSchedule(@Valid @RequestBody ScheduleRequest scheduleRequest) {
         Schedule schedule = this.scheduleService.create(scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
         return RsData.of("S-3", "스케쥴 생성 성공", new ScheduleResponse(schedule));
     }
     @PatchMapping("/{id}")
-    public RsData<ScheduleResponse> modifySchedule(@PathVariable("id") Long id, @Valid ScheduleRequest scheduleRequest) {
+    public RsData<ScheduleResponse> modifySchedule(@PathVariable("id") Long id, @Valid @RequestBody ScheduleRequest scheduleRequest) {
         Schedule schedule = this.scheduleService.getListById(id);
         this.scheduleService.modify(schedule, scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
         return RsData.of("S-4", "스케쥴 수정 성공", new ScheduleResponse(schedule));
