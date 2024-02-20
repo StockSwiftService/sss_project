@@ -3,14 +3,20 @@ package org.example.stockswiftservice.global.tokenverify;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Base64;
+
 public class JwtInterceptor implements HandlerInterceptor {
+
     private String secretKey;
+
 
     public JwtInterceptor(String secretKey) {
         this.secretKey = secretKey;
@@ -35,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             try {
                 // 토큰을 검증합니다.
                 Jws<Claims> claimsJws = Jwts.parser()
-                        .setSigningKey(secretKey.getBytes())
+                        .setSigningKey(Keys.hmacShaKeyFor(Base64.getEncoder().encodeToString(secretKey.getBytes()).getBytes()))
                         .parseClaimsJws(token);
                 // 토큰 검증이 성공한 경우, 요청을 계속 진행합니다.
                 return true;

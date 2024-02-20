@@ -3,6 +3,7 @@ package org.example.stockswiftservice.domain.global.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 헤더에서 Authorization 값을 가져온다.
-        String bearerToken = request.getHeader("Authorization");
+        String token = extractAccessToken(request);
 
-        if (bearerToken != null) {
-            String token = bearerToken.substring("Bearer ".length());
+        if (token != null) {
+//            String token = bearerToken.substring("Bearer ".length());
 
             if (jwtProvider.verify(token)) {
                 Map<String, Object> claims = jwtProvider.getClaims(token);
@@ -65,5 +66,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         context.setAuthentication(authentication);
         // 스프링 시큐리티에 context를 등록
         SecurityContextHolder.setContext(context);
+    }
+
+    public static String extractAccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("access_token")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

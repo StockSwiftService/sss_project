@@ -57,7 +57,7 @@
 				const data = await response.json();
 
 				// 로그인이 성공한 경우
-				if (data.resultCode === 'S-1') {
+				if (data.resultCode === 'S-1' || data.resultCode === 'S-0') {
 					if (rememberCompany) {
 						const remComCode = encryptData(formData.companyCode, secret_key);
 						setCookies('companyCode', remComCode, 365);
