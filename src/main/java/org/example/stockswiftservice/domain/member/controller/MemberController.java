@@ -6,9 +6,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.company.controller.CompanyController;
+import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -18,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -26,6 +32,43 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class MemberController {
     private final MemberService memberService;
 
+    @Data
+    public static class EmployeeJoinRequest {
+
+        //사원 이름
+        @NotNull
+        private String employeeName;
+        //직급
+        @NotNull
+        private String position;
+        //권한
+        private int authority;
+        //아이디
+        @NotNull
+        private String username;
+        //사원 비밀번호
+        @NotNull
+        private String password;
+        //사원 생일
+        @NotNull
+        private LocalDate birthday;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class EmployeeJoinReponse {
+        private final Member member;
+    }
+
+    //사원 등록
+    @PostMapping(value = "/join", consumes = APPLICATION_JSON_VALUE)
+    public RsData<EmployeeJoinReponse> employeeJoin(@Valid @RequestBody EmployeeJoinRequest employeeJoinRequest) {
+
+        // Company company = this.companyService.join(joinRequest.name, joinRequest.businessNumber, joinRequest.repName, joinRequest.email, joinRequest.address, joinRequest.detailAddress);
+        this.memberService.employeeJoin(employeeJoinRequest.employeeName, employeeJoinRequest.position, employeeJoinRequest.authority, employeeJoinRequest.username, employeeJoinRequest.password, employeeJoinRequest.birthday);
+
+        return RsData.of("S-1", "가입 성공", null);
+    }
 
     @Getter
     public static class loginresponse {
@@ -98,7 +141,7 @@ public class MemberController {
 
     }
 
-    public void TokenExtension(HttpServletRequest request){
+    public void TokenExtension(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

@@ -2,9 +2,9 @@
 	import Header from '../../components/Header.svelte';
 	import LeftMenu from '../../components/LeftMenu.svelte';
 	import { useFetch } from '../../hooks.js';
-	if (typeof window !== 'undefined') {
-		useFetch();
-	}
+	// if (typeof window !== 'undefined') {
+	// 	useFetch();
+	// }
 </script>
 
 <div class="wrap flex">

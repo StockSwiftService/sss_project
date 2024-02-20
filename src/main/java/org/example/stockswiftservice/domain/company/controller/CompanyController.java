@@ -221,7 +221,6 @@ public class CompanyController {
     @Getter
     public static class PwSearchResponse {
         private final Member member;
-
     }
 
     @Data
@@ -231,7 +230,7 @@ public class CompanyController {
         @NotNull
         private String username;
         @NotNull
-//        @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
+        //@Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$")
         private String email;
 
     }

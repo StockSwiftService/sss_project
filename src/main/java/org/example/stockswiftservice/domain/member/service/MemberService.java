@@ -35,6 +35,18 @@ public class MemberService {
         this.memberRepository.save(rep);
     }
 
+    public void employeeJoin(String name, String position, int authority, String username, String password, LocalDate birthday) {
+        Member employee = Member.builder()
+                .name(name)
+                .position(position)
+                .authority(authority)
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .birthday(birthday)
+                .build();
+        this.memberRepository.save(employee);
+    }
+
     public String genAccessToken(String username, String companyCode) {
         Member member = findByUsernameAndCompanyCode(username, companyCode).orElse(null);
 
@@ -92,10 +104,6 @@ public class MemberService {
     //비번 수정
     public Member PwModify(String newPassword, String username, String companyCode) {
         Member member = findByUsernameAndCompanyCode(username, companyCode).orElse(null);
-//        Member member = memberRepository.findByUsername(username) //유저 찾기
-//                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
-//        Company company = companyRepository.findByCompanyCode(companyCode).orElse(null);
-//
         Member modifiedMember = Member.builder()
                 .id(member.getId())
                 .name(member.getName())
