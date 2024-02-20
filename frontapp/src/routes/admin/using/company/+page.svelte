@@ -52,9 +52,6 @@
                             <th class="wsn">사업자 번호</th>
                             <th class="wsn">이메일</th>
                             <th class="wsn">대표자명</th>
-                            <th class="wsn">연락처</th>
-                            <th class="wsn">생년월일</th>
-                            <th class="wsn">아이디</th>
                             <th class="wsn">회사코드</th>
                         </tr>
                     </thead>
@@ -74,30 +71,7 @@
                             <td class="wsn">465781226812</td>
                             <td class="wsn">nemo@gmail.com</td>
                             <td class="wsn">김네모</td>
-                            <td class="wsn">0244413333</td>
-                            <td class="wsn">1985-07-23</td>
-                            <td class="wsn">user1</td>
                             <td class="wsn">-</td>
-                        </tr>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v2">
-                                    <label for="v2"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">
-                                <span class="cg">승인</span>
-                            </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn">대전광역시 대덕구 덕암동 572-5</td>
-                            <td class="wsn">465781226812</td>
-                            <td class="wsn">nemo@gmail.com</td>
-                            <td class="wsn">김네모</td>
-                            <td class="wsn">0244413333</td>
-                            <td class="wsn">1985-07-23</td>
-                            <td class="wsn">user1</td>
-                            <td class="wsn">1h8ea9</td>
                         </tr>
                     </tbody>
                 </table>

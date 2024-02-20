@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -16,7 +17,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final JwtAuthorizationFilter jwtAuthorizationFilter;
+    private final org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,10 +37,10 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(STATELESS)
                 ) // 세션끄기
-//                .addFilterBefore(
-//                        jwtAuthorizationFilter, // 엑세스 토큰으로 부터 로그인 처리
-//                        UsernamePasswordAuthenticationFilter.class
-//                )
+                .addFilterBefore(
+                        jwtAuthorizationFilter, // 엑세스 토큰으로 부터 로그인 처리
+                        UsernamePasswordAuthenticationFilter.class
+                )
         ;
 
         return http.build();

@@ -41,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 return true;
             } catch (Exception e) {
                 // 토큰 검증에 실패한 경우, 401 Unauthorized 응답을 반환합니다.
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized1234");
                 return false;
             }
         }
