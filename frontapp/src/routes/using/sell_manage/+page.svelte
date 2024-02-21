@@ -1,4 +1,6 @@
 <script>    
+    import { onMount } from 'svelte';
+
     let isActive = false;
     let isActive2 = false;
 
@@ -52,8 +54,14 @@
         isActiveStockSearch = false;
     }
 
-    //날짜 value 오늘 날짜로 초기 데이터 입력
-    let today = new Date().toISOString().split('T')[0];
+    //오늘 날짜로 기본 데이터 생성
+    function getTodayDate() {
+        const now = new Date();
+        const year = now.getFullYear();
+        let month = (now.getMonth() + 1).toString().padStart(2, '0');
+        let day = now.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
     //재고 영역 품목명 입력 후 검색
     let stocks = [];
@@ -66,7 +74,12 @@
 
     async function itemNameKeyUp(event) {
         if (event.key === 'Enter') {
-            searchItemName = itemName;
+            const inputId = event.target.id;
+
+            if (inputId === 'earlySearchInput') {
+                searchItemName = itemName;
+            }
+
             const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${searchItemName}`);
             if (response.ok) {
                 const responseData = await response.json();
@@ -78,6 +91,10 @@
                     stockQuantity = 1;
                     stockPrice = selectedStock.salesPrice;
                     stockTotalAmount = stockPrice * stockQuantity;
+                    if (inputId === 'searchInput') {
+                        isActive2 = false;
+                        isActiveStockSearch = false;
+                    }
                 }
                 else {
                     isActive2 = true;
@@ -105,6 +122,15 @@
         stockQuantity = event.target.value;
         stockTotalAmount = stockPrice * stockQuantity;
     }
+
+    onMount(() => {
+
+        //오늘 날짜로 기본 데이터 생성
+        document.getElementById('searchDateInput1').value = getTodayDate();
+        document.getElementById('searchDateInput2').value = getTodayDate();
+        document.getElementById('dateInput').value = getTodayDate();
+
+    });
 </script>
 
 <style>
@@ -142,7 +168,7 @@
                     <li class="flex aic g12">
                         <span class="title-text f14 c333">일자</span>
                         <div class="input-box input-type-2 f14 w140">
-                            <input type="date" bind:value={today} placeholder="일자">
+                            <input type="date" id="dateInput" placeholder="일자">
                         </div>
                     </li>
                     <li class="flex aic g12">
@@ -213,7 +239,35 @@
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명" bind:value={itemName} on:keydown={itemNameKeyUp}>
+                                    <input type="text" placeholder="품목명" id="earlySearchInput" bind:value={itemName} on:keydown={itemNameKeyUp}>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="수량" bind:value={stockQuantity} on:input={quantityChange}>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="단가" readonly bind:value={stockPrice}>
+                                </div>
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="금액" readonly bind:value={stockTotalAmount}>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="wsn">
+                                <div class="check-type-1">
+                                    <input type="checkbox" id="v1">
+                                    <label for="v1"></label>
+                                </div> 
+                            </td>
+                            <td class="wsn">
+                                <div class="input-type-2 f14">
+                                    <input type="text" placeholder="품목명" id="earlySearchInput" bind:value={itemName} on:keydown={itemNameKeyUp}>
                                 </div>
                             </td>
                             <td class="wsn">
@@ -381,7 +435,7 @@
         <div class="middle-box scr-type-1">
             <div class="search-type-1 flex aic">
                 <div class="search-box w100per">
-                    <input type="search" placeholder="거래처명" bind:value={searchItemName}>
+                    <input type="search" placeholder="품목명" bind:value={searchItemName} on:keydown={itemNameKeyUp} id="searchInput">
                 </div>
                 <button class="search-btn flex aic jcc">
                     <span class="ico-box img-box w16">
@@ -428,11 +482,11 @@
                 <div class="left-box flex aic">
                     <div class="flex aic g8">
                         <div class="input-type-2 f14 w140">
-                            <input type="date" placeholder="조회">
+                            <input type="date" placeholder="조회" id="searchDateInput1">
                         </div>
                         <span class="f14">~</span>
                         <div class="input-type-2 f14 w140">
-                            <input type="date" placeholder="조회">
+                            <input type="date" placeholder="조회" id="searchDateInput2">
                         </div>
                         <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
                     </div>
