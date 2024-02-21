@@ -26,19 +26,23 @@
     //이메일 검증
     let emailSuccessMessage = ''
     let emailErrorMessage = ''
+
     //이메일 인증코드 검증
     let emailNumberSuccessMessage = ''
     let emailNumberErrorMessage = ''
     //패스워드
-    let passwordSuccessMessage = '';
-    let passwordErrorMessage = '';
+    let passwordSuccessMessage = ''
+    let passwordErrorMessage = ''
     //패스워드 확인
-    let passwordConfirmErrorMessage = '';
-    let passwordConfirmSuccessMessage = '';
+    let passwordConfirmErrorMessage = ''
+    let passwordConfirmSuccessMessage = ''
 
     let isEmailConfirmed = false; // 이메일 인증 여부
-    let isbusinessNumberConfirm = false; // 사업자 번호 인증 여부
-    let isAddress = false;
+    let isBusinessNumberConfirm = false; // 사업자 번호 인증 여부
+
+    let isEmailButton = false
+    let isEmailConfirmButton = false
+    let isBusinessNumberButton = false
 
     let element_layer;
 
@@ -72,7 +76,6 @@
                 document.getElementById("address").value = addr;
                 formData.address = addr;
                 document.getElementById("detailAddress").focus();
-                isAddress = true;
                 element_layer.style.display = 'none';
             },
             width: '100%',
@@ -142,6 +145,7 @@
 
     // 사업자 번호 검사
     async function businessNumberConfirm() {
+        isBusinessNumberButton = true
         try {
             if (!formData.businessNumber.trim()) {
                 businessNumberErrorMessage = '필수 항목입니다'
@@ -163,11 +167,11 @@
                 if (data.resultCode == 'S-3') {
                     businessNumberErrorMessage = ''
                     businessNumberSuccessMessage = '등록 가능한 사업자 번호 입니다'
-                    isbusinessNumberConfirm = true
+                    isBusinessNumberConfirm = true
                 } else {
                     businessNumberErrorMessage = '사용하실 수 없는 사업자 번호 입니다'
                     businessNumberSuccessMessage = ''
-                    isbusinessNumberConfirm = false
+                    isBusinessNumberConfirm = false
                 }
             }
         } catch (error) {
@@ -177,7 +181,7 @@
 
     //이메일
     async function emailButton() {
-
+        isEmailButton = true
         try {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식을 나타내는 정규 표현식
             if (!emailRegex.test(formData.email.trim())) {
@@ -191,7 +195,6 @@
                 },
                 body: JSON.stringify({email: formData.email}),
             });
-
             if (response.ok) {
                 const data = await response.json();
                 if (data.resultCode === 'S-5') {
@@ -200,7 +203,7 @@
                 } else if (data.resultCode === 'S-6' && data.resultCode !== null) {
                     emailSuccessMessage = '메일 발송이 완료되었습니다';
                     emailErrorMessage = ''
-
+                    isEmailButton = true
                     const num = data.data.number
                     emailNum = num;
                     console.log(emailNum)
@@ -220,6 +223,7 @@
 
     //이메일 인증번호 확인
     async function emailConfirm() {
+        isEmailConfirmButton = true
         try {
             const userVerificationCode = document.getElementById('userVerificationCode').value;
             if (userVerificationCode === emailNum && userVerificationCode !== null) {
@@ -235,7 +239,6 @@
             console.error('오류 발생:', error);
         }
     }
-
 
     function validatePassword() {
         const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\W)(?=\S+$).{8,16}$/;
@@ -259,46 +262,41 @@
         }
     }
 
-
     //회원가입 제출
     const joinSubmit = async () => {
+       if(!formData.name.trim()) {
 
-        if (formData != null && !isAddress) {
-            alert('주소를 입력해 주세요.')
-        } else if (formData != null && !isbusinessNumberConfirm) {
-            alert('사업자 번호를 다시 확인 해주세요.')
-        } else if (formData != null && !isEmailConfirmed) {
-            alert('이메일 코드를 다시 확인 해주세요.')
-        } else {
-            try {
-                const response = await fetch('http://localhost:8080/api/v1/company/join', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data)
-                    // 회원가입 성공
-                    if (data.resultCode === 'S-1') {
-                        window.location.href = '/';
-                        alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
-                    } else {
-                        // 회원가입 실패
-                        const errorMessage = data.errorMessage;
-                        console.error('가입 실패:', errorMessage);
-                    }
+       }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/company/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data)
+                // 회원가입 성공
+                if (data.resultCode === 'S-1') {
+                    window.location.href = '/';
+                    alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
                 } else {
-                    console.error('서버 응답 오류:', response.statusText);
-                    alert('양식을 모두 입력 해주세요.');
-                    return;
+                    // 회원가입 실패
+                    const errorMessage = data.errorMessage;
+                    console.error('가입 실패:', errorMessage);
                 }
-            } catch (error) {
-                console.error('오류 발생:', error);
+            } else {
+                console.error('서버 응답 오류:', response.statusText);
+                alert('양식을 모두 입력 해주세요.');
+                return;
             }
+        } catch (error) {
+            console.error('오류 발생:', error);
         }
+
     }
 </script>
 <div class="cnt-in pt60 wh100per flex fdc aic jcc">
@@ -433,12 +431,6 @@
                         확인
                     </button>
                 </div>
-                <!--{#if emailNumberErrorMessage}-->
-                <!--    <span class="f13 mt4 cr">{emailNumberErrorMessage}</span>-->
-                <!--{/if}-->
-                <!--{#if emailNumberSuccessMessage}-->
-                <!--    <span class="f13 mt4 cg">{emailNumberSuccessMessage}</span>-->
-                <!--{/if}-->
             </div>
         {/if}
 

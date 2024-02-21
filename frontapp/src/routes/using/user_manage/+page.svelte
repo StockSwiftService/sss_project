@@ -6,6 +6,7 @@
         authority: '',
         username: '',
         password: '',
+        passwordConfirm: '',
         birthday: ''
     }
 
@@ -17,18 +18,18 @@
     //아이디
     let confirmUsernameErrorMessage = ''
     let confirmUsernameSuccessMessage = ''
+    let duplicatedUsername = false
+    let isCheckUsernameDuplicate = false
 
-    //이름
-    let nameErrorMessage = ''
-    let nameSuccessMessage = ''
+    //패스워드
+    let passwordSuccessMessage = ''
+    let passwordErrorMessage = ''
 
-    //직급
-    let positionErrorMessage = ''
-    let positionSuccessMessage = ''
+    //패스워드 확인
+    let passwordConfirmErrorMessage = ''
+    let passwordConfirmSuccessMessage = ''
+    let isPasswordConfirm = false
 
-    //권한
-    let authorityErrorMessage = ''
-    let authoritySuccessMessage = ''
 
     function activateModalAdd() {
         isActive = true;
@@ -55,6 +56,7 @@
 
     //사원 아이디 중복 검사
     async function checkUsernameDuplicate() {
+        isCheckUsernameDuplicate = true
         if (!employeeFormData.username.trim()) {
             confirmUsernameErrorMessage = '필수 항목입니다'
             confirmUsernameSuccessMessage = ''
@@ -72,9 +74,12 @@
                     if (data.resultCode == 'S-7') {
                         confirmUsernameErrorMessage = '중복된 아이디 입니다'
                         confirmUsernameSuccessMessage = ''
+                        return null;
                     } else {
                         confirmUsernameErrorMessage = ''
                         confirmUsernameSuccessMessage = '사용가능한 아이디 입니다'
+                        duplicatedUsername = true
+                        return employeeFormData.username
                     }
                 }
             } catch (error) {
@@ -83,46 +88,69 @@
         }
     }
 
+    function validatePassword() {
+        const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\W)(?=\S+$).{8,16}$/;
+        if (!passwordRegex.test(employeeFormData.password)) {
+            passwordSuccessMessage = ''
+            passwordErrorMessage = '비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용해야 합니다';
+        } else {
+            passwordErrorMessage = ''
+            return employeeFormData.password;
+        }
+    }
+
+    //비번 확인
+    function confirmValidatePassword() {
+        if (employeeFormData.password === employeeFormData.passwordConfirm) {
+            passwordConfirmSuccessMessage = '비밀번호가 일치합니다'
+            passwordConfirmErrorMessage = '';
+            isPasswordConfirm = true
+        } else {
+            passwordConfirmSuccessMessage = ''
+            passwordConfirmErrorMessage = '비밀번호가 일치하지 않습니다';
+            isPasswordConfirm = false
+        }
+    }
 
     //사원 등록
     const employeeSubmit = async () => {
-        try {
-            if (!employeeFormData.employeeName.trim()) {
-                nameErrorMessage = '필수 항목입니다'
-                nameSuccessMessage = ''
-            } else if (!employeeFormData.position.trim()) {
-                positionErrorMessage = '필수 항목입니다'
-                positionSuccessMessage = ''
-            } else if (!employeeFormData.authority) {
-                authorityErrorMessage = '필수 항목입니다'
-                authoritySuccessMessage = ''
-            }
-
-            const response = await fetch('http://localhost:8080/api/v1/member/join', {
-                method: 'POST',
-                // credentials: "include",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(employeeFormData)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data)
-                // 회원가입 성공
-                if (data.resultCode === 'S-1') {
-                    alert('사원 등록이 완료되었습니다.');
+        if (duplicatedUsername == false || isCheckUsernameDuplicate == false) {
+            alert('아이디를 다시 확인해 주세요.')
+        }else if(isPasswordConfirm == false || employeeFormData.password !== employeeFormData.passwordConfirm) {
+            alert('패스워드를 확인해 주세요.')
+        }
+        else if (!employeeFormData.username.trim() || !employeeFormData.employeeName.trim() || !employeeFormData.password.trim() || !employeeFormData.passwordConfirm ||
+            !employeeFormData.birthday.trim() || !employeeFormData.authority.trim() || !employeeFormData.position.trim()) {
+            alert('양식을 모두 입력해주세요.')
+        } else {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/member/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(employeeFormData)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    // 회원가입 성공
+                    if (data.resultCode === 'S-1') {
+                        alert('사원 등록이 완료되었습니다.');
+                        window.location.href = '/using/user_manage';
+                    } else {
+                        // 회원가입 실패
+                        const errorMessage = data.errorMessage;
+                        console.error('가입 실패:', errorMessage);
+                    }
                 } else {
-                    // 회원가입 실패
-                    const errorMessage = data.errorMessage;
-                    console.error('가입 실패:', errorMessage);
+                    console.error('서버 응답 오류:', response.statusText());
+                    alert('양식을 모두 입력해주세요')
+                    return;
                 }
-            } else {
-                console.error('서버 응답 오류:', response);
-                return;
+            } catch (error) {
+                console.error('오류 발생:', error);
             }
-        } catch (error) {
-            console.error('오류 발생:', error);
         }
     }
 </script>
@@ -141,34 +169,22 @@
                     <h2 class="c333 f15 tm mb8">이름<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex g8">
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="이름" on:value={employeeFormData.employeeName}>
+                            <input type="text" placeholder="이름" bind:value={employeeFormData.employeeName}>
                         </div>
                     </div>
-                    {#if nameErrorMessage}
-                        <span class="f13 mt4 cr">{nameErrorMessage}</span>
-                    {/if}
-                    {#if nameSuccessMessage}
-                        <span class="f13 mt4 cg">{nameSuccessMessage}</span>
-                    {/if}
                 </div>
 
                 <div>
                     <h2 class="c333 f15 tm mb8">직급<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="직급" on:value={employeeFormData.position}>
+                        <input type="text" placeholder="직급" bind:value={employeeFormData.position}>
                     </div>
-                    {#if positionErrorMessage}
-                        <span class="f13 mt4 cr">{positionErrorMessage}</span>
-                    {/if}
-                    {#if positionSuccessMessage}
-                        <span class="f13 mt4 cg">{positionSuccessMessage}</span>
-                    {/if}
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">등급<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex aic g12">
                         <div class="check-type-2">
-                            <input type="radio" id="1" name="rating" on:value={employeeFormData.authority}>
+                            <input type="radio" id="1" name="rating" value="4" bind:group={employeeFormData.authority}>
                             <label for="1" class="flex aic g4">
                                 <span class="img-box w16">
                                     <img src="/img/ico_check_2.svg" alt="">
@@ -177,7 +193,7 @@
                             </label>
                         </div>
                         <div class="check-type-2">
-                            <input type="radio" id="2" name="rating" on:value={employeeFormData.authority}>
+                            <input type="radio" id="2" name="rating" value="3" bind:group={employeeFormData.authority}>
                             <label for="2" class="flex aic g4">
                                 <span class="img-box w16">
                                     <img src="/img/ico_check_2.svg" alt="">
@@ -186,50 +202,71 @@
                             </label>
                         </div>
                     </div>
-                    {#if authorityErrorMessage}
-                        <span class="f13 mt4 cr">{authorityErrorMessage}</span>
-                    {/if}
-                    {#if authoritySuccessMessage}
-                        <span class="f13 mt4 cg">{authoritySuccessMessage}</span>
-                    {/if}
                 </div>
                 <div>
-                    <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="flex g8">
-                        <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="아이디" on:value={employeeFormData.username}>
+                    {#if duplicatedUsername}
+                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="flex g8">
+                            <div class="input-type-1 f14 w100per">
+                                <input type="text" placeholder="아이디" style="background-color: floralwhite" bind:value={employeeFormData.username} disabled>
+                            </div>
+                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
+                                    on:click|preventDefault={checkUsernameDuplicate}>확인
+                            </button>
                         </div>
-                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                on:click|preventDefault={checkUsernameDuplicate}>확인
-                        </button>
-                    </div>
-                    {#if confirmUsernameErrorMessage}
-                        <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
+                        {#if confirmUsernameErrorMessage}
+                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
+                        {/if}
+                        {#if confirmUsernameSuccessMessage}
+                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
+                        {/if}
                     {/if}
-                    {#if confirmUsernameSuccessMessage}
-                        <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
+                    {#if !duplicatedUsername}
+                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="flex g8">
+                            <div class="input-type-1 f14 w100per">
+                                <input type="text" placeholder="아이디" bind:value={employeeFormData.username}>
+                            </div>
+                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
+                                    on:click|preventDefault={checkUsernameDuplicate}>확인
+                            </button>
+                        </div>
+                        {#if confirmUsernameErrorMessage}
+                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
+                        {/if}
+                        {#if confirmUsernameSuccessMessage}
+                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
+                        {/if}
                     {/if}
                 </div>
+
                 <div>
                     <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="password" placeholder="비밀번호" on:value={employeeFormData.password}>
+                        <input type="password" placeholder="비밀번호" bind:value={employeeFormData.password}
+                               on:input={validatePassword}>
                     </div>
-                    <!--                    <div class="error-text-box">-->
-                    <!--                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>-->
-                    <!--                    </div>-->
+                    {#if passwordErrorMessage}
+                        <span class="f13 mt4 cr">{passwordErrorMessage}</span>
+                    {/if}
+                    {#if passwordSuccessMessage}
+                        <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
+                    {/if}
                     <div class="input-type-1 f14 w100per mt8">
-                        <input type="password" placeholder="비밀번호 확인">
+                        <input type="password" placeholder="비밀번호 확인" bind:value={employeeFormData.passwordConfirm}
+                               on:input={confirmValidatePassword}>
                     </div>
-                    <!--                    <div class="error-text-box">-->
-                    <!--                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>-->
-                    <!--                        <span class="f13 mt8 cr">비밀번호가 일치하지 않습니다.</span>-->
-                    <!--                    </div>-->
+                    {#if passwordConfirmErrorMessage}
+                        <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
+                    {/if}
+                    {#if passwordConfirmSuccessMessage}
+                        <span class="f13 mt4 cg">{passwordConfirmSuccessMessage}</span>
+                    {/if}
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">생년월일<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="date" placeholder="생년월일" on:value={employeeFormData.birthday}>
+                        <input type="date" placeholder="생년월일" bind:value={employeeFormData.birthday}>
                     </div>
                     <!--                    <div class="error-text-box">-->
                     <!--                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>-->

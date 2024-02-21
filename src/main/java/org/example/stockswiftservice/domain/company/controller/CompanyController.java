@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.company.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -11,6 +12,7 @@ import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.service.CompanyService;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.hibernate.annotations.Comment;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
 
@@ -31,6 +34,7 @@ public class CompanyController {
 
     private final CompanyService companyService;
     private final MemberService memberService;
+    private final JwtProvider jwtProvider;
 
 
     @Data
@@ -107,9 +111,9 @@ public class CompanyController {
     public RsData<NameResponse> checkNameDuplicate(@Valid @RequestBody NameRequest nameRequest) {
         Optional<Company> name = companyService.findByName(nameRequest.getName());
         if (name.isPresent()) {
-            return RsData.of("S-2", "중복된 아이디", new NameResponse(name));
+            return RsData.of("S-2", "중복된 회사명", new NameResponse(name));
         } else {
-            return RsData.of("S-3", "아이디 사용 가능", null);
+            return RsData.of("S-3", "회사명 사용 가능", null);
         }
     }
 
@@ -138,7 +142,7 @@ public class CompanyController {
         }
     }
 
-    //대표 아이디 검증
+
     @AllArgsConstructor
     @Getter
     public static class UsernameResponse {
@@ -151,9 +155,13 @@ public class CompanyController {
         private String username;
     }
 
+    //사원 아이디 검증
     @PostMapping(value = "/check-username", consumes = ALL_VALUE)
-    public RsData<UsernameResponse> checkUsernameDuplicate(@Valid @RequestBody UsernameRequest usernameRequest) {
-        Optional<Member> username = memberService.findByUsername(usernameRequest.getUsername());
+    public RsData<UsernameResponse> checkUsernameDuplicate(@Valid @RequestBody UsernameRequest usernameRequest, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Member member = this.memberService.findbyId(userId).orElse(null);
+        Optional<Member> username = memberService.findByUsernameAndCompanyCode(usernameRequest.getUsername(), member.getCompany().getCompanyCode());
         if (username.isPresent()) {
             return RsData.of("S-7", "아이디 중복", new UsernameResponse(username));
         } else {

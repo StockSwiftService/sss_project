@@ -36,7 +36,9 @@ public class MemberService {
         this.memberRepository.save(rep);
     }
 
-    public void employeeJoin(String name, String position, int authority, String username, String password, LocalDate birthday) {
+    public Member employeeJoin(String name, String position, int authority, String username, String password, LocalDate birthday, Long userId) {
+
+        Member company = this.memberRepository.findById(userId).orElse(null);
         Member employee = Member.builder()
                 .name(name)
                 .position(position)
@@ -44,8 +46,11 @@ public class MemberService {
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .birthday(birthday)
+                .tokenLifeSpan(4)
+                .company(company.getCompany())
                 .build();
         this.memberRepository.save(employee);
+        return employee;
     }
 
     public String genAccessToken(String username, String companyCode) {
@@ -106,7 +111,7 @@ public class MemberService {
         }
     }
 
-    public boolean adminCheck(String companyCode, String username){
+    public boolean adminCheck(String companyCode, String username) {
         Optional<Member> optionalMember = findByUsernameAndCompanyCode(username, companyCode);
         Member searchMember = optionalMember.orElse(null);
 
@@ -130,5 +135,10 @@ public class MemberService {
 
         memberRepository.save(modifiedMember);
         return modifiedMember;
+    }
+
+
+    public Optional<Member> findbyId(Long id) {
+        return this.memberRepository.findById(id);
     }
 }

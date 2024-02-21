@@ -15,6 +15,7 @@ import org.example.stockswiftservice.domain.company.controller.CompanyController
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
+import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -31,6 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/v1/member", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 public class MemberController {
     private final MemberService memberService;
+    private final JwtProvider jwtProvider;
 
     @Data
     public static class EmployeeJoinRequest {
@@ -62,12 +65,12 @@ public class MemberController {
 
     //사원 등록
     @PostMapping(value = "/join", consumes = APPLICATION_JSON_VALUE)
-    public RsData<EmployeeJoinReponse> employeeJoin(@Valid @RequestBody EmployeeJoinRequest employeeJoinRequest) {
+    public RsData<EmployeeJoinReponse> employeeJoin(@Valid @RequestBody EmployeeJoinRequest employeeJoinRequest, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
 
-        // Company company = this.companyService.join(joinRequest.name, joinRequest.businessNumber, joinRequest.repName, joinRequest.email, joinRequest.address, joinRequest.detailAddress);
-        this.memberService.employeeJoin(employeeJoinRequest.employeeName, employeeJoinRequest.position, employeeJoinRequest.authority, employeeJoinRequest.username, employeeJoinRequest.password, employeeJoinRequest.birthday);
-
-        return RsData.of("S-1", "가입 성공", null);
+        Member member = this.memberService.employeeJoin(employeeJoinRequest.employeeName, employeeJoinRequest.position, employeeJoinRequest.authority, employeeJoinRequest.username, employeeJoinRequest.password, employeeJoinRequest.birthday, userId);
+        return RsData.of("S-1", "가입 성공", new EmployeeJoinReponse(member));
     }
 
     @Getter
