@@ -15,12 +15,10 @@ import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.hibernate.annotations.Comment;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
@@ -277,6 +275,27 @@ public class CompanyController {
     public RsData<PwModifyResponse> PwModify(@Valid @RequestBody PwModifyValue pwModifyValue) {
         Member om = this.memberService.PwModify(pwModifyValue.getPassword(), pwModifyValue.getUsername(), pwModifyValue.getCompanyCode());
         return RsData.of("S-14", "비번 수정 가능", new PwModifyResponse(om));
+    }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class companyListResponse {
+        private final List<Company> companyList;
+
+        //
+    }
+
+    @GetMapping(value = "/lists", consumes = ALL_VALUE)
+    public RsData<companyListResponse> getList (HttpServletRequest request){
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 아이디 값
+
+        if (authority != 1){
+            return RsData.of("E-1","관리자만 접속 가능",null);
+        }
+        List<Company> companyList = this.companyService.findAll();
+        return RsData.of("AS-1","리스트 가져오기 완료",new companyListResponse(companyList));
     }
 }
 

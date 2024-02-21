@@ -7,6 +7,7 @@ import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,5 +65,9 @@ public class CompanyService {
 
     public Optional<Company> findByNameAndEmailAndBusinessNumber(String name, String email, String businessNumber) {
         return companyRepository.findByNameAndEmailAndBusinessNumber(name, email, businessNumber);
+    }
+
+    public List<Company> findAll() {
+        return this.companyRepository.findAll();
     }
 }
