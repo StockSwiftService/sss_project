@@ -8,7 +8,7 @@ export async function load ({fetch, params}) {
     // const query = req.querystring;
 
     // console.log("fetch: ", fetch);
-    console.log("loaded!!");
+
 
     // console.log("searchParams: ", params);
     //querystring으로 어떻게 해야함?

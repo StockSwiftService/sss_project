@@ -8,6 +8,7 @@
     let isActive = false;
     let isActiveAdd = false;
     let isActiveModify = false;
+
     const resetForm = () => {
         const form = document.querySelector('form');
         if (form) {
@@ -46,8 +47,6 @@
 
     const submitClientForm = async (event) => {
         event.preventDefault();
-
-        const form = event.target;
 
         // 클라이언트 측 유효성 검사 수행
         const clientName = formData.clientName;
@@ -100,7 +99,10 @@
                 console.log(responseData);
                 window.alert('저장되었습니다.');
                 // deactivateModal();
-                location.reload();
+                goto(`/using/account_manage`);
+                setTimeout(() => {
+                    location.reload();
+                }, 100);
             } else {
                 const responseData = await response.json();
                 console.error(responseData);
@@ -311,6 +313,7 @@
             client.checked = allChecked;
         });
     }
+
 </script>
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -494,7 +497,7 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">{data.data.clients.content.length}</span>개
+                전체 <span class="number inblock cm tm">{data.data.clientList.length}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>

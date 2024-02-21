@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,12 +24,15 @@ import java.util.Optional;
 public class ClientService {
     private final ClientRepository clientRepository;
 
-    public Page<Client> getList(String kw, int page) {
+    public Page<Client> getSearchList(String kw, int page) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
         Specification<Client> spec = search(kw);
         return this.clientRepository.findAll(spec, pageable);
+    }
+    public List<Client> getList() {
+        return this.clientRepository.findAll();
     }
 
     public Client getClient(Long id) {

@@ -2,8 +2,10 @@ package org.example.stockswiftservice.domain.client.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.client.service.ClientService;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -21,16 +23,19 @@ public class ClientController {
 
     @Getter
     @AllArgsConstructor
-    public static class ClientsResponse {
+    public static class ClientsSearchResponse {
         private final Page<Client> clients;
+        private final List<Client> clientList;
     }
 
     @GetMapping("")
-    public RsData<ClientsResponse> clients(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Client> clients = this.clientService.getList(kw, page);
+    public RsData<ClientsSearchResponse> clients(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Client> clients = this.clientService.getSearchList(kw, page);
+        List<Client> clientList = this.clientService.getList();
 
-        return RsData.of("S-1", "성공", new ClientsResponse(clients));
+        return RsData.of("S-1", "성공", new ClientsSearchResponse(clients,clientList));
     }
+
 
     @Getter
     @AllArgsConstructor
