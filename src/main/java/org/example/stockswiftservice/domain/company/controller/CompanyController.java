@@ -283,19 +283,63 @@ public class CompanyController {
     public static class companyListResponse {
         private final List<Company> companyList;
 
-        //
     }
 
     @GetMapping(value = "/lists", consumes = ALL_VALUE)
-    public RsData<companyListResponse> getList (HttpServletRequest request){
+    public RsData<companyListResponse> getList(HttpServletRequest request) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
-        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 아이디 값
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
 
-        if (authority != 1){
-            return RsData.of("E-1","관리자만 접속 가능",null);
+        if (authority != 1) {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
         }
         List<Company> companyList = this.companyService.findAll();
-        return RsData.of("AS-1","리스트 가져오기 완료",new companyListResponse(companyList));
+        return RsData.of("AS-1", "리스트 가져오기 완료", new companyListResponse(companyList));
+    }
+
+
+    @Data
+    public static class CompanyList {
+        private List<String> approveList;
+    }
+
+    @PostMapping(value = "/approve", consumes = ALL_VALUE)
+    public RsData<?> CompanyApprove(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setApproved(true);
+                this.companyService.save(company);
+            }
+            return RsData.of("AS-2", "승인 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+
+    }
+
+    @PostMapping(value = "/disapprove", consumes = ALL_VALUE)
+    public RsData<?> CompanyDisapprove(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setApproved(false);
+                this.companyService.save(company);
+            }
+            return RsData.of("AS-3", "탈퇴 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
     }
 }
 

@@ -70,4 +70,12 @@ public class CompanyService {
     public List<Company> findAll() {
         return this.companyRepository.findAll();
     }
+
+    public Company findById(Long companyId) {
+        return this.companyRepository.findById(companyId).orElse(null);
+    }
+
+    public void save(Company company) {
+        this.companyRepository.save(company);
+    }
 }

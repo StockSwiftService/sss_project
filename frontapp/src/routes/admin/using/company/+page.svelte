@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 
 	let companyList = [];
-	onMount(async () => {
+	
+
+    const getList = async () => {
 		try {
 			const response = await fetch('http://localhost:8080/api/v1/company/lists', {
 				method: 'GET',
@@ -20,7 +22,6 @@
 					alert('관리자만 접근할 수 있습니다.');
 				}
 				companyList = data.data.companyList;
-				console.log(companyList);
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
 				if (!response.ok && response.status != 401) {
@@ -31,13 +32,43 @@
 			console.error('오류 발생:', error);
 			alert('다시 시도 해주세요2.');
 		}
-	});
+	};
+    
+
+    onMount(async () => {
+        try {
+			const response = await fetch('http://localhost:8080/api/v1/company/lists', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				credentials: 'include'
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+
+				if (data.resultCode === 'E-1') {
+					window.location.href = '/using/user_manage';
+					alert('관리자만 접근할 수 있습니다.');
+				}
+				companyList = data.data.companyList;
+			} else {
+				console.error('서버 응답 오류:', response.statusText);
+				if (!response.ok && response.status != 401) {
+					alert('다시 시도 해주세요.');
+				}
+			}
+		} catch (error) {
+			console.error('오류 발생:', error);
+			alert('다시 시도 해주세요2.');
+		}
+    });
 
 
-    let formData = {
-        approveList:[]
-    }
-	// let approveList = [];
+	let formData = {
+		approveList: []
+	};
 
 	function handleCheckboxChange(event) {
 		const checkboxId = event.target.id;
@@ -46,27 +77,52 @@
 		} else {
 			formData.approveList = formData.approveList.filter((id) => id !== checkboxId);
 		}
-		console.log(formData.approveList);
 	}
 
 	function allCheck(event) {
 		if (event.target.checked) {
-            formData.approveList = [];
+			formData.approveList = [];
 			for (const company of companyList) {
 				const checkbox = document.getElementById(company.id);
 				checkbox.checked = true;
 				formData.approveList.push(company.id.toString());
 			}
-			console.log(formData.approveList);
 		} else {
-            for (const company of companyList) {
+			for (const company of companyList) {
 				const checkbox = document.getElementById(company.id);
 				checkbox.checked = false;
 			}
 			formData.approveList = [];
-			console.log(formData.approveList);
 		}
 	}
+	const approve = async () => {
+			const response = await fetch('http://localhost:8080/api/v1/company/approve', {
+				method: 'POST',
+				headers: {
+                    'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			});
+            if ( response.ok){
+                const data = await response.json();
+                getList();
+            }
+		};
+	
+
+    const disapprove = async () => {
+			const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
+				method: 'POST',
+				headers: {
+                    'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			});
+            if ( response.ok){
+                const data = await response.json();
+                getList();
+            }
+		};
 </script>
 
 <div class="store-management-area cnt-area w100per">
@@ -155,10 +211,8 @@
 			</div>
 			<div class="flex aic jcsb mt8">
 				<div class="flex aic g4">
-					<button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={handleCheckboxChange}
-						>승인</button
-					>
-					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={allCheck}
+					<button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approve}>승인</button>
+					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={disapprove}
 						>탈퇴</button
 					>
 				</div>
