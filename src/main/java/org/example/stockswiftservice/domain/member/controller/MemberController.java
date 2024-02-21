@@ -130,7 +130,20 @@ public class MemberController {
         }
 
     }
+    @PostMapping(value = "/logout", consumes = APPLICATION_JSON_VALUE)
+    public RsData<loginresponse> logout(HttpServletResponse resp) {
 
+        Cookie expireAccessCookie = new Cookie("access_token", "");
+        expireAccessCookie.setMaxAge(0);
+        expireAccessCookie.setPath("/");
+        resp.addCookie(expireAccessCookie);
+
+        Cookie expireRefreshCookie = new Cookie("refresh_token", "");
+        expireRefreshCookie.setMaxAge(0);
+        expireRefreshCookie.setPath("/");
+        resp.addCookie(expireRefreshCookie);
+        return RsData.of("S-2", "토큰이 삭제되었습니다.", null);
+    }
     public void TokenExtension(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

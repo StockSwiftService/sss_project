@@ -5,6 +5,9 @@ import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,7 +62,7 @@ public class CompanyService {
         return companyRepository.findByBusinessNumber(businessNumber);
     }
 
-    public Optional<Company> findByCompanyCode (String companyCode) {
+    public Optional<Company> findByCompanyCode(String companyCode) {
         return companyRepository.findByCompanyCode(companyCode);
     }
 
@@ -77,5 +80,10 @@ public class CompanyService {
 
     public void save(Company company) {
         this.companyRepository.save(company);
+    }
+
+    public Page<Company> PageingFindAll(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return this.companyRepository.findAll(pageable);
     }
 }

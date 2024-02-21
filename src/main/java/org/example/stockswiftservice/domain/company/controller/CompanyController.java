@@ -15,6 +15,7 @@ import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.hibernate.annotations.Comment;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -282,11 +283,12 @@ public class CompanyController {
     @Getter
     public static class companyListResponse {
         private final List<Company> companyList;
+        private final Page<Company> pageingList;
 
     }
 
     @GetMapping(value = "/lists", consumes = ALL_VALUE)
-    public RsData<companyListResponse> getList(HttpServletRequest request) {
+    public RsData<companyListResponse> getList(HttpServletRequest request,@RequestParam(value="page", defaultValue="0") int page) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
 
@@ -294,7 +296,8 @@ public class CompanyController {
             return RsData.of("E-1", "관리자만 접속 가능", null);
         }
         List<Company> companyList = this.companyService.findAll();
-        return RsData.of("AS-1", "리스트 가져오기 완료", new companyListResponse(companyList));
+        Page<Company> pageingList = this.companyService.PageingFindAll(page);
+        return RsData.of("AS-1", "리스트 가져오기 완료", new companyListResponse(companyList,pageingList));
     }
 
 

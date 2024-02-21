@@ -2,9 +2,43 @@
 	import { onMount } from 'svelte';
 
 	let companyList = [];
-	
+	let resList = [];
+	let companyTotal = [];
+	function changePages(page) {}
 
-    const getList = async () => {
+	const changePage = async (page) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/v1/company/lists?page=${page}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				credentials: 'include'
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+
+				if (data.resultCode === 'E-1') {
+					window.location.href = '/using/user_manage';
+					alert('관리자만 접근할 수 있습니다.');
+				}
+				resList = data.data.pageingList;
+				companyList = resList.content;
+				companyTotal = data.data.companyList;
+			} else {
+				console.error('서버 응답 오류:', response.statusText);
+				if (!response.ok && response.status != 401) {
+					alert('다시 시도 해주세요.');
+				}
+			}
+		} catch (error) {
+			console.error('오류 발생:', error);
+			alert('다시 시도 해주세요.');
+		}
+	};
+
+	onMount(async () => {
 		try {
 			const response = await fetch('http://localhost:8080/api/v1/company/lists', {
 				method: 'GET',
@@ -21,7 +55,9 @@
 					window.location.href = '/using/user_manage';
 					alert('관리자만 접근할 수 있습니다.');
 				}
-				companyList = data.data.companyList;
+				resList = data.data.pageingList;
+				companyList = resList.content;
+				companyTotal = data.data.companyList;
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
 				if (!response.ok && response.status != 401) {
@@ -32,39 +68,7 @@
 			console.error('오류 발생:', error);
 			alert('다시 시도 해주세요2.');
 		}
-	};
-    
-
-    onMount(async () => {
-        try {
-			const response = await fetch('http://localhost:8080/api/v1/company/lists', {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include'
-			});
-
-			if (response.ok) {
-				const data = await response.json();
-
-				if (data.resultCode === 'E-1') {
-					window.location.href = '/using/user_manage';
-					alert('관리자만 접근할 수 있습니다.');
-				}
-				companyList = data.data.companyList;
-			} else {
-				console.error('서버 응답 오류:', response.statusText);
-				if (!response.ok && response.status != 401) {
-					alert('다시 시도 해주세요.');
-				}
-			}
-		} catch (error) {
-			console.error('오류 발생:', error);
-			alert('다시 시도 해주세요2.');
-		}
-    });
-
+	});
 
 	let formData = {
 		approveList: []
@@ -96,33 +100,44 @@
 		}
 	}
 	const approve = async () => {
-			const response = await fetch('http://localhost:8080/api/v1/company/approve', {
-				method: 'POST',
-				headers: {
-                    'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(formData)
-			});
-            if ( response.ok){
-                const data = await response.json();
-                getList();
-            }
-		};
-	
+		const response = await fetch('http://localhost:8080/api/v1/company/approve', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(formData)
+		});
+		if (response.ok) {
+			const data = await response.json();
+			getList();
+		}
+	};
 
-    const disapprove = async () => {
-			const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
-				method: 'POST',
-				headers: {
-                    'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(formData)
-			});
-            if ( response.ok){
-                const data = await response.json();
-                getList();
-            }
-		};
+	const disapprove = async () => {
+		const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(formData)
+		});
+		if (response.ok) {
+			const data = await response.json();
+			getList();
+		}
+	};
+
+	function check() {
+		console.log(1);
+	}
+
+	function generatePageButtons(totalPages) {
+		const buttons = [];
+		for (let i = 0; i < totalPages; i++) {
+			buttons.push(i + 1);
+		}
+		return buttons;
+	}
 </script>
 
 <div class="store-management-area cnt-area w100per">
@@ -161,7 +176,7 @@
 		<div class="line"></div>
 		<div class="middle-area">
 			<div class="all-text c121619 f14">
-				전체 <span class="number inblock cm tm">0</span>건
+				전체 <span class="number inblock cm tm">{companyTotal.length}</span>건
 			</div>
 			<div class="table-box-1 table-type-1 scr-type-2 mt12">
 				<table>
@@ -219,27 +234,26 @@
 			</div>
 			<div class="paging-box flex jcc mt40">
 				<ul class="flex aic jcc">
-					<li class="page-btn">
-						<a href="">이전</a>
-					</li>
-					<li class="num">
-						<a href="" class="active">1</a>
-					</li>
-					<li class="num">
-						<a href="">2</a>
-					</li>
-					<li class="num">
-						<a href="">3</a>
-					</li>
-					<li class="num">
-						<a href="">4</a>
-					</li>
-					<li class="num">
-						<a href="">5</a>
-					</li>
-					<li class="page-btn">
-						<a href="">다음</a>
-					</li>
+					{#if resList.number > 0}
+						<li class="page-btn" on:click={() => changePage(resList.number - 1)}>
+							<a href="">이전</a>
+						</li>
+					{/if}
+
+					{#each generatePageButtons(resList.totalPages) as button}
+						<li
+							class="num"
+							on:click={() => resList.number !== button - 1 && changePage(button - 1)}
+						>
+							<a href="" class:active={resList.number === button - 1}>{button}</a>
+						</li>
+					{/each}
+
+					{#if resList.number < resList.totalPages - 1}
+						<li class="page-btn" on:click={() => changePage(resList.number + 1)}>
+							<a href="">다음</a>
+						</li>
+					{/if}
 				</ul>
 			</div>
 		</div>

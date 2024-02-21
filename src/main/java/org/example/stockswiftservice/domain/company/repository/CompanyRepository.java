@@ -2,6 +2,8 @@ package org.example.stockswiftservice.domain.company.repository;
 
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.member.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +17,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     Optional<Company> findByBusinessNumber(String businessNumber);
     Optional<Company> findByEmail(String email);
     Optional<Company> findByNameAndEmailAndBusinessNumber(String name, String email, String businessNumber);
+
+    Page<Company> findAll(Pageable pageable);
 }
