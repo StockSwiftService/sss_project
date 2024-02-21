@@ -1,5 +1,6 @@
 <script>    
     import { onMount } from 'svelte';
+	import { sineOut } from 'svelte/easing';
 
     let isActive = false;
     let isActive2 = false;
@@ -64,37 +65,42 @@
     }
 
     //재고 영역 품목명 입력 후 검색
+    let items = [
+        {
+            id: 1,
+            itemName: "",
+            quantity: "0",
+            price: "0",
+            sumPrice: "0",
+        }
+    ];
+    let selectItem;
     let stocks = [];
-    let selectedStock = { itemName: '', salesPrice: ''};
-    let itemName = '';
-    let searchItemName = '';
-    let stockQuantity = 0;
-    let stockPrice = 0;
-    let stockTotalAmount = 0; 
 
-    async function itemNameKeyUp(event) {
+    function addRow() {
+        const newItem = {
+            id: items.length + 1,
+            itemName: "",
+            quantity: "0",
+            price: "0",
+            sumPrice: "0",
+        };
+        items = [...items, newItem];
+    }
+
+    async function itemNameKeyUp(event, item) {
         if (event.key === 'Enter') {
-            const inputId = event.target.id;
-
-            if (inputId === 'earlySearchInput') {
-                searchItemName = itemName;
-            }
-
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${searchItemName}`);
+            selectItem = item;
+            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${item.itemName}`);
             if (response.ok) {
                 const responseData = await response.json();
                 stocks = responseData.data.stocks;
-
                 if (stocks.length == 1) {
-                    selectedStock = stocks[0];
-                    itemName = selectedStock.itemName;
-                    stockQuantity = 1;
-                    stockPrice = selectedStock.salesPrice;
-                    stockTotalAmount = stockPrice * stockQuantity;
-                    if (inputId === 'searchInput') {
-                        isActive2 = false;
-                        isActiveStockSearch = false;
-                    }
+                    item.itemName = stocks[0].itemName;
+                    item.quantity = "1";
+                    item.price = stocks[0].salesPrice;
+                    item.sumPrice = item.quantity * item.price;
+                    items = items;
                 }
                 else {
                     isActive2 = true;
@@ -106,21 +112,19 @@
         }
     }
 
-    function selectStock(stock) {
-        selectedStock = stock;
-        itemName = stock.itemName;
-        stockPrice = stock.salesPrice;
-
-        isActive2 = false;
-        isActiveAccountSearch = false;
-
-        stockQuantity = 1;
-        stockTotalAmount = stockPrice * stockQuantity;
+    function quantityChange(item) {
+        item.sumPrice = item.quantity * item.price;
+        items = items;
     }
 
-    function quantityChange(event) {
-        stockQuantity = event.target.value;
-        stockTotalAmount = stockPrice * stockQuantity;
+    function selectStock(stock) {
+        selectItem.itemName = stock.itemName;
+        selectItem.quantity = "1";
+        selectItem.price = stock.salesPrice;
+        selectItem.sumPrice = selectItem.quantity * selectItem.price;
+        items = items;
+        isActive2 = false;
+        isActiveStockSearch = false;
     }
 
     onMount(() => {
@@ -210,7 +214,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
             <div class="table-type-3 scr-type-2 rel">
@@ -230,62 +233,36 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {#each items as item (item.id)}
                         <tr>
                             <td class="wsn">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
+                                    <input type="checkbox" id={`v${item.id}`}>
+                                    <label for={`v${item.id}`}></label>
                                 </div> 
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명" id="earlySearchInput" bind:value={itemName} on:keydown={itemNameKeyUp}>
+                                    <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량" bind:value={stockQuantity} on:input={quantityChange}>
+                                    <input type="text" placeholder="수량" bind:value={item.quantity} on:input={() => quantityChange(item)}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly bind:value={stockPrice}>
+                                    <input type="text" placeholder="단가" readonly bind:value={item.price}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="금액" readonly bind:value={stockTotalAmount}>
+                                    <input type="text" placeholder="단가" readonly bind:value={item.sumPrice}>
                                 </div>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="wsn">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명" id="earlySearchInput" bind:value={itemName} on:keydown={itemNameKeyUp}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량" bind:value={stockQuantity} on:input={quantityChange}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly bind:value={stockPrice}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="금액" readonly bind:value={stockTotalAmount}>
-                                </div>
-                            </td>
-                        </tr>
+                        {/each}
                     </tbody>
                     <tbody>
                         <tr class="last">
@@ -298,7 +275,7 @@
                     </tbody>
                 </table>
                 <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
-                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">추가</button>
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={addRow}>추가</button>
                     <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
                 </div>
             </div>
@@ -435,7 +412,7 @@
         <div class="middle-box scr-type-1">
             <div class="search-type-1 flex aic">
                 <div class="search-box w100per">
-                    <input type="search" placeholder="품목명" bind:value={searchItemName} on:keydown={itemNameKeyUp} id="searchInput">
+                    <input type="search" placeholder="품목명">
                 </div>
                 <button class="search-btn flex aic jcc">
                     <span class="ico-box img-box w16">
