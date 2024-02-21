@@ -1,7 +1,7 @@
 <script>
     // import {goto} from "$app/navigation";
     import {page} from "$app/stores";
-    import {goto, invalidate, replaceState} from "$app/navigation";
+    import {goto, replaceState} from "$app/navigation";
     import {onMount} from "svelte";
 
     export let data;
@@ -240,6 +240,7 @@
         }
     };
 
+    //페이징
     function generatePageButtons(totalPages) {
         const buttons = [];
         for (let i = 0; i < totalPages; i++) {
@@ -248,32 +249,23 @@
         return buttons;
     }
 
-    async function changePage(searchKeyword, page) {
+    let searchQuery = '';
+    let currentPage = 0;
+    async function changePage(searchQuery,currentPage) {
         try {
-            console.log("검색어 : " + searchKeyword);
-            console.log("페이지 : " + page);
 
-            const response = await fetch(`http://localhost:8080/api/v1/clients?kw=${searchKeyword}&page=${page + 1}`);
+            $page.url.searchParams.get('kw', searchQuery);
+            $page.url.searchParams.set('page', currentPage);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await dataLoad();
 
-            const data = await response.json();
-
-            // 데이터 업데이트
-            data.result = data;
-
-            // 페이지 이동 시 브라우저의 주소도 업데이트
-            goto(`/using/account_manage/${searchKeyword}/${page}`);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
 
-
-    let searchQuery = '';
-    let currentPage = 0;
+    //검색
     const performSearch = async () => {
 
         $page.url.searchParams.set('kw', searchQuery);
@@ -312,6 +304,15 @@
         data.data.clients.content.forEach(client => {
             client.checked = allChecked;
         });
+
+        // let checkboxes = document.querySelectorAll('div.table-box-1 > table > tbody td.wsn input[type=checkbox]');
+        // checkboxes.forEach(element => element.checked = allChecked);
+
+        // data.data.clients.content.forEach(client => {
+        //     console.log('client: ', client);
+        //     console.log('checked: ', client.checked);
+        // });
+
     }
 
 </script>
@@ -505,7 +506,7 @@
                     <tr>
                         <th class="wsn" style="width: 44px;">
                             <div class="check-type-1">
-                                <input type="checkbox" id="all" on:change={toggleAll}>
+                                <input type="checkbox" id="all" checked={allChecked} on:change={toggleAll}>
                                 <label for="all"></label>
                             </div>
                         </th>
