@@ -131,9 +131,6 @@
 		}
 	};
 
-	function check(num) {
-		console.log(num);
-	}
 
 	function generatePageButtons(totalPages) {
 		const buttons = [];
@@ -143,15 +140,17 @@
 		return buttons;
 	}
 
-	function memoModify(id) {
-        console.log('memo_after_' + id)
-		let after = document.getElementById('memo_after_' + id);
-        let before = document.getElementById('memo_before_' + id);
+    function memoModify(companyId) {
+        document.getElementById(`memo_after_${companyId}`).style.display = 'block';
+        document.getElementById(`memo_before_${companyId}`).style.display = 'none';
+    }
 
-		// Add the 'aaa' class to the div element
-		after.classList.add('active');
-        // before.classList.remove('active');
-	}
+    function check(companyId) {
+        // 저장 버튼을 클릭한 회사의 ID에 해당하는 "memo-before" 섹션을 표시
+        document.getElementById(`memo_before_${companyId}`).style.display = 'block';
+        document.getElementById(`memo_after_${companyId}`).style.display = 'none';
+    }
+
 </script>
 
 <div class="store-management-area cnt-area w100per">
