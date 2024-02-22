@@ -131,8 +131,8 @@
 		}
 	};
 
-	function check() {
-		console.log(1);
+	function check(num) {
+		console.log(num);
 	}
 
 	function generatePageButtons(totalPages) {
@@ -141,6 +141,16 @@
 			buttons.push(i + 1);
 		}
 		return buttons;
+	}
+
+	function memoModify(id) {
+        console.log('memo_after_' + id)
+		let after = document.getElementById('memo_after_' + id);
+        let before = document.getElementById('memo_before_' + id);
+
+		// Add the 'aaa' class to the div element
+		after.classList.add('active');
+        // before.classList.remove('active');
 	}
 </script>
 
@@ -201,6 +211,7 @@
 							<th class="wsn">이메일</th>
 							<th class="wsn">대표자명</th>
 							<th class="wsn">회사코드</th>
+							<th class="wsn">메모</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -220,11 +231,32 @@
 									{/if}
 								</td>
 								<td class="wsn">{company.name}</td>
-								<td class="wsn">{company.address} {company.detailAddress}</td>
+								<td>{company.address} {company.detailAddress}</td>
 								<td class="wsn">{company.businessNumber}</td>
 								<td class="wsn">{company.email}</td>
 								<td class="wsn">{company.repName}</td>
 								<td class="wsn">{company.companyCode}</td>
+								<td class="tal">
+									<div id="memo_before_{company.id}" class="memo-before flex aic jcsb g12 active">
+										<p>df</p>
+										<button
+											id="memo_before_{company.id}"
+											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
+											on:click={() => memoModify(company.id)}>수정</button
+										>
+									</div>
+									<div id="memo_after_{company.id}" class="memo-after flex aic jcsb g12 ">
+                                        <p>asf</p>
+										<div id="memo_after_{company.id}" class="textarea-type-1 f14 w100per h160">
+											<textarea placeholder="내용"></textarea>
+										</div>
+										<button
+											id="memo_after_{company.id}"
+											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
+											on:click={() => check(company.id)}>저장</button
+										>
+									</div>
+								</td>
 							</tr>
 						{/each}
 					</tbody>
@@ -232,9 +264,12 @@
 			</div>
 			<div class="flex aic jcsb mt8">
 				<div class="flex aic g4">
-					<button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approve}>승인</button>
+					<button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approve}>활성화</button>
 					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={disapprove}
-						>탈퇴</button
+						>비활성화</button
+					>
+					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={disapprove}
+						>반려</button
 					>
 				</div>
 			</div>
@@ -265,3 +300,14 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.memo-before,
+	.memo-after {
+		display: none;
+	}
+	.memo-before.active,
+	.memo-after.active {
+		display: block;
+	}
+</style>

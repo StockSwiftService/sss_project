@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.service.CompanyService;
 import org.example.stockswiftservice.domain.member.entity.Member;
+import org.example.stockswiftservice.domain.member.service.EmailService;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -34,6 +35,7 @@ public class CompanyController {
     private final CompanyService companyService;
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
+    private final EmailService emailService;
 
 
     @Data
@@ -320,6 +322,7 @@ public class CompanyController {
                 Company company = this.companyService.findById(companyId);
                 company.setApproved(true);
                 this.companyService.save(company);
+                this.emailService.approveMail(company.getEmail(),company.getCompanyCode());
             }
             return RsData.of("AS-2", "승인 완료", null);
         } else {

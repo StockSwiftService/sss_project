@@ -48,6 +48,9 @@ public class Company extends BaseEntity {
     @Setter
     private boolean isApproved = false;
 
+    @Setter
+    private String memo;
+
     //사원
     @OneToMany
     private Set<Member> EmployeeList;
