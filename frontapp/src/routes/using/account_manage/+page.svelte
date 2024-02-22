@@ -8,6 +8,7 @@
     let isActive = false;
     let isActiveAdd = false;
     let isActiveModify = false;
+    let currentClientId = null;
 
     const resetForm = () => {
         const form = document.querySelector('form');
@@ -26,11 +27,6 @@
         resetForm();
     }
 
-    function activateModalModify() {
-        isActive = true;
-        isActiveModify = true;
-    }
-
     function deactivateModal() {
         isActive = false;
         isActiveAdd = false;
@@ -43,6 +39,15 @@
         phoneNumber: '',
         address: '',
         detailAddress: ''
+    };
+
+
+    let formDataModify = {
+        clientNameModify: '',
+        repNameModify: '',
+        phoneNumberModify: '',
+        addressModify: '',
+        detailAddressModify: ''
     };
 
     const submitClientForm = async (event) => {
@@ -117,32 +122,32 @@
         event.preventDefault();
 
         // 클라이언트 측 유효성 검사 수행
-        const clientName = formData.clientName;
-        const repName = formData.repName;
-        const phoneNumber = formData.phoneNumber;
-        const address = formData.address;
-        const detailAddress = formData.detailAddress;
+        const clientNameModify = formDataModify.clientNameModify;
+        const repNameModify = formDataModify.repNameModify;
+        const phoneNumberModify = formDataModify.phoneNumberModify;
+        const addressModify = formDataModify.addressModify;
+        const detailAddressModify = formDataModify.detailAddressModify;
 
         const errors = {};
 
-        if (!clientName.trim()) {
-            errors.clientName = '거래처명을 입력하세요.';
+        if (!clientNameModify.trim()) {
+            errors.clientNameModify = '거래처명을 입력하세요.';
         }
 
-        if (!repName.trim()) {
-            errors.repName = '대표자명을 입력하세요.';
+        if (!repNameModify.trim()) {
+            errors.repNameModify = '대표자명을 입력하세요.';
         }
 
-        if (!phoneNumber.trim()) {
-            errors.phoneNumber = '연락처를 입력하세요.';
+        if (!phoneNumberModify.trim()) {
+            errors.phoneNumberModify = '연락처를 입력하세요.';
         }
 
-        if (!address.trim()) {
-            errors.address = '주소를 입력하세요.';
+        if (!addressModify.trim()) {
+            errors.addressModify = '주소를 입력하세요.';
         }
 
-        if (!detailAddress.trim()) {
-            errors.detailAddress = '상세주소를 입력하세요.';
+        if (!detailAddressModify.trim()) {
+            errors.detailAddressModify = '상세주소를 입력하세요.';
         }
 
         // 클라이언트 측에서 유효성 검사 실패 시 제출 중단
@@ -153,15 +158,27 @@
 
         // 서버로 데이터 전송
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/clients/${data.data.clients.content.id}`, {
+            const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    clientNameModify: formDataModify.clientNameModify,
+                    repNameModify: formDataModify.repNameModify,
+                    phoneNumberModify: formDataModify.phoneNumberModify,
+                    addressModify: formDataModify.addressModify,
+                    detailAddressModify: formDataModify.detailAddressModify
+                }),
             });
-
+            console.log(JSON.stringify({
+                clientName: formDataModify.clientNameModify,
+                repName: formDataModify.repNameModify,
+                phoneNumber: formDataModify.phoneNumberModify,
+                address: formDataModify.addressModify,
+                detailAddress: formDataModify.detailAddressModify
+            }));
             if (response.ok) {
                 const responseData = await response.json();
                 console.log(responseData);
@@ -178,6 +195,36 @@
             }
         } catch (error) {
             console.error('Error submitting form:', error);
+        }
+    }
+
+    async function activateModalModify(clientId) {
+        // 모달 활성화 및 상태 초기화
+        isActive = true;
+        isActiveModify = true;
+        currentClientId = clientId;
+        resetForm();
+
+        // 서버로부터 거래처 상세 정보 가져오기
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const clientData = await response.json();
+                // formData 상태 업데이트
+                formDataModify.clientNameModify = clientData.data.clients.clientName;
+                formDataModify.repNameModify = clientData.data.clients.repName;
+                formDataModify.phoneNumberModify = clientData.data.clients.phoneNumber;
+                formDataModify.addressModify = clientData.data.clients.address;
+                formDataModify.detailAddressModify = clientData.data.clients.detailAddress;
+                formDataModify = {...formDataModify};
+            } else {
+                // 에러 처리
+                console.error("Failed to fetch client details");
+            }
+        } catch (error) {
+            console.error('Error fetching client details:', error);
         }
     }
 
@@ -237,6 +284,39 @@
                 document.getElementById("address").value = addr;
                 formData.address = addr;
                 document.getElementById("detailAddress").focus();
+
+                isAddress = true;
+                element_layer.style.display = 'none';
+            },
+            width: '100%',
+            height: '100%',
+            maxSuggestItems: 5
+        }).embed(element_layer);
+
+        element_layer.style.display = 'block';
+        initLayerPosition();
+
+        // 외부 클릭 이벤트를 감지
+        window.addEventListener('click', closeOnOutsideClick);
+    }
+
+    async function initDaumPostcodeModify() {
+        element_layer = document.getElementById('modifyLayer');
+        await loadScript();
+        new daum.Postcode({
+            oncomplete: function (data) {
+                var addr = ''; // 주소 변수
+
+                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                    addr = data.roadAddress;
+                } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                    addr = data.jibunAddress;
+                }
+
+                document.getElementById("addressModify").value = addr;
+                formDataModify.addressModify = addr;
+                document.getElementById("detailAddressModify").focus();
+
                 isAddress = true;
                 element_layer.style.display = 'none';
             },
@@ -285,7 +365,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({clientName: formData.clientName}),
+                body: JSON.stringify({clientName: formData.clientName || formDataModify.clientNameModify}),
             });
 
             if (response.ok) {
@@ -484,7 +564,7 @@
                         <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input bind:value={formData.clientName} type="text" name="clientName"
+                                <input bind:value={formDataModify.clientNameModify} type="text" name="clientNameModify"
                                        placeholder="거래처명">
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={checkDuplicate}>
@@ -492,7 +572,7 @@
                             </button>
                         </div>
 
-                        <div class="error-text-box" data-field="clientName">
+                        <div class="error-text-box" data-field="clientNameModify">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                         {#if confirmNameErrorMessage}
@@ -505,42 +585,42 @@
                     <div>
                         <h2 class="c333 f15 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" name="repName" placeholder="대표자명" bind:value={formData.repName}>
+                            <input type="text" name="repNameModify" placeholder="대표자명" bind:value={formDataModify.repNameModify}>
                         </div>
-                        <div class="error-text-box" data-field="repName">
+                        <div class="error-text-box" data-field="repNameModify">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                     </div>
                     <div>
                         <h2 class="c333 f15 tm mb8">연락처<span class="cr f16 tm inblock">*</span></h2>
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" name="phoneNumber" bind:value={formData.phoneNumber}
+                            <input type="text" name="phoneNumberModify" bind:value={formDataModify.phoneNumberModify}
                                    placeholder="연락처 (-자 빼고 입력해 주세요.)">
                         </div>
-                        <div class="error-text-box" data-field="phoneNumber">
+                        <div class="error-text-box" data-field="phoneNumberModify">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                     </div>
-                    <div id="layer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
+                    <div id="modifyLayer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
                     </div>
                     <div>
                         <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input type="text" id="address" name="address" placeholder="주소">
+                                <input type="text" id="addressModify" name="addressModify" bind:value={formDataModify.addressModify} placeholder="주소">
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                    on:click|preventDefault={initDaumPostcode}>찾기
+                                    on:click|preventDefault={initDaumPostcodeModify}>찾기
                             </button>
                         </div>
-                        <div class="error-text-box" data-field="address">
+                        <div class="error-text-box" data-field="addressModify">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                         <div class="input-type-1 f14 w100per mt8">
-                            <input type="text" id="detailAddress" name="detailAddress"
-                                   bind:value={formData.detailAddress} placeholder="상세주소">
+                            <input type="text" id="detailAddressModify" name="detailAddressModify"
+                                   bind:value={formDataModify.detailAddressModify} placeholder="상세주소">
                         </div>
-                        <div class="error-text-box" data-field="detailAddress">
+                        <div class="error-text-box" data-field="detailAddressModify">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                     </div>
@@ -615,7 +695,7 @@
                             <td class="wsn">{client.phoneNumber}</td>
                             <td class="wsn">{client.address} {client.detailAddress}</td>
                             <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModify}">
+                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={() => activateModalModify(client.id)}>
                                     수정
                                 </button>
                             </td>

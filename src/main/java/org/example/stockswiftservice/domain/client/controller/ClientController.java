@@ -88,23 +88,23 @@ public class ClientController {
     @Data
     public static class ModifyRequest {
         @NotBlank
-        private String clientName;
+        private String clientNameModify;
         @NotBlank
-        private String repName;
+        private String repNameModify;
         @NotBlank
-        private String phoneNumber;
+        private String phoneNumberModify;
         @NotBlank
-        private String address;
+        private String addressModify;
         @NotBlank
-        private String detailAddress;
+        private String detailAddressModify;
     }
 
     @PatchMapping("/{id}")
-    public RsData<Client> modify(@Valid ModifyRequest modifyRequest, @PathVariable("id") Long id) {
+    public RsData<Client> modify(@Valid @RequestBody ModifyRequest modifyRequest, @PathVariable("id") Long id) {
         Client client = this.clientService.getClient(id);
 
-        RsData<Client> modifyClient = clientService.modify(client, modifyRequest.getClientName(), modifyRequest.getRepName(),
-                modifyRequest.getPhoneNumber(), modifyRequest.getAddress(), modifyRequest.getDetailAddress());
+        RsData<Client> modifyClient = clientService.modify(client, modifyRequest.getClientNameModify(), modifyRequest.getRepNameModify(),
+                modifyRequest.getPhoneNumberModify(), modifyRequest.getAddressModify(), modifyRequest.getDetailAddressModify());
 
         return modifyClient;
     }
