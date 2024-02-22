@@ -113,7 +113,7 @@
 		});
 		if (response.ok) {
 			const data = await response.json();
-			getList();
+			changePage(0);
 		}
 	};
 
@@ -127,7 +127,7 @@
 		});
 		if (response.ok) {
 			const data = await response.json();
-			getList();
+			changePage(0);
 		}
 	};
 
