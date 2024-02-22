@@ -18,6 +18,15 @@ public class SalesManagement extends BaseEntity {
     // 해당 날짜
     private String salesDate;
 
+    // 해당 날짜의 연도
+    private int year;
+
+    // 해당 날짜의 월
+    private int month;
+
+    // 해당 주차
+    private int weekDate;
+
     // 일간 매출
     private Long dailyTotalSales;
 

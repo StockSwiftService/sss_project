@@ -41,5 +41,4 @@ public class SalesManagementController {
         List<SalesManagement> salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchaseId());
         return RsData.of("R-1", "성공", new CreateSM(salesManagement));
     }
-
 }
