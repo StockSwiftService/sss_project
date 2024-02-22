@@ -25,6 +25,8 @@ public class PurchaseService {
                 .purchaseTotal(pur)
                 .purchaseDate(date)
                 .build();
+
+        purchaseRepository.save(purchase);
         return purchase;
     }
 

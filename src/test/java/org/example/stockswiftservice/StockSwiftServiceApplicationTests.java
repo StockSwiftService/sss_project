@@ -1,14 +1,12 @@
 package org.example.stockswiftservice;
 
-import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDate;
 
 @SpringBootTest
 class StockSwiftServiceApplicationTests {
@@ -20,17 +18,33 @@ class StockSwiftServiceApplicationTests {
     private SalesManagementService salesManagementService;
     @Test
     void contextLoads() {
-        Purchase purchase = purchaseService.getPurchase(1L);
-        String purchaseDate = String.valueOf(purchase.getPurchaseDate());
-
-        LocalDate date = purchase.getPurchaseDate();
-
         salesManagementService.printTotalSales(1L);
         salesManagementService.printTotalSales(2L);
         salesManagementService.printTotalSales(3L);
         salesManagementService.printTotalSales(4L);
         salesManagementService.printTotalSales(5L);
         salesManagementService.printTotalSales(6L);
+        salesManagementService.printTotalSales(7L);
+        salesManagementService.printTotalSales(8L);
+        salesManagementService.printTotalSales(9L);
+        salesManagementService.printTotalSales(10L);
+        salesManagementService.printTotalSales(11L);
 //        System.out.println(salesManagemant);
+    }
+
+    @Test
+    @DisplayName("데이터 밀어넣기")
+    void createPur(){
+        purchaseService.create(6543123L, "2023-12-17");
+        purchaseService.create(1234553L, "2023-12-01");
+        purchaseService.create(1200000L, "2024-02-14");
+        purchaseService.create(1200123L, "2024-02-14");
+        purchaseService.create(360000L, "2024-02-14");
+        purchaseService.create(1200000L, "2024-02-15");
+        purchaseService.create(200000L, "2024-02-16");
+        purchaseService.create(800000L, "2024-03-02");
+        purchaseService.create(800000L, "2024-03-10");
+        purchaseService.create(8213430L, "2024-03-27");
+        purchaseService.create(800000L, "2024-04-26");
     }
 }

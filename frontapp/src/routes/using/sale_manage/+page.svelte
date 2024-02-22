@@ -203,7 +203,7 @@
                                 textColor: 'black',
                             });
 
-                            // 주별 데이터가 아직 초기화되지 않았다면 초기화
+                            // 주별 매출
                             if (!maxWeeklyData[sale.weekDate]) {
                                 maxWeeklyData[sale.weekDate] = {
                                     weekTotalSales: sale.weekTotalSales,
@@ -220,6 +220,7 @@
                                     }
                                 }
                             }
+                            // 월 매출
                             if (saleKey === monthDataKey) {
                                 if (!maxMonthData[saleKey]) {
                                     maxMonthData[saleKey] = { monthTotalSales: sale.monthTotalSales, monthTotal: sale.monthSalesNumber };
