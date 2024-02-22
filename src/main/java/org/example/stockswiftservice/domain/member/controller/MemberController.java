@@ -18,10 +18,7 @@ import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.http.ResponseCookie;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -144,6 +141,24 @@ public class MemberController {
         resp.addCookie(expireRefreshCookie);
         return RsData.of("S-2", "토큰이 삭제되었습니다.", null);
     }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class loginUser {
+        private final Member member;
+    }
+    @GetMapping(value = "/loginUser", consumes = APPLICATION_JSON_VALUE)
+    public RsData<?> loginUser (HttpServletRequest request){
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+
+        Member loginUser = this.memberService.findbyId(userId).orElse(null);
+        return RsData.of("S-99","현재 로그인 유저",new loginUser(loginUser));
+    }
+
+
+
     public void TokenExtension(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

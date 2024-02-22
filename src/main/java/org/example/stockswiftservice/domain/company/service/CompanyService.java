@@ -82,8 +82,8 @@ public class CompanyService {
         this.companyRepository.save(company);
     }
 
-    public Page<Company> PageingFindAll(int page) {
+    public Page<Company> PageingFindAll(int page,String keyword,String isApprove) {
         Pageable pageable = PageRequest.of(page, 10);
-        return this.companyRepository.findAll(pageable);
+        return this.companyRepository.findByKeyword(pageable,keyword,isApprove);
     }
 }

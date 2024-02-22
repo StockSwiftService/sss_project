@@ -9,10 +9,7 @@ export function fetchInterceptor(fetch) {
                 deleteAccessToken();
                 deleteRefreshToken();
                 window.location.href = 'http://localhost:5173/';
-                return null;
             }
-
-
             return response;
         } catch (error) {
             console.error('Fetch error:', error);

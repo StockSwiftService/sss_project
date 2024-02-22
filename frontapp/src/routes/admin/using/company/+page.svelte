@@ -4,17 +4,21 @@
 	let companyList = [];
 	let resList = [];
 	let companyTotal = [];
-	function changePages(page) {}
+	let keyword = '';
+	let isApprove = 'ALL';
 
 	const changePage = async (page) => {
 		try {
-			const response = await fetch(`http://localhost:8080/api/v1/company/lists?page=${page}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include'
-			});
+			const response = await fetch(
+				`http://localhost:8080/api/v1/company/lists?page=${page}&keyword=${keyword}&isApprove=${isApprove}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					credentials: 'include'
+				}
+			);
 
 			if (response.ok) {
 				const data = await response.json();
@@ -66,7 +70,7 @@
 			}
 		} catch (error) {
 			console.error('오류 발생:', error);
-			alert('다시 시도 해주세요2.');
+			alert('다시 시도 해주세요.');
 		}
 	});
 
@@ -151,25 +155,27 @@
 					<div class="select-box-1 flex aic">
 						<span class="input-text c697077">승인 상태</span>
 						<div class="select-type-1 h36">
-							<select name="select">
-								<option value="">전체</option>
-								<option value="">미승인</option>
-								<option value="">승인</option>
+							<select name="select" bind:value={isApprove}>
+								<option value="ALL">전체</option>
+								<option value="NOT_APPROVED">미승인</option>
+								<option value="APPROVED">승인</option>
 							</select>
 						</div>
 					</div>
 				</div>
 				<div class="right-box flex aic">
-					<div class="search-type-1 flex aic">
-						<div class="search-box w200">
-							<input type="search" placeholder="검색어 입력" />
+					<form>
+						<div class="search-type-1 flex aic">
+							<div class="search-box w200">
+								<input type="search" placeholder="검색어 입력" bind:value={keyword} />
+							</div>
+							<button class="search-btn flex aic jcc" on:click={() => changePage(0)}>
+								<span class="ico-box img-box w16">
+									<img src="/img/ico_search.svg" alt="검색 아이콘" />
+								</span>
+							</button>
 						</div>
-						<button class="search-btn flex aic jcc">
-							<span class="ico-box img-box w16">
-								<img src="/img/ico_search.svg" alt="검색 아이콘" />
-							</span>
-						</button>
-					</div>
+					</form>
 				</div>
 			</div>
 		</div>

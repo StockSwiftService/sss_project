@@ -288,7 +288,9 @@ public class CompanyController {
     }
 
     @GetMapping(value = "/lists", consumes = ALL_VALUE)
-    public RsData<companyListResponse> getList(HttpServletRequest request,@RequestParam(value="page", defaultValue="0") int page) {
+    public RsData<companyListResponse> getList(HttpServletRequest request,@RequestParam(value="page", defaultValue="0") int page,
+                                               @RequestParam(value="keyword", defaultValue="") String keyword,
+                                               @RequestParam(value="isApprove", defaultValue="ALL") String isApprove) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
 
@@ -296,7 +298,7 @@ public class CompanyController {
             return RsData.of("E-1", "관리자만 접속 가능", null);
         }
         List<Company> companyList = this.companyService.findAll();
-        Page<Company> pageingList = this.companyService.PageingFindAll(page);
+        Page<Company> pageingList = this.companyService.PageingFindAll(page,keyword,isApprove);
         return RsData.of("AS-1", "리스트 가져오기 완료", new companyListResponse(companyList,pageingList));
     }
 
