@@ -87,10 +87,15 @@ public class ClientController {
 
     @Data
     public static class ModifyRequest {
+        @NotBlank
         private String clientName;
+        @NotBlank
         private String repName;
+        @NotBlank
         private String phoneNumber;
+        @NotBlank
         private String address;
+        @NotBlank
         private String detailAddress;
     }
 
