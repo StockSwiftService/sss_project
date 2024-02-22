@@ -14,13 +14,34 @@
     font-family: "SUIT-Bold";
     src: url("../font/SUIT-Bold.otf") format("truetype");
 }
+@font-face {
+    font-family: "Pretendard-Light";
+    src: url("../font/Pretendard-Light.otf") format("truetype");
+}
+@font-face {
+    font-family: "Pretendard-Regular";
+    src: url("../font/Pretendard-Regular.otf") format("truetype");
+}
+@font-face {
+    font-family: "Pretendard-Medium";
+    src: url("../font/Pretendard-Medium.otf") format("truetype");
+}
+@font-face {
+    font-family: "Pretendard-Bold";
+    src: url("../font/Pretendard-Bold.otf") format("truetype");
+}
 
 .tl {font-family: "SUIT-Light";}
 .tr {font-family: "SUIT-Regular";}
 .tm {font-family: "SUIT-Medium";}
 .tb {font-family: "SUIT-Bold";}
+.pl {font-family: "Pretendard-Light";}
+.pr {font-family: "Pretendard-Regular";}
+.pm {font-family: "Pretendard-Medium";}
+.pb {font-family: "Pretendard-Bold" !important;}
 
 * {font-family: "SUIT-Regular"; line-height: 100%;}
+#calendar * {font-family: "Pretendard-Regular";}
 
 /* ------------------------------------------------------------------------------- */
 

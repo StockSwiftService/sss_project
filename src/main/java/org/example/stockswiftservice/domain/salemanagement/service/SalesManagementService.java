@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Locale.KOREA;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class SalesManagementService {
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
 
+
         Optional<SalesManagement> salesManagement = saleManagementRepository.findBySalesDate(String.valueOf(purchase.getPurchaseDate()));
 
         if (salesManagement.isPresent()){
@@ -30,10 +34,14 @@ public class SalesManagementService {
             int staerNum = 1;
             SalesManagement createSalesManagement = new SalesManagement();
             LocalDate date = purchase.getPurchaseDate();
+            Calendar calendar = Calendar.getInstance(KOREA);
+            calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
+            int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
 
             createSalesManagement.setSalesDate(String.valueOf(date));
             createSalesManagement.setDailyTotalSales(purchase.getPurchaseTotal());
             createSalesManagement.setDailySalesNumber(staerNum);
+            createSalesManagement.setWeekDate(weekOfMonth);
 
             saleManagementRepository.save(createSalesManagement);
 
@@ -43,9 +51,14 @@ public class SalesManagementService {
     public List<SalesManagement> printTotalSales(Long purchaseId){
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
+        Calendar calendar = Calendar.getInstance(KOREA);
 
         SalesManagement salesManagement = getSalesManagement(purchaseId);
         LocalDate date = purchase.getPurchaseDate();
+        calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
+        int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
+        int dateYear = calendar.get(Calendar.YEAR);
+        int dateMonth = calendar.get(Calendar.MONTH) + 1;
 
         // 일간 매출
         Long dailySales = purchaseRepository.getSalesByDate(date);
@@ -65,6 +78,9 @@ public class SalesManagementService {
 
         // 저장
         salesManagement.setSalesDate(String.valueOf(date));
+        salesManagement.setWeekDate(weekOfMonth);
+        salesManagement.setYear(dateYear);
+        salesManagement.setMonth(dateMonth);
         salesManagement.setDailyTotalSales(dailySales);
         salesManagement.setWeekTotalSales(weeklySales);
         salesManagement.setMonthTotalSales(monthlySales);
