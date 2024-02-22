@@ -17,13 +17,15 @@ import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -145,5 +147,85 @@ public class MemberController {
                 }
             }
         }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class MembersResponse {
+        private final List<Member> memberList;
+    }
+
+    //회원 리스트
+    @GetMapping(value = "/user-manages", consumes = APPLICATION_JSON_VALUE)
+    public RsData<MembersResponse> employeeList(HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 회사코드 값
+        Member member = memberService.findbyId(userId).orElse(null);
+
+        List<Member> memberList = this.memberService.getEmployeeList(member.getCompany().getCompanyCode());
+
+        if (member.getAuthority() == 1 || member.getAuthority() == 2) {
+            List<Member> filteredList = memberList.stream()
+                    .filter(m -> m.getAuthority() != 1 && m.getAuthority() != 2)
+                    .collect(Collectors.toList());
+            return RsData.of("S-2", "성공", new MembersResponse(filteredList));
+        } else {
+            // 권한이 1 또는 2가 아닌 경우 전체 목록 리턴
+            return RsData.of("S-2", "성공", new MembersResponse(memberList));
+        }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class DeleteResponse {
+        private final List<Member> memberList;
+    }
+
+    //회원 삭제
+    @DeleteMapping(value = "/delete", consumes = APPLICATION_JSON_VALUE)
+    public RsData<DeleteResponse> delete(@RequestParam("ids") Long[] memberId, HttpServletRequest request) {
+        for (Long id : memberId) {
+            this.memberService.deleteMember(id);
+        }
+        return RsData.of("S-3", "삭제 성공", null);
+    }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class ModifyReponse {
+        private final Member member;
+    }
+    @Data
+    public static class ModifyEmployeeRequest {
+
+        private Long id;
+        //사원 이름
+        private String employeeName;
+        //직급
+        private String position;
+        //권한
+        private int authority;
+        //아이디
+        private String username;
+
+        private String password;
+
+        //사원 생일
+        private LocalDate birthday;
+    }
+
+    //회원 수정
+    @PostMapping(value = "/modify", consumes = APPLICATION_JSON_VALUE)
+    public RsData<ModifyReponse> modify(@RequestBody ModifyEmployeeRequest modifyEmployeeRequest) {
+        Member member = this.memberService.employeeModify(modifyEmployeeRequest.getId(), modifyEmployeeRequest.getEmployeeName(), modifyEmployeeRequest.getPosition(), modifyEmployeeRequest.getAuthority(), modifyEmployeeRequest.getUsername(), modifyEmployeeRequest.getBirthday());
+        return RsData.of("S-4", "사원 수정 성공", new ModifyReponse(member));
+    }
+
+    //비번 초기화
+    @PostMapping(value = "/modify-password", consumes = APPLICATION_JSON_VALUE)
+    public RsData<ModifyReponse> modifyPassword(@RequestBody ModifyEmployeeRequest modifyEmployeeRequest) {
+        Member member = this.memberService.modifyPassword(modifyEmployeeRequest.getId(), modifyEmployeeRequest.getEmployeeName(), modifyEmployeeRequest.getPosition(), modifyEmployeeRequest.getAuthority(), modifyEmployeeRequest.getUsername(), modifyEmployeeRequest.getPassword() ,modifyEmployeeRequest.getBirthday());
+        return RsData.of("S-4", "비번 수정 성공", new ModifyReponse(member));
     }
 }

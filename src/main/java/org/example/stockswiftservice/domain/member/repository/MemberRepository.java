@@ -6,6 +6,7 @@ import org.example.stockswiftservice.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,5 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByUsernameAndCompany(String username, Company company);
 
-    Optional<Member> findByCompany(Company company);
+    Optional<Member> findByCompanyAndAuthority(Company company, int authority);
+    List<Member> findByCompany(Company company);
 }

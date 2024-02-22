@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,11 +70,10 @@ public class MemberService {
 
     public String findRepUsernameByCompany(String companyCode) {
         Company company = this.companyRepository.findByCompanyCode(companyCode).orElse(null); //코드로 회사 찾기
-        Optional<Member> member = this.memberRepository.findByCompany(company);
-        if (member.isPresent() && member.get().getAuthority() == 2) {
-            return member.get().getUsername(); //아이디 얻기
-        }
-        return null;
+        Optional<Member> member = this.memberRepository.findByCompanyAndAuthority(company, 2);
+
+        //아이디 얻기
+        return member.map(Member::getUsername).orElse(null);
     }
 
     public Optional<Member> findByUsername(String username) {
@@ -137,8 +137,53 @@ public class MemberService {
         return modifiedMember;
     }
 
-
     public Optional<Member> findbyId(Long id) {
         return this.memberRepository.findById(id);
+    }
+
+    public List<Member> getEmployeeList(String companyCode) {
+        Company company = this.companyRepository.findByCompanyCode(companyCode).orElse(null);
+        return this.memberRepository.findByCompany(company);
+    }
+
+    public void deleteMember(Long memberId) {
+        Member member = this.memberRepository.findById(memberId).orElse(null);
+        this.memberRepository.delete(member);
+    }
+
+    public Member employeeModify(Long id, String employeeName, String position, int authority, String username, LocalDate birthday) {
+        Member member = this.memberRepository.findById(id).orElse(null);
+        Member modifiedMember = Member.builder()
+                .id(id)
+                .name(employeeName)
+                .position(position)
+                .authority(authority)
+                .username(username)
+                .password(passwordEncoder.encode(member.getPassword()))
+                .birthday(birthday)
+                .tokenLifeSpan(4)
+                .company(member.getCompany())
+                .build();
+
+        memberRepository.save(modifiedMember);
+        return modifiedMember;
+    }
+
+    public Member modifyPassword(Long id, String employeeName, String position, int authority, String username, String newPassword, LocalDate birthday) {
+        Member member = this.memberRepository.findById(id).orElse(null);
+        Member modifiedMember = Member.builder()
+                .id(id)
+                .name(employeeName)
+                .position(position)
+                .authority(authority)
+                .username(username)
+                .password(passwordEncoder.encode(newPassword))
+                .birthday(birthday)
+                .tokenLifeSpan(4)
+                .company(member.getCompany())
+                .build();
+
+        memberRepository.save(modifiedMember);
+        return modifiedMember;
     }
 }

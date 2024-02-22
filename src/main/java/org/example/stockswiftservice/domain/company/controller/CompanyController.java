@@ -61,7 +61,7 @@ public class CompanyController {
         @NotNull
         private String username;
 
-        //        @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}")
+         @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{6,16}")
         //대표 비밀번호
         @NotNull
         private String password;
