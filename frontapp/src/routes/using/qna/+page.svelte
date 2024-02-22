@@ -1,4 +1,12 @@
 <script>
+    export let data;
+    import {goto, replaceState} from "$app/navigation";
+    import {page} from "$app/stores";
+    import {onMount} from "svelte";
+
+    let searchQuery = '';
+    let currentPage = 0;
+
     let isActive = false;
     let isActiveAdd = false;
 
@@ -16,6 +24,58 @@
 
     function toggle(index) {
         activeStates[index] = !activeStates[index];
+    }
+
+    const performSearch = async () => {
+
+    $page.url.searchParams.set('kw', searchQuery);
+    $page.url.searchParams.set('page', currentPage);
+
+    await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+    await dataLoad();
+
+    }
+
+    function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+    }
+
+    onMount(async () => {
+    await dataLoad();
+    })
+
+    async function dataLoad() {
+    const queryString = window.location.search;
+
+    const res = await fetch(`http://localhost:8080/api/v1/questions${queryString}`, {
+        credentials: 'include'
+    })
+    data = await res.json();
+    }
+
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
+
+    async function changePage(searchQuery,currentPage) {
+        try {
+
+            $page.url.searchParams.get('kw', searchQuery);
+            $page.url.searchParams.set('page', currentPage);
+
+            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await dataLoad();
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }
 
 </script>
@@ -103,10 +163,11 @@
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box w200">
-                            <input type="search" placeholder="검색어 입력">
+                        <div class="search-box">
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off"
+                                   on:keypress={handleKeyPress}>
                         </div>
-                        <button class="search-btn flex aic jcc">
+                        <button class="search-btn flex aic jcc" on:click={performSearch}>
                             <span class="ico-box img-box w16">
                                 <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
@@ -118,19 +179,17 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14 mt16">
-                전체 <span class="number inblock cm tm">0</span>개
+                전체 <span class="number inblock cm tm">{data.data.questions.totalElements}</span>개
             </div>
             <ul class="qna-box mt12">
-            {#each [1, 2, 3] as index}
+                {#each data.data.questions.content as question, index (question.id)}
                 <li>
                     <div class="q {activeStates[index] ? 'active' : ''}" on:click={() => toggle(index)}>
-                        <p class="lh140 tb">Q. 질문입니다.{index}</p>
+                        <p class="lh140 tb">Q. {question.subject}</p>
                     </div>
                     <div class="a {activeStates[index] ? 'active' : ''}">
                         <p class="lh140">
-                        답변입니다.답변입니다.답변입니다.답변입니다.<br>
-                        답변입니다.답변입니다.답변입니다.답변입니다.<br>
-                        답변입니다.답변입니다.답변입니다.답변입니다.
+                            {question.content}
                         </p>
                     </div>
                 </li>
@@ -143,27 +202,34 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if data.data.questions.number > 0}
+                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.questions.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(data.data.questions.totalPages) as button}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li
+                                class="num"
+                                on:click={() => data.data.questions.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                        >
+                            <a href="" class:active={data.data.questions.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if data.data.questions.number < data.data.questions.totalPages - 1}
+                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.questions.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>
