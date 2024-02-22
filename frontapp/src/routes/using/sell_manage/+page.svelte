@@ -1,6 +1,5 @@
 <script>    
     import { onMount } from 'svelte';
-	import { sineOut } from 'svelte/easing';
 
     let isActive = false;
     let isActive2 = false;
@@ -69,21 +68,25 @@
         {
             id: 1,
             itemName: "",
-            quantity: "0",
-            price: "0",
-            sumPrice: "0",
+            quantity: 0,
+            price: 0,
+            sumPrice: 0,
+            selected: false
         }
     ];
     let selectItem;
     let stocks = [];
+    let serachInput = "";
+    let itemAllSelected = false;
 
     function addRow() {
         const newItem = {
             id: items.length + 1,
             itemName: "",
-            quantity: "0",
-            price: "0",
-            sumPrice: "0",
+            quantity: 0,
+            price: 0,
+            sumPrice: 0,
+            selected: false,
         };
         items = [...items, newItem];
     }
@@ -97,7 +100,7 @@
                 stocks = responseData.data.stocks;
                 if (stocks.length == 1) {
                     item.itemName = stocks[0].itemName;
-                    item.quantity = "1";
+                    item.quantity = 1;
                     item.price = stocks[0].salesPrice;
                     item.sumPrice = item.quantity * item.price;
                     items = items;
@@ -105,6 +108,28 @@
                 else {
                     isActive2 = true;
                     isActiveStockSearch = true;
+                    serachInput = item.itemName;
+                }
+            } else {
+                console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+            }
+        }
+    }
+
+    async function searchItemNameKeyUp(event, item) {
+        if (event.key === 'Enter') {
+            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${serachInput}`);
+            if (response.ok) {
+                const responseData = await response.json();
+                stocks = responseData.data.stocks;
+                if (stocks.length == 1) {
+                    item.itemName = stocks[0].itemName;
+                    item.quantity = 1;
+                    item.price = stocks[0].salesPrice;
+                    item.sumPrice = item.quantity * item.price;
+                    items = items;
+                    isActive2 = false;
+                    isActiveStockSearch = false;
                 }
             } else {
                 console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -117,14 +142,56 @@
         items = items;
     }
 
+    function quantityChangeKeyUp(event, item) {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+
+            if (event.key === 'ArrowUp') item.quantity += 1;
+            else if (event.key === 'ArrowDown') item.quantity = Math.max(1, item.quantity - 1);
+
+            quantityChange(item);
+        }
+    }
+
     function selectStock(stock) {
         selectItem.itemName = stock.itemName;
-        selectItem.quantity = "1";
+        selectItem.quantity = 1;
         selectItem.price = stock.salesPrice;
         selectItem.sumPrice = selectItem.quantity * selectItem.price;
         items = items;
         isActive2 = false;
         isActiveStockSearch = false;
+    }
+
+    function toggleAllSelection() {
+        if (!itemAllSelected) {
+            itemAllSelected = true;
+            for(const item of items) {
+                item.selected = true;
+            }
+        }
+        else if (itemAllSelected) {
+            itemAllSelected = false;
+            for(const item of items) {
+                item.selected = false;
+            }
+        }
+        items = items;
+    }
+
+    function toggleSelection(item) {
+        if (!item.selected) item.selected = true;
+        else if (item.selected) item.selected = false;
+        itemAllSelected = false;
+    }
+
+    function deleteSelectedItems() {
+        items = items.filter(item => !item.selected);
+        itemAllSelected = false;
+    }
+
+    function formatNumber(value) {
+        return value.toLocaleString('ko-KR');
     }
 
     onMount(() => {
@@ -222,8 +289,8 @@
                         <tr>
                             <th class="wsn" style="width: 44px; min-width:44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="all">
-                                    <label for="all"></label>
+                                    <input type="checkbox" id="itemAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}>
+                                    <label for="itemAll"></label>
                                 </div> 
                             </th>
                             <th class="wsn">품목명</th>
@@ -233,12 +300,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each items as item (item.id)}
+                        {#each items as item, index (item.id)}
                         <tr>
                             <td class="wsn">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id={`v${item.id}`}>
-                                    <label for={`v${item.id}`}></label>
+                                    <input type="checkbox" id={`v${index}`} bind:checked={item.selected} on:click={() => toggleSelection(item)}>
+                                    <label for={`v${index}`}></label>
                                 </div> 
                             </td>
                             <td class="wsn">
@@ -248,17 +315,17 @@
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="수량" bind:value={item.quantity} on:input={() => quantityChange(item)}>
+                                    <input type="number" placeholder="수량" bind:value={item.quantity} on:keydown={(event) => quantityChangeKeyUp(event, item)}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly bind:value={item.price}>
+                                    <input type="number" placeholder="단가" readonly bind:value={item.price}>
                                 </div>
                             </td>
                             <td class="wsn">
                                 <div class="input-type-2 f14">
-                                    <input type="text" placeholder="단가" readonly bind:value={item.sumPrice}>
+                                    <input type="number" placeholder="금액" readonly bind:value={item.sumPrice}>
                                 </div>
                             </td>
                         </tr>
@@ -276,7 +343,7 @@
                 </table>
                 <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
                     <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={addRow}>추가</button>
-                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
+                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={deleteSelectedItems}>삭제</button>
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
@@ -412,7 +479,7 @@
         <div class="middle-box scr-type-1">
             <div class="search-type-1 flex aic">
                 <div class="search-box w100per">
-                    <input type="search" placeholder="품목명">
+                    <input type="search" placeholder="품목명" bind:value={serachInput} on:keydown={(event) => searchItemNameKeyUp(event, selectItem)}>
                 </div>
                 <button class="search-btn flex aic jcc">
                     <span class="ico-box img-box w16">
