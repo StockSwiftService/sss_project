@@ -1,8 +1,7 @@
 <script>
     import {onMount} from 'svelte';
-
     let members = [];
-    let selectedMemberIds = []; // 체크박스에 체크된 멤버의 아이디를 저장
+    let selectedMemberIds = []; //체크박스에 체크된 멤버의 아이디를 저장
 
     //회원 리스트 불러오기
     onMount(async () => {
@@ -67,7 +66,9 @@
         position: '',
         authority: '',
         username: '',
-        birthday: ''
+        birthday: '',
+        password: '',
+        PasswordConfirm: ''
     }
 
     function activateModalModifi(event) {
@@ -173,6 +174,7 @@
             }
         }
     }
+
     //비번 검증
     function validatePassword() {
         const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\W)(?=\S+$).{6,16}$/;
@@ -197,6 +199,7 @@
             isPasswordConfirm = false
         }
     }
+
 
     //사원 등록
     const employeeSubmit = async () => {
@@ -320,6 +323,31 @@
         }
     }
 
+    //비번 수정시 검증
+    function validateModifyPassword() {
+        const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\W)(?=\S+$).{6,16}$/;
+        if (!passwordRegex.test(modifyData.password)) {
+            passwordSuccessMessage = ''
+            passwordErrorMessage = '비밀번호는 6~16자 영문 대 소문자, 숫자, 특수문자를 사용해야 합니다';
+        } else {
+            passwordErrorMessage = ''
+            return modifyData.password;
+        }
+    }
+
+    //비번 확인 수정시 검증
+    function confirmValidateModifyPassword() {
+        if (modifyData.password === modifyData.passwordConfirm) {
+            passwordConfirmSuccessMessage = '비밀번호가 일치합니다'
+            passwordConfirmErrorMessage = '';
+            isPasswordConfirm = true
+        } else {
+            passwordConfirmSuccessMessage = ''
+            passwordConfirmErrorMessage = '비밀번호가 일치하지 않습니다';
+            isPasswordConfirm = false
+        }
+    }
+
     //회원 수정
     const employeeModifySubmit = async () => {
         console.log(modifyData.id)
@@ -351,7 +379,36 @@
         }
     }
 
+    //회원 비번 초기화
+    const passwordModifySubmit = async () => {
+        console.log(modifyData.id)
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/member/modify-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(modifyData)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data)
 
+                if (data.resultCode === 'S-4') {
+                    alert('수정이 완료되었습니다.');
+                    window.location.href = '/using/user_manage';
+                } else {
+
+                    const errorMessage = data.errorMessage;
+                    console.error('수정 실패:', errorMessage);
+                }
+            } else {
+                console.error('서버 응답 오류:', response.statusText);
+            }
+        } catch (error) {
+            console.error('오류 발생:', error);
+        }
+    }
 </script>
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
     <!-- 회원 등록 모달 -->
@@ -585,35 +642,42 @@
 
     <!-- 회원 비밀번호 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveNewPassword}">
-        <div class="top-box rel">
+        <form class="top-box rel" on:submit|preventDefault={passwordModifySubmit}>
             <h3 class="tb c121619 f18">새로운 비밀번호</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
-        </div>
+        </form>
         <div class="middle-box scr-type-1">
             <div class="flex fdc g36">
                 <div>
                     <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="password" placeholder="비밀번호">
+                        <input type="password" placeholder="비밀번호" bind:value={modifyData.password}
+                               on:input={validateModifyPassword}>
                     </div>
-                    <!--                    <div class="error-text-box">-->
-                    <!--                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>-->
-                    <!--                    </div>-->
-                    <div class="input-type-1 f14 w100per mt8">
-                        <input type="password" placeholder="비밀번호 확인">
-                    </div>
-                    <!--                    <div class="error-text-box">-->
-                    <!--                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>-->
-                    <!--                        <span class="f13 mt8 cr">비밀번호가 일치하지 않습니다.</span>-->
-                    <!--                    </div>-->
+                    {#if passwordErrorMessage}
+                        <span class="f13 mt4 cr">{passwordErrorMessage}</span>
+                    {/if}
+                    {#if passwordSuccessMessage}
+                        <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
+                    {/if}
+                </div>
+                <div class="input-type-1 f14 w100per mt8">
+                    <input type="password" placeholder="비밀번호 확인" bind:value={modifyData.passwordConfirm}
+                           on:input={confirmValidateModifyPassword}>
+                    {#if passwordConfirmErrorMessage}
+                        <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
+                    {/if}
+                    {#if passwordConfirmSuccessMessage}
+                        <span class="f13 mt4 cg">{passwordConfirmSuccessMessage}</span>
+                    {/if}
                 </div>
             </div>
-            <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
-                <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
-            </div>
+        </div>
+        <div class="btn-area flex aic jcc g8 mt40 mb16">
+            <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
+            <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
         </div>
     </div>
 </div>
@@ -695,10 +759,8 @@
                         </tr>
                         </tbody>
                     {/each}
-
                 </table>
             </div>
-
             <div class="flex aic jcsb mt8">
                 <div class="flex aic g4">
                     <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0"
