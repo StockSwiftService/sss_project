@@ -19,6 +19,8 @@
         // 날짜형식을 yyyy-mm-dd형식으로 바꾸는 구문
         let startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
         // 여기에 fetch를 사용해서 해당 날짜가 포함된 구매 판매 리스트를 갖고올 예정 post형식으로
+
+
         console.log(startDateStr)
     }
 
@@ -66,9 +68,8 @@
                 const currentMonth = middleDate.getMonth() + 1; // getMonth()는 0부터 시작하므로, 1을 더합니다.
                 // 기존 합계 헤더를 삭제합니다.
                 removeTotalHeaders();
-
                 loadDataAndUpdateCalendar(currentYear, currentMonth).then(() => {
-                    console.log('성공');
+                    console.log('성공공');
                 }).catch(error => {
                     console.error('에러엉:', error);
                 });
@@ -155,8 +156,8 @@
         }
 
         function loadDataAndUpdateCalendar(year, month) {
-            console.log('연도 :' + year + '달 :' + month)
-            return new Promise(async (resolve, reject) => {
+            // console.log('연도 :' + year + '달 :' + month)
+            return new Promise(async (resolve) => {
                 try {
                     let purchaseId = 1;
                     const response = await fetch('http://localhost:8080/api/v1/sales', {
@@ -178,8 +179,8 @@
                             maxWeeklyData[i] = { weekTotalSales: 0, weekTotal: 0 };
                         }
                         salesData.data.salesManagement.forEach((sale) => {
+                            // console.log('sale', sale)
                             let saleKey = `${sale.year}-${sale.month.toString().padStart(2, '0')}`;
-                            console.log(sale)
                             // 해당 연도
                             let dateYear = sale.year;
                             // 해당 월
@@ -209,15 +210,19 @@
                                     weekTotalSales: sale.weekTotalSales,
                                     weekTotal: sale.weekSalesNumber
                                 };
+                                // console.log('maxWeeklyData', maxWeeklyData)
                             } else {
+
                                 if (year == sale.year && month == sale.month) {
                                     // 이미 초기화된 주에 대해서는 최대값을 비교하여 업데이트
+                                    // console.log('maxWeeklyData[sale.weekDate].weekTotalSales', maxWeeklyData[sale.weekDate].weekTotalSales)
                                     if (sale.weekTotalSales > maxWeeklyData[sale.weekDate].weekTotalSales) {
                                         maxWeeklyData[sale.weekDate].weekTotalSales = sale.weekTotalSales;
                                     }
                                     if (sale.weekSalesNumber > maxWeeklyData[sale.weekDate].weekTotal) {
                                         maxWeeklyData[sale.weekDate].weekTotal = sale.weekSalesNumber;
                                     }
+                                    // console.log('maxWeeklyData', maxWeeklyData)
                                 }
                             }
                             // 월 매출
@@ -231,6 +236,7 @@
                             }
                             resolve();
                         });
+                        // 주간 총 매출
                         Object.keys(maxWeeklyData).forEach(weekDate => {
                             const weekData = maxWeeklyData[weekDate];
                             addTotalHeader(weekDate, weekData.weekTotalSales, weekData.weekTotal);
@@ -239,14 +245,16 @@
                         if (maxMonthData[monthDataKey]) {
                             addMonthTotal(maxMonthData[monthDataKey].monthTotalSales, maxMonthData[monthDataKey].monthTotal);
                         }
-                        console.log(globalSalesData);
+                        // console.log(globalSalesData);
                     }
                 } catch (error) {
-                    console.error('오류 발생:', error);
+                    console.error('오류루:', error);
                 }
             });
         }
     });
+
+
 </script>
 <style>
     #calendar > * {

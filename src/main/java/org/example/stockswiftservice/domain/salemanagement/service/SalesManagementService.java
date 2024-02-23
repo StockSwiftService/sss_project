@@ -7,9 +7,7 @@ import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagemen
 import org.example.stockswiftservice.domain.salemanagement.repository.SalesManagementRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.WeekFields;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +22,6 @@ public class SalesManagementService {
     public SalesManagement getSalesManagement(Long purchaseId){
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
-
-
         Optional<SalesManagement> salesManagement = saleManagementRepository.findBySalesDate(String.valueOf(purchase.getPurchaseDate()));
 
         if (salesManagement.isPresent()){
@@ -66,9 +62,7 @@ public class SalesManagementService {
 
         // 주간 매출
         Long weeklySales = printSalesOfWeek(purchase);
-        int year = date.getYear();
-        int week = (int) WeekFields.of(DayOfWeek.MONDAY, 1).weekOfYear().getFrom(date);
-        int weekNum = purchaseRepository.getCountByWeek(year, week);
+        int weekNum = purchaseRepository.getCountByWeek(date);
 
         // 월간 매출
         Long monthlySales = printMonthlySales(purchase);
@@ -149,9 +143,7 @@ public class SalesManagementService {
 //    }
     public Long printSalesOfWeek(Purchase purchase){
         LocalDate date = purchase.getPurchaseDate();
-        int year = date.getYear();
-        int week = (int) WeekFields.of(DayOfWeek.MONDAY, 1).weekOfYear().getFrom(date);
-        Long weeklySales = purchaseRepository.getSalesByWeek(year, week);
+        Long weeklySales = purchaseRepository.getSalesByWeek(date);
         return weeklySales;
     }
 
