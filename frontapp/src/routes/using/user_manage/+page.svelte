@@ -62,7 +62,6 @@
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
-                console.log(memberList)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
             }
@@ -127,7 +126,7 @@
         const buttonId = event.target.id;
         const memberId = buttonId.split('_')[1]; // 'modify_{member.id}' 형식에서 member.id 부분만 추출
         const member = JSON.parse(memberId); // member를 객체로 파싱
-        console.log('member:', member);
+
 
         // 회원 정보를 모달 창에 적절히 표시 (예시: input 요소에 값을 할당)
 
@@ -150,7 +149,6 @@
         const buttonId = event.target.id;
         const memberId = buttonId.split('_')[1]; // 'modify_{member.id}' 형식에서 member.id 부분만 추출
         const member = JSON.parse(memberId); // member를 객체로 파싱
-        console.log('member:', member);
 
         modifyData.id = member.id
         modifyData.employeeName = member.name
@@ -285,7 +283,6 @@
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data)
                     // 회원가입 성공
                     if (data.resultCode === 'S-1') {
                         alert('사원 등록이 완료되었습니다.');
@@ -332,24 +329,18 @@
                 }
             }
         });
-
-        console.log('선택된 멤버 ID:', selectedMemberIds);
     }
 
     // 멤버의 ID 값을 처리하는 함수
     function handleCheckboxChange(event, memberId) {
         const isChecked = event.target.checked;
         if (isChecked) {
-            console.log(`체크박스가 체크되었습니다. Member ID: ${memberId}`);
             selectedMemberIds.push(memberId);
-            console.log(selectedMemberIds)
         } else {
-            console.log(`체크박스가 해제되었습니다. Member ID: ${memberId}`);
             const index = selectedMemberIds.indexOf(memberId);
             if (index !== -1) {
                 selectedMemberIds.splice(index, 1); // 배열에서 해당 멤버 아이디 제거
             }
-            console.log(selectedMemberIds);
         }
     }
 
@@ -370,7 +361,6 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
 
                 if (data.resultCode === 'S-3') {
                     alert('사원 삭제가 완료되었습니다.');
@@ -393,9 +383,11 @@
         if (!passwordRegex.test(modifyData.password)) {
             passwordSuccessMessage = ''
             passwordErrorMessage = '비밀번호는 6~16자 영문 대 소문자, 숫자, 특수문자를 사용해야 합니다';
+            passwordConfirm = false
         } else {
             passwordErrorMessage = ''
             return modifyData.password;
+            passwordConfirm = true
         }
     }
 
@@ -414,7 +406,6 @@
 
     //회원 수정
     const employeeModifySubmit = async () => {
-        console.log(modifyData.id)
         if (!modifyData.password.trim()) {
             alert('변경사항이 없습니다. 다시 입력해 주세요.')
             return
@@ -429,7 +420,6 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
 
                 if (data.resultCode === 'S-4') {
                     alert('수정이 완료되었습니다.');
@@ -449,32 +439,34 @@
 
     //회원 비번 초기화
     const passwordModifySubmit = async () => {
-        console.log(modifyData.id)
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/member/modify-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(modifyData)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data)
+        if (!passwordConfirm) {
+            alert('비밀번호를 다시 확인해 주세요.')
+        } else {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/member/modify-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(modifyData)
+                });
+                if (response.ok) {
+                    const data = await response.json();
 
-                if (data.resultCode === 'S-4') {
-                    alert('수정이 완료되었습니다.');
-                    window.location.href = '/using/user_manage';
+                    if (data.resultCode === 'S-4') {
+                        alert('수정이 완료되었습니다.');
+                        window.location.href = '/using/user_manage';
+                    } else {
+
+                        const errorMessage = data.errorMessage;
+                        console.error('수정 실패:', errorMessage);
+                    }
                 } else {
-
-                    const errorMessage = data.errorMessage;
-                    console.error('수정 실패:', errorMessage);
+                    console.error('서버 응답 오류:', response.statusText);
                 }
-            } else {
-                console.error('서버 응답 오류:', response.statusText);
+            } catch (error) {
+                console.error('오류 발생:', error);
             }
-        } catch (error) {
-            console.error('오류 발생:', error);
         }
     }
 </script>

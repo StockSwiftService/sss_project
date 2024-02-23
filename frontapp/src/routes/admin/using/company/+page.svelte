@@ -168,7 +168,7 @@
 	}
 
 	function memoModify(companyId, memo) {
-		document.getElementById(`memo_after_${companyId}`).style.display = 'block';
+		document.getElementById(`memo_after_${companyId}`).style.display = 'flex';
 		document.getElementById(`memo_before_${companyId}`).style.display = 'none';
 		companyMemo = memo;
 	}
@@ -307,7 +307,7 @@
 								<td class="wsn">{company.email}</td>
 								<td class="wsn">{company.repName}</td>
 								<td class="wsn">{company.companyCode}</td>
-								<td class="tal">
+								<td class="tal wsn">
 									<div id="memo_before_{company.id}" class="memo-before flex aic jcsb g12 active">
 										<p class="">{company.memo}</p>
 										<button
@@ -316,7 +316,7 @@
 											on:click={() => memoModify(company.id, company.memo)}>수정</button
 										>
 									</div>
-									<div id="memo_after_{company.id}" class="memo-after flex aic jcsb g12">
+									<div id="memo_after_{company.id}" class="memo-after flex fdc aie g12">
 										<div id="memo_after_{company.id}" class="input-type-1 f14 w100per h160">
 											<input type="text" placeholder="내용" bind:value={companyMemo} />
 										</div>

@@ -63,7 +63,7 @@ public class EmailService {
 
         try {
             message.setFrom(senderEmail);
-            message.setRecipients(MimeMessage.RecipientType.TO, "hwjk16322@gmail.com");
+            message.setRecipients(MimeMessage.RecipientType.TO, email);
             message.setSubject("Stock Swift Service 회원 가입을 환영합니다!");
             String body = "";
             body += "<h1>" + "안녕하세요 Stock Swift Service 입니다." + "</h1>";
@@ -81,7 +81,7 @@ public class EmailService {
 
         try {
             message.setFrom(senderEmail);
-            message.setRecipients(MimeMessage.RecipientType.TO, "hwjk16322@gmail.com");
+            message.setRecipients(MimeMessage.RecipientType.TO, email);
             message.setSubject("[Stock Swift Service 승인 취소 알림 메일]");
             String body = "";
             body += "<h1>" + "안녕하세요 Stock Swift Service 입니다." + "</br>" + "</h1>";
