@@ -40,7 +40,7 @@ public class ClientController {
     @Getter
     @AllArgsConstructor
     public static class ClientResponse {
-        private final Client clients;
+        private final Client client;
     }
 
     @GetMapping("/{id}")

@@ -16,10 +16,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/stocks")
@@ -30,14 +32,16 @@ public class StockController {
     @Getter
     @AllArgsConstructor
     public static class StocksResponse {
-        private final List<Stock> stocks;
+        private final Page<Stock> stocks;
+        private final List<Stock> stockList;
     }
 
     @GetMapping("")
-    public RsData<StocksResponse> stocks() {
-        List<Stock> stocks = this.stockService.getList();
+    public RsData<StocksResponse> stocks(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Stock> stocks = this.stockService.getSearchList(kw, page);
+        List<Stock> stockList = this.stockService.getList();
 
-        return RsData.of("S-1", "다건 성공", new StocksResponse(stocks));
+        return RsData.of("S-1", "다건 성공", new StocksResponse(stocks, stockList));
     }
 
     @Getter
@@ -61,7 +65,9 @@ public class StockController {
         private String itemName;
         @NotNull
         private Long quantity;
+        @NotNull
         private Long purchasePrice;
+        @NotNull
         private Long salesPrice;
     }
 
@@ -72,19 +78,13 @@ public class StockController {
     }
 
     @PostMapping("")
-    public RsData<CreateResponse> create(
-            @Valid @RequestBody CreateRequest createRequest
-    ) {
-        RsData<Stock> stockRs = stockService.create(createRequest.getClientName(), createRequest.getItemName(),
+    public RsData<CreateResponse> create(@Valid @RequestBody CreateRequest createRequest) {
+        RsData<Stock> stock = stockService.create(createRequest.getClientName(), createRequest.getItemName(),
                   createRequest.getQuantity(), createRequest.getPurchasePrice(), createRequest.getSalesPrice());
 
-        if (stockRs.isFail()) return (RsData) stockRs;
+        if (stock.isFail()) return (RsData) stock;
 
-        return RsData.of(
-                stockRs.getResultCode(),
-                stockRs.getMsg(),
-                new CreateResponse(stockRs.getData())
-        );
+        return RsData.of(stock.getResultCode(), stock.getMsg(), new CreateResponse(stock.getData()));
     }
 
     @AllArgsConstructor
@@ -95,11 +95,14 @@ public class StockController {
 
     @Data
     public static class ModifyRequest {
-        private String clientName;
-        private String itemName;
-        private Long quantity;
-        private Long purchasePrice;
-        private Long salesPrice;
+        @NotBlank
+        private String clientNameModify;
+        @NotBlank
+        private String itemNameModify;
+        @NotNull
+        private Long purchasePriceModify;
+        @NotNull
+        private Long salesPriceModify;
     }
 
     @PatchMapping("/{id}")
@@ -107,7 +110,7 @@ public class StockController {
         Stock stock = this.stockService.getStock(id);
 
         RsData<Stock> modifyStock = stockService.modify(stock,
-                modifyRequest.getClientName(), modifyRequest.getItemName(), modifyRequest.getQuantity(), modifyRequest.getPurchasePrice(), modifyRequest.getSalesPrice());
+                modifyRequest.getClientNameModify(), modifyRequest.getItemNameModify(), modifyRequest.getPurchasePriceModify(), modifyRequest.getSalesPriceModify());
 
         return modifyStock;
     }
@@ -119,6 +122,34 @@ public class StockController {
         RsData<Stock> stockRsData = this.stockService.delete(stock);
         return stockRsData;
     }
+
+    @PostMapping("/deleteMultiple")
+    public RsData<List<Stock>> deleteMultiple(@RequestBody List<Long> id) {
+        List<Stock> deletedClients = stockService.deleteMultiple(id);
+        return RsData.of("S-5", "정보 삭제", deletedClients);
+    }
+    @AllArgsConstructor
+    @Getter
+    public static class NameResponse {
+        private final Optional<Stock> stock;
+    }
+
+    @Data
+    public static class NameRequest {
+        @NotBlank
+        private String itemName;
+    }
+
+    @PostMapping("/check")
+    public RsData<StockController.NameResponse> checkClientName(@Valid @RequestBody NameRequest nameRequest) {
+        Optional<Stock> itemName = stockService.findByItemName(nameRequest.getItemName());
+        if (itemName.isPresent()) {
+            return RsData.of("S-6", "중복된 품목명", new StockController.NameResponse(itemName));
+        } else {
+            return RsData.of("S-7", "사용 가능", null);
+        }
+    }
+
 
     @GetMapping("/excel")
     public void excelDownload(HttpServletResponse response) throws IOException {

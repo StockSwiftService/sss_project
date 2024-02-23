@@ -384,9 +384,6 @@
         element_layer.style.width = width + 'px';
         element_layer.style.height = height + 'px';
         element_layer.style.border = borderWidth + 'px solid';
-
-        element_layer.style.left = (((window.innerWidth || document.documentElement.clientWidth) - width) / 2 - borderWidth) + 'px';
-        element_layer.style.top = (((window.innerHeight || document.documentElement.clientHeight) - height) / 2 - borderWidth) + 'px';
     }
 
     let confirmNameErrorMessage = '';
@@ -452,7 +449,7 @@
 
         $page.url.searchParams.set('kw', searchQuery);
         $page.url.searchParams.set('page', currentPage);
-
+        searchQuery = '';
         await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
 
         await dataLoad();
@@ -467,6 +464,15 @@
 
     onMount(async () => {
         await dataLoad();
+        const unsubscribe = page.subscribe(async ($page) => {
+            // URL의 검색 파라미터가 변경되었는지 확인 후 데이터 로드
+            await dataLoad();
+        });
+
+        // 컴포넌트가 언마운트될 때 구독 해제
+        return () => {
+            unsubscribe();
+        };
     })
 
     async function dataLoad() {
@@ -549,8 +555,7 @@
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                     </div>
-                    <div id="layer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
-                    </div>
+                    <div id="layer" class="abs xy-middle" style="display: none; overflow: hidden;"></div>
                     <div>
                         <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
@@ -635,8 +640,7 @@
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
                     </div>
-                    <div id="modifyLayer" style="display: none; position: fixed; overflow: hidden; z-index: 1;">
-                    </div>
+                    <div id="modifyLayer" class="abs xy-middle" style="display: none; overflow: hidden;"></div>
                     <div>
                         <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
@@ -670,6 +674,7 @@
     </div>
 
 </div>
+
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">
