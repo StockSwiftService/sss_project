@@ -4,28 +4,21 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.stockswiftservice.domain.company.controller.CompanyController;
-import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
@@ -264,6 +257,4 @@ public class MemberController {
         Member member = this.memberService.modifyPassword(modifyEmployeeRequest.getId(), modifyEmployeeRequest.getEmployeeName(), modifyEmployeeRequest.getPosition(), modifyEmployeeRequest.getAuthority(), modifyEmployeeRequest.getUsername(), modifyEmployeeRequest.getPassword(), modifyEmployeeRequest.getBirthday());
         return RsData.of("S-4", "비번 수정 성공", new ModifyReponse(member));
     }
-
-
 }
