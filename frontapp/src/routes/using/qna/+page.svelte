@@ -14,6 +14,9 @@
     let isActiveAdd = false;
 
     function activateModalAdd() {
+        email = '';
+        subject = '';
+        content = '';
         isActive = true;
         isActiveAdd = true;
     }
@@ -48,6 +51,14 @@
 
     onMount(async () => {
     await dataLoad();
+    const unsubscribe = page.subscribe(async ($page) => {
+            searchQuery='';
+            await dataLoad();
+        });
+        // 컴포넌트가 언마운트될 때 구독 해제
+        return () => {
+            unsubscribe();
+        };
     })
 
     async function dataLoad() {
@@ -86,6 +97,10 @@
             console.error("필수 입력 항목이 비어 있습니다.");
             return;
         }
+        if (!isValidEmail(email)) {
+            window.alert('이메일 형식이 유효하지 않습니다');
+            return;
+        }
         const createData = {
             email: email,
             subject: subject,
@@ -109,6 +124,10 @@
             console.error('Error:', error);
             window.alert('문의에 실패하였습니다');
         });
+    }
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
 </script>
@@ -158,6 +177,8 @@
                     <div class="error-text-box">
                         {#if email.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {:else if !isValidEmail(email)}
+                        <span class="f13 mt8 cr">올바른 이메일 형식이 아닙니다.</span>
                         {/if}
                     </div>
                 </div>

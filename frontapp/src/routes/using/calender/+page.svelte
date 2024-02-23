@@ -18,7 +18,7 @@
                 title: event.subject,
                 content: event.content,
                 start: new Date(event.startDate),
-                end: new Date(event.endDate),
+                end: new Date(event.endDate)
             }));
 
             renderCalendar();
@@ -82,12 +82,13 @@
             const content = window.prompt('Enter the event content:');
     
             if (title && content) {
-                calendar.addEvent({ title, content, start: info.startStr, end: info.endStr });
+                const event = { title, content, start: info.startStr, end: info.endStr };
+
+                calendar.addEvent(event);
                 
                 const updateStartDate = new Date(info.startStr);
                 const updateEndDate = new Date(info.endStr);
 
-                // 각 날짜에 1일씩 추가
                 updateStartDate.setDate(updateStartDate.getDate());
                 updateEndDate.setDate(updateEndDate.getDate() - 1);
             
@@ -106,13 +107,15 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    fetchDataAndRenderCalendar();
                     console.log('Event saved:', data);
                 })
                 .catch(error => {
                     console.error('Error saving event:', error);
                 });
     
+                calendar.setOption('selectable', false);
+            } else {
+                window.alert("일정 등록을 취소하였습니다");
                 calendar.setOption('selectable', false);
             }
         }
