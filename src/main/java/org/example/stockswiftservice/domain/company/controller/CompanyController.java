@@ -11,16 +11,16 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.service.CompanyService;
 import org.example.stockswiftservice.domain.member.entity.Member;
+import org.example.stockswiftservice.domain.member.service.EmailService;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.hibernate.annotations.Comment;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
@@ -35,6 +35,7 @@ public class CompanyController {
     private final CompanyService companyService;
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
+    private final EmailService emailService;
 
 
     @Data
@@ -277,6 +278,120 @@ public class CompanyController {
     public RsData<PwModifyResponse> PwModify(@Valid @RequestBody PwModifyValue pwModifyValue) {
         Member om = this.memberService.PwModify(pwModifyValue.getPassword(), pwModifyValue.getUsername(), pwModifyValue.getCompanyCode());
         return RsData.of("S-14", "비번 수정 가능", new PwModifyResponse(om));
+    }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class companyListResponse {
+        private final List<Company> companyList;
+        private final Page<Company> pageingList;
+
+    }
+
+    @GetMapping(value = "/lists", consumes = ALL_VALUE)
+    public RsData<companyListResponse> getList(HttpServletRequest request,@RequestParam(value="page", defaultValue="0") int page,
+                                               @RequestParam(value="keyword", defaultValue="") String keyword,
+                                               @RequestParam(value="isApprove", defaultValue="ALL") String isApprove) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority != 1) {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+        List<Company> companyList = this.companyService.findAll();
+        Page<Company> pageingList = this.companyService.PageingFindAll(page,keyword,isApprove);
+        return RsData.of("AS-1", "리스트 가져오기 완료", new companyListResponse(companyList,pageingList));
+    }
+
+
+    @Data
+    public static class CompanyList {
+        private List<String> approveList;
+    }
+
+    @PostMapping(value = "/approve", consumes = ALL_VALUE)
+    public RsData<?> CompanyApprove(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setApproved(true);
+                this.companyService.save(company);
+                this.emailService.approveMail(company.getEmail(),company.getCompanyCode());
+            }
+            return RsData.of("AS-2", "승인 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+
+    }
+
+    @PostMapping(value = "/disapprove", consumes = ALL_VALUE)
+    public RsData<?> CompanyDisapprove(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setApproved(false);
+                this.companyService.save(company);
+                this.emailService.disapproveMail(company.getEmail());
+            }
+            return RsData.of("AS-3", "탈퇴 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+    }
+
+    @PostMapping(value = "/reject", consumes = ALL_VALUE)
+    public RsData<?> CompanyReject(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setMemo("반려");
+                company.setApproved(false);
+                this.companyService.save(company);
+                this.emailService.disapproveMail(company.getEmail());
+            }
+            return RsData.of("AS-5", "반려 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+    }
+
+
+    @Data
+    public static class MemoForm {
+        private Long companyId;
+        private String memo;
+    }
+
+    @PostMapping(value = "/memo", consumes = ALL_VALUE)
+    public RsData<?> setMemo(@RequestBody MemoForm memoForm,HttpServletRequest request){
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            Company company = this.companyService.findById(memoForm.companyId);
+            company.setMemo(memoForm.memo);
+            this.companyService.save(company);
+            return RsData.of("AS-4", "메모 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
     }
 }
 

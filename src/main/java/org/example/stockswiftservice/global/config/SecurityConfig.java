@@ -41,6 +41,12 @@ public class SecurityConfig {
                         jwtAuthorizationFilter, // 엑세스 토큰으로 부터 로그인 처리
                         UsernamePasswordAuthenticationFilter.class
                 )
+                .logout(logout ->
+                        logout
+                                .logoutUrl("/api/v1/member/logout")
+                                .logoutSuccessUrl("/")
+                                .invalidateHttpSession(true)
+                                .deleteCookies("access_token","refresh_token"))
         ;
 
         return http.build();

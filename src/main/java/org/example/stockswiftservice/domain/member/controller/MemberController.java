@@ -133,6 +133,37 @@ public class MemberController {
         }
 
     }
+    @PostMapping(value = "/logout", consumes = APPLICATION_JSON_VALUE)
+    public RsData<loginresponse> logout(HttpServletResponse resp) {
+
+        Cookie expireAccessCookie = new Cookie("access_token", "");
+        expireAccessCookie.setMaxAge(0);
+        expireAccessCookie.setPath("/");
+        resp.addCookie(expireAccessCookie);
+
+        Cookie expireRefreshCookie = new Cookie("refresh_token", "");
+        expireRefreshCookie.setMaxAge(0);
+        expireRefreshCookie.setPath("/");
+        resp.addCookie(expireRefreshCookie);
+        return RsData.of("S-2", "토큰이 삭제되었습니다.", null);
+    }
+
+
+    @AllArgsConstructor
+    @Getter
+    public static class loginUser {
+        private final Member member;
+    }
+    @GetMapping(value = "/loginUser", consumes = APPLICATION_JSON_VALUE)
+    public RsData<?> loginUser (HttpServletRequest request){
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+
+        Member loginUser = this.memberService.findbyId(userId).orElse(null);
+        return RsData.of("S-99","현재 로그인 유저",new loginUser(loginUser));
+    }
+
+
 
     public void TokenExtension(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
