@@ -17,6 +17,7 @@ import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
@@ -153,25 +154,29 @@ public class MemberController {
     @Getter
     public static class MembersResponse {
         private final List<Member> memberList;
+        private final Page<Member> pagingList;
     }
 
     //회원 리스트
     @GetMapping(value = "/user-manages", consumes = APPLICATION_JSON_VALUE)
-    public RsData<MembersResponse> employeeList(HttpServletRequest request) {
+    public RsData<MembersResponse> employeeList(HttpServletRequest request,
+                                                @RequestParam(value="page", defaultValue="0") int page,
+                                                @RequestParam(value="keyWord", defaultValue="")String keyWord) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 회사코드 값
         Member member = memberService.findbyId(userId).orElse(null);
 
         List<Member> memberList = this.memberService.getEmployeeList(member.getCompany().getCompanyCode());
+        Page<Member> pagingList = this.memberService.pagingFindAll(page,keyWord);
 
         if (member.getAuthority() == 1 || member.getAuthority() == 2) {
             List<Member> filteredList = memberList.stream()
                     .filter(m -> m.getAuthority() != 1 && m.getAuthority() != 2)
                     .collect(Collectors.toList());
-            return RsData.of("S-2", "성공", new MembersResponse(filteredList));
+            return RsData.of("S-2", "성공", new MembersResponse(filteredList,pagingList));
         } else {
             // 권한이 1 또는 2가 아닌 경우 전체 목록 리턴
-            return RsData.of("S-2", "성공", new MembersResponse(memberList));
+            return RsData.of("S-2", "성공", new MembersResponse(memberList,pagingList));
         }
     }
 
@@ -196,6 +201,7 @@ public class MemberController {
     public static class ModifyReponse {
         private final Member member;
     }
+
     @Data
     public static class ModifyEmployeeRequest {
 
@@ -208,9 +214,8 @@ public class MemberController {
         private int authority;
         //아이디
         private String username;
-
+        //비번
         private String password;
-
         //사원 생일
         private LocalDate birthday;
     }
@@ -225,7 +230,9 @@ public class MemberController {
     //비번 초기화
     @PostMapping(value = "/modify-password", consumes = APPLICATION_JSON_VALUE)
     public RsData<ModifyReponse> modifyPassword(@RequestBody ModifyEmployeeRequest modifyEmployeeRequest) {
-        Member member = this.memberService.modifyPassword(modifyEmployeeRequest.getId(), modifyEmployeeRequest.getEmployeeName(), modifyEmployeeRequest.getPosition(), modifyEmployeeRequest.getAuthority(), modifyEmployeeRequest.getUsername(), modifyEmployeeRequest.getPassword() ,modifyEmployeeRequest.getBirthday());
+        Member member = this.memberService.modifyPassword(modifyEmployeeRequest.getId(), modifyEmployeeRequest.getEmployeeName(), modifyEmployeeRequest.getPosition(), modifyEmployeeRequest.getAuthority(), modifyEmployeeRequest.getUsername(), modifyEmployeeRequest.getPassword(), modifyEmployeeRequest.getBirthday());
         return RsData.of("S-4", "비번 수정 성공", new ModifyReponse(member));
     }
+
+
 }

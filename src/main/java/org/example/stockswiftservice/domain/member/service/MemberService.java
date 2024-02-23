@@ -7,6 +7,9 @@ import org.example.stockswiftservice.domain.company.repository.CompanyRepository
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.repository.MemberRepository;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -185,5 +188,10 @@ public class MemberService {
 
         memberRepository.save(modifiedMember);
         return modifiedMember;
+    }
+
+    public Page<Member> pagingFindAll(int page, String keyWord) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return this.memberRepository.findByKeyword(pageable,keyWord);
     }
 }

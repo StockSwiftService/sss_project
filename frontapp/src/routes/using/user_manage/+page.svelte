@@ -1,7 +1,50 @@
 <script>
     import {onMount} from 'svelte';
+
+    //페이징
+    let memberList = [];
+    let resList = [];
+    let keyword = '';
+    let memberTotal = [];
+
     let members = [];
     let selectedMemberIds = []; //체크박스에 체크된 멤버의 아이디를 저장
+
+
+    const changePage = async (page) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/member/user-manages?page=${page}&keyWord=${keyword}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                resList = data.data.pagingList;
+                memberList = resList.content;
+                memberTotal = data.data.memberList;
+            } else {
+                console.error('서버 응답 오류:', response.statusText);
+                if (!response.ok && response.status != 401) {
+                    alert('다시 시도 해주세요.');
+                }
+            }
+        } catch (error) {
+            console.error('오류 발생:', error);
+            alert('다시 시도 해주세요.');
+        }
+    };
+
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
 
     //회원 리스트 불러오기
     onMount(async () => {
@@ -15,7 +58,11 @@
             if (response.ok) {
                 const data = await response.json();
                 members = data.data.memberList
-                console.log(members)
+
+                resList = data.data.pagingList;
+                memberList = resList.content;
+                memberTotal = data.data.memberList;
+                console.log(memberList)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
             }
@@ -46,6 +93,7 @@
     let isCheckUsernameDuplicate = false
 
     //패스워드
+    let passwordConfirm = false
     let passwordSuccessMessage = ''
     let passwordErrorMessage = ''
 
@@ -94,9 +142,23 @@
     }
 
 
-    function activateModalNewPassword() {
+    function activateModalNewPassword(event) {
         isActive = true;
         isActiveNewPassword = true;
+
+        // 클릭된 버튼의 id에서 member를 추출
+        const buttonId = event.target.id;
+        const memberId = buttonId.split('_')[1]; // 'modify_{member.id}' 형식에서 member.id 부분만 추출
+        const member = JSON.parse(memberId); // member를 객체로 파싱
+        console.log('member:', member);
+
+        modifyData.id = member.id
+        modifyData.employeeName = member.name
+        modifyData.position = member.position;
+        modifyData.authority = member.authority;
+        modifyData.username = member.username;
+        modifyData.birthday = member.birthday;
+        modifyData.password = null
     }
 
     function deactivateModal() {
@@ -181,8 +243,10 @@
         if (!passwordRegex.test(employeeFormData.password)) {
             passwordSuccessMessage = ''
             passwordErrorMessage = '비밀번호는 6~16자 영문 대 소문자, 숫자, 특수문자를 사용해야 합니다';
+            passwordConfirm = false
         } else {
             passwordErrorMessage = ''
+            passwordConfirm = true
             return employeeFormData.password;
         }
     }
@@ -208,7 +272,7 @@
             alert('양식을 모두 입력해주세요.')
         } else if (duplicatedUsername == false || isCheckUsernameDuplicate == false) {
             alert('아이디를 다시 확인해 주세요.')
-        } else if (isPasswordConfirm == false || employeeFormData.password !== employeeFormData.passwordConfirm) {
+        } else if (isPasswordConfirm == false || employeeFormData.password !== employeeFormData.passwordConfirm || passwordConfirm == false) {
             alert('패스워드를 확인해 주세요.')
         } else {
             try {
@@ -351,6 +415,10 @@
     //회원 수정
     const employeeModifySubmit = async () => {
         console.log(modifyData.id)
+        if (!modifyData.password.trim()) {
+            alert('변경사항이 없습니다. 다시 입력해 주세요.')
+            return
+        }
         try {
             const response = await fetch('http://localhost:8080/api/v1/member/modify', {
                 method: 'POST',
@@ -641,45 +709,47 @@
     </div>
 
     <!-- 회원 비밀번호 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveNewPassword}">
-        <form class="top-box rel" on:submit|preventDefault={passwordModifySubmit}>
+    <form class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveNewPassword}"
+          on:submit|preventDefault={passwordModifySubmit}>
+        <div class="top-box rel">
             <h3 class="tb c121619 f18">새로운 비밀번호</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
-        </form>
-        <div class="middle-box scr-type-1">
-            <div class="flex fdc g36">
-                <div>
-                    <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="password" placeholder="비밀번호" bind:value={modifyData.password}
-                               on:input={validateModifyPassword}>
+            <div class="middle-box scr-type-1">
+                <div class="flex fdc g36">
+                    <div>
+                        <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="input-type-1 f14 w100per">
+                            <input type="password" placeholder="비밀번호" bind:value={modifyData.password}
+                                   on:input={validateModifyPassword}>
+                        </div>
+                        {#if passwordErrorMessage}
+                            <span class="f13 mt4 cr">{passwordErrorMessage}</span>
+                        {/if}
+                        {#if passwordSuccessMessage}
+                            <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
+                        {/if}
                     </div>
-                    {#if passwordErrorMessage}
-                        <span class="f13 mt4 cr">{passwordErrorMessage}</span>
-                    {/if}
-                    {#if passwordSuccessMessage}
-                        <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
-                    {/if}
-                </div>
-                <div class="input-type-1 f14 w100per mt8">
-                    <input type="password" placeholder="비밀번호 확인" bind:value={modifyData.passwordConfirm}
-                           on:input={confirmValidateModifyPassword}>
-                    {#if passwordConfirmErrorMessage}
-                        <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
-                    {/if}
-                    {#if passwordConfirmSuccessMessage}
-                        <span class="f13 mt4 cg">{passwordConfirmSuccessMessage}</span>
-                    {/if}
+                    <div class="input-type-1 f14 w100per mt8">
+                        <input type="password" placeholder="비밀번호 확인" bind:value={modifyData.passwordConfirm}
+                               on:input={confirmValidateModifyPassword}>
+                        {#if passwordConfirmErrorMessage}
+                            <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
+                        {/if}
+                        {#if passwordConfirmSuccessMessage}
+                            <span class="f13 mt4 cg">{passwordConfirmSuccessMessage}</span>
+                        {/if}
+                    </div>
                 </div>
             </div>
+            <div class="btn-area flex aic jcc g8 mt40 mb16">
+                <button type="submit" class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
+                <button type="button" class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소
+                </button>
+            </div>
         </div>
-        <div class="btn-area flex aic jcc g8 mt40 mb16">
-            <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
-            <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
-        </div>
-    </div>
+    </form>
 </div>
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">
@@ -689,16 +759,18 @@
         <div class="top-area">
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
-                    <div class="search-type-1 flex aic">
-                        <div class="search-box w200">
-                            <input type="search" placeholder="검색어 입력">
+                    <form>
+                        <div class="search-type-1 flex aic">
+                            <div class="search-box w200">
+                                <input type="search" placeholder="검색어 입력" bind:value={keyword}/>
+                            </div>
+                            <button class="search-btn flex aic jcc" on:click={() => changePage(0)}>
+								<span class="ico-box img-box w16">
+									<img src="/img/ico_search.svg" alt="검색 아이콘"/>
+								</span>
+                            </button>
                         </div>
-                        <button class="search-btn flex aic jcc">
-                            <span class="ico-box img-box w16">
-                                <img src="/img/ico_search.svg" alt="검색 아이콘">
-                            </span>
-                        </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -726,38 +798,41 @@
                         <th class="wsn">비밀번호</th>
                     </tr>
                     </thead>
-                    {#each members as member}
-                        <tbody>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="checkbox_{member.id}"
-                                           on:change={(e) => handleCheckboxChange(e, member.id)}>
-                                    <label for="checkbox_{member.id}"></label>
-                                </div>
-                            </td>
-                            <td class="wsn">{member.name}</td>
-                            <td class="wsn">{member.position}</td>
-                            {#if member.authority === 4}
-                                <td class="wsn">일반</td>
-                            {:else if member.authority === 3}
-                                <td class="wsn">관리자</td>
-                            {/if}
-                            <td class="wsn">{member.username}</td>
-                            <td class="wsn">{member.birthday}</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
-                                        on:click="{activateModalModifi}" id="modify_{JSON.stringify(member)}">
-                                    수정
-                                </button>
-                            </td>
-                            <td class="wsn tac">
-                                <button class="w50 h24 btn-type-2 bdr4 bdbbb cbbb f13"
-                                        on:click="{activateModalNewPassword}">초기화
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
+                    {#each memberList as member}
+                        {#if member.authority !== 1 && member.authority !== 2}
+                            <tbody>
+                            <tr>
+                                <td class="wsn" style="width: 44px;">
+                                    <div class="check-type-1">
+                                        <input type="checkbox" id="checkbox_{member.id}"
+                                               on:change={(e) => handleCheckboxChange(e, member.id)}>
+                                        <label for="checkbox_{member.id}"></label>
+                                    </div>
+                                </td>
+                                <td class="wsn">{member.name}</td>
+                                <td class="wsn">{member.position}</td>
+                                {#if member.authority === 4}
+                                    <td class="wsn">일반</td>
+                                {:else if member.authority === 3}
+                                    <td class="wsn">관리자</td>
+                                {/if}
+                                <td class="wsn">{member.username}</td>
+                                <td class="wsn">{member.birthday}</td>
+                                <td class="wsn tac">
+                                    <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
+                                            on:click="{activateModalModifi}" id="modify_{JSON.stringify(member)}">
+                                        수정
+                                    </button>
+                                </td>
+                                <td class="wsn tac">
+                                    <button class="w50 h24 btn-type-2 bdr4 bdbbb cbbb f13"
+                                            on:click="{activateModalNewPassword}"
+                                            id="password_{JSON.stringify(member)}">초기화
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        {/if}
                     {/each}
                 </table>
             </div>
@@ -775,27 +850,24 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if resList.number > 0}
+                        <li class="page-btn" on:click={() => changePage(resList.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(resList.totalPages) as button}
+                        <li
+                                class="num"
+                                on:click={() => resList.number !== button - 1 && changePage(button - 1)}
+                        >
+                            <a href="" class:active={resList.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if resList.number < resList.totalPages - 1}
+                        <li class="page-btn" on:click={() => changePage(resList.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>

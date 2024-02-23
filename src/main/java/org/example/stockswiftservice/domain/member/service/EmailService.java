@@ -34,7 +34,7 @@ public class EmailService {
             message.setRecipients(MimeMessage.RecipientType.TO, email);
             message.setSubject("Stock Swift Service 이메일 인증");
             String body = "";
-            body += "<h1>" + "안녕하세요 Stock Swift Service 입니다." + "<h1>";
+            body += "<h1>" + "안녕하세요 Stock Swift Service 입니다." + "</h1>";
             body += "<h2>" + "아래 인증코드를 입력해 주세요." + "</h2>";
             body += "<h1>" + number + "</h1>";
             message.setText(body,"UTF-8", "html");
