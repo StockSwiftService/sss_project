@@ -343,8 +343,52 @@ public class CompanyController {
                 Company company = this.companyService.findById(companyId);
                 company.setApproved(false);
                 this.companyService.save(company);
+                this.emailService.disapproveMail(company.getEmail());
             }
             return RsData.of("AS-3", "탈퇴 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+    }
+
+    @PostMapping(value = "/reject", consumes = ALL_VALUE)
+    public RsData<?> CompanyReject(HttpServletRequest request, @RequestBody CompanyList companyList) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            List<String> list = companyList.approveList;
+            for (String num : list) {
+                Long companyId = Long.parseLong(num);
+                Company company = this.companyService.findById(companyId);
+                company.setMemo("반려");
+                company.setApproved(false);
+                this.companyService.save(company);
+                this.emailService.disapproveMail(company.getEmail());
+            }
+            return RsData.of("AS-5", "반려 완료", null);
+        } else {
+            return RsData.of("E-1", "관리자만 접속 가능", null);
+        }
+    }
+
+
+    @Data
+    public static class MemoForm {
+        private Long companyId;
+        private String memo;
+    }
+
+    @PostMapping(value = "/memo", consumes = ALL_VALUE)
+    public RsData<?> setMemo(@RequestBody MemoForm memoForm,HttpServletRequest request){
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        int authority = ((Integer) jwtProvider.getClaims(token).get("authority")); //유저의 권한
+
+        if (authority == 1) {
+            Company company = this.companyService.findById(memoForm.companyId);
+            company.setMemo(memoForm.memo);
+            this.companyService.save(company);
+            return RsData.of("AS-4", "메모 완료", null);
         } else {
             return RsData.of("E-1", "관리자만 접속 가능", null);
         }

@@ -104,33 +104,60 @@
 		}
 	}
 	const approve = async () => {
-		const response = await fetch('http://localhost:8080/api/v1/company/approve', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(formData)
-		});
-		if (response.ok) {
-			const data = await response.json();
-			changePage(0);
+		const confirmResult = window.confirm('정말로 활성화 하시겠습니까?');
+		if (confirmResult) {
+			const response = await fetch('http://localhost:8080/api/v1/company/approve', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			});
+			if (response.ok) {
+				const data = await response.json();
+				changePage(0);
+				alert('처리가 완료되었습니다.');
+			}
 		}
 	};
 
 	const disapprove = async () => {
-		const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(formData)
-		});
-		if (response.ok) {
-			const data = await response.json();
-			changePage(0);
+		const confirmResult = window.confirm('정말로 비활성화 하시겠습니까?');
+		if (confirmResult) {
+			const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			});
+			if (response.ok) {
+				const data = await response.json();
+				changePage(0);
+				alert('처리가 완료되었습니다.');
+			}
 		}
 	};
 
+	const reject = async () => {
+		const confirmResult = window.confirm('정말로 반려하시겠습니까?');
+		if (confirmResult) {
+			const response = await fetch('http://localhost:8080/api/v1/company/reject', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			});
+			if (response.ok) {
+				const data = await response.json();
+				changePage(0);
+				alert('처리가 완료되었습니다.');
+			}
+		}
+	};
+
+	let companyMemo = '';
 
 	function generatePageButtons(totalPages) {
 		const buttons = [];
@@ -140,17 +167,62 @@
 		return buttons;
 	}
 
-    function memoModify(companyId) {
-        document.getElementById(`memo_after_${companyId}`).style.display = 'block';
-        document.getElementById(`memo_before_${companyId}`).style.display = 'none';
-    }
+	function memoModify(companyId, memo) {
+		document.getElementById(`memo_after_${companyId}`).style.display = 'block';
+		document.getElementById(`memo_before_${companyId}`).style.display = 'none';
+		companyMemo = memo;
+	}
 
-    function check(companyId) {
-        // 저장 버튼을 클릭한 회사의 ID에 해당하는 "memo-before" 섹션을 표시
-        document.getElementById(`memo_before_${companyId}`).style.display = 'block';
-        document.getElementById(`memo_after_${companyId}`).style.display = 'none';
-    }
+	async function memoCheck(companyId) {
+		document.getElementById(`memo_before_${companyId}`).style.display = 'flex';
+		document.getElementById(`memo_after_${companyId}`).style.display = 'none';
 
+		let formData = {
+			companyId: companyId,
+			memo: companyMemo
+		};
+
+		const response = await fetch(`http://localhost:8080/api/v1/company/memo`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include',
+			body: JSON.stringify(formData)
+		});
+		if (response.ok) {
+			try {
+				const response = await fetch(
+					`http://localhost:8080/api/v1/company/lists?page=${resList.number}&keyword=${keyword}&isApprove=${isApprove}`,
+					{
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						credentials: 'include'
+					}
+				);
+				if (response.ok) {
+					const data = await response.json();
+					if (data.resultCode === 'E-1') {
+						window.location.href = '/using/user_manage';
+						alert('관리자만 접근할 수 있습니다.');
+					}
+					resList = data.data.pageingList;
+					companyList = resList.content;
+					companyTotal = data.data.companyList;
+				} else {
+					console.error('서버 응답 오류:', response.statusText);
+					if (!response.ok && response.status != 401) {
+						alert('다시 시도 해주세요.');
+					}
+				}
+			} catch (error) {
+				console.error('오류 발생:', error);
+				alert('다시 시도 해주세요.');
+			}
+		}
+	}
 </script>
 
 <div class="store-management-area cnt-area w100per">
@@ -237,22 +309,21 @@
 								<td class="wsn">{company.companyCode}</td>
 								<td class="tal">
 									<div id="memo_before_{company.id}" class="memo-before flex aic jcsb g12 active">
-										<p>df</p>
+										<p class="">{company.memo}</p>
 										<button
 											id="memo_before_{company.id}"
-											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
-											on:click={() => memoModify(company.id)}>수정</button
+											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13 flex"
+											on:click={() => memoModify(company.id, company.memo)}>수정</button
 										>
 									</div>
-									<div id="memo_after_{company.id}" class="memo-after flex aic jcsb g12 ">
-                                        <p>asf</p>
-										<div id="memo_after_{company.id}" class="textarea-type-1 f14 w100per h160">
-											<textarea placeholder="내용"></textarea>
+									<div id="memo_after_{company.id}" class="memo-after flex aic jcsb g12">
+										<div id="memo_after_{company.id}" class="input-type-1 f14 w100per h160">
+											<input type="text" placeholder="내용" bind:value={companyMemo} />
 										</div>
 										<button
 											id="memo_after_{company.id}"
-											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
-											on:click={() => check(company.id)}>저장</button
+											class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13 mt4"
+											on:click={() => memoCheck(company.id)}>저장</button
 										>
 									</div>
 								</td>
@@ -267,7 +338,7 @@
 					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={disapprove}
 						>비활성화</button
 					>
-					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={disapprove}
+					<button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={reject}
 						>반려</button
 					>
 				</div>
@@ -307,6 +378,6 @@
 	}
 	.memo-before.active,
 	.memo-after.active {
-		display: block;
+		display: flex;
 	}
 </style>

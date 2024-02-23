@@ -24,6 +24,12 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     Page<Company> findAll(Pageable pageable);
 
     @Query("SELECT c FROM Company c WHERE (:isApproved = 'ALL' OR (c.isApproved = true AND :isApproved = 'APPROVED') OR (c.isApproved = false AND :isApproved = 'NOT_APPROVED')) " +
-            "AND (c.businessNumber LIKE %:keyword% OR c.email LIKE %:keyword% OR c.name LIKE %:keyword% OR c.repName LIKE %:keyword% OR c.address LIKE %:keyword% OR c.detailAddress LIKE %:keyword%)")
+            "AND (c.businessNumber LIKE %:keyword% " +
+            "OR c.email LIKE %:keyword% " +
+            "OR c.name LIKE %:keyword% " +
+            "OR c.repName LIKE %:keyword% " +
+            "OR c.address LIKE %:keyword% " +
+            "OR c.detailAddress LIKE %:keyword% " +
+            "OR c.memo LIKE %:keyword%)")
     Page<Company> findByKeyword(Pageable pageable,@Param("keyword")String keyword,@Param("isApproved")String isApprove);
 }
