@@ -263,6 +263,9 @@
 .input-type-2 input::placeholder {
     color: #A2A9B0;
 }
+.input-type-2 input:disabled {
+    background: #ededed;
+}
 
 /* ------------------------------------------------------------------------------- */
 

@@ -19,22 +19,6 @@
         isActiveModifi = true;
     }
 
-    let clients = [];
-    let selectedClient = { clientName: '', phoneNumber: '', address: '' };
-    
-    async function activateModalAccountSearch() {
-        isActive2 = true;
-        isActiveAccountSearch = true;
-
-        const response = await fetch('http://localhost:8080/api/v1/clients');
-        if (response.ok) {
-            const responseData = await response.json();
-            clients = responseData.data.clients;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
-    }
-
     function selectClient(client) {
         selectedClient = client;
 
@@ -63,6 +47,54 @@
         return `${year}-${month}-${day}`;
     }
 
+    let dateInput;
+    let deliveryStatus = false;
+    let significant = "";
+
+    // 숫자 세자리 포멧팅
+    function formatNumber(value) {
+        return value.toLocaleString('ko-KR');
+    }
+
+    //거래처명 입력 후 검색
+    let clients = [];
+    let selectedClient = { clientName: '', phoneNumber: '', address: '' };
+    let clientSerachInput ="";
+
+    async function searchAccountNameAll() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
+
+        const response = await fetch('http://localhost:8080/api/v1/clients');
+        if (response.ok) {
+            const responseData = await response.json();
+            clients = responseData.data.clients;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    async function searchClientNameKeyUp() {
+        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
+        if (response.ok) {
+            const responseData = await response.json();
+            clients = responseData.data.clients;
+        }
+        else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    function searchClientNameEnter(event) {
+        if (event.key === 'Enter') {
+            searchClientNameKeyUp();
+        }
+    }
+
+    function searchClientNameClick() {
+        searchClientNameKeyUp();
+    }
+
     //재고 영역 품목명 입력 후 검색
     let items = [
         {
@@ -76,8 +108,10 @@
     ];
     let selectItem;
     let stocks = [];
-    let serachInput = "";
+    let itemSerachInput = "";
     let itemAllSelected = false;
+    let allPrice = 0;
+    let formatAllPrice = 0;
 
     function addRow() {
         const newItem = {
@@ -104,11 +138,12 @@
                     item.price = stocks[0].salesPrice;
                     item.sumPrice = item.quantity * item.price;
                     items = items;
+                    allPricecalc();
                 }
                 else {
                     isActive2 = true;
                     isActiveStockSearch = true;
-                    serachInput = item.itemName;
+                    itemSerachInput = item.itemName;
                 }
             } else {
                 console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -116,41 +151,50 @@
         }
     }
 
-    async function searchItemNameKeyUp(event, item) {
-        if (event.key === 'Enter') {
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${serachInput}`);
-            if (response.ok) {
-                const responseData = await response.json();
-                stocks = responseData.data.stocks;
-                if (stocks.length == 1) {
-                    item.itemName = stocks[0].itemName;
-                    item.quantity = 1;
-                    item.price = stocks[0].salesPrice;
-                    item.sumPrice = item.quantity * item.price;
-                    items = items;
-                    isActive2 = false;
-                    isActiveStockSearch = false;
-                }
-            } else {
-                console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+    async function searchItemNameKeyUp(item) {
+        const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${itemSerachInput}`);
+        if (response.ok) {
+            const responseData = await response.json();
+            stocks = responseData.data.stocks;
+            if (stocks.length == 1) {
+                item.itemName = stocks[0].itemName;
+                item.quantity = 1;
+                item.price = stocks[0].salesPrice;
+                item.sumPrice = item.quantity * item.price;
+                items = items;
+                isActive2 = false;
+                isActiveStockSearch = false;
+                allPricecalc();
             }
         }
+        else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    function searchItemNameEnter(event, item) { 
+        if (event.key === 'Enter') {
+            searchItemNameKeyUp(item);
+        }
+    }
+
+    function searchItemNameClick(item) {
+        searchItemNameKeyUp(item);
     }
 
     function quantityChange(item) {
+        if (item.quantity <= 0) item.quantity = 1;
         item.sumPrice = item.quantity * item.price;
         items = items;
+        allPricecalc();
     }
 
-    function quantityChangeKeyUp(event, item) {
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        event.preventDefault();
-
-            if (event.key === 'ArrowUp') item.quantity += 1;
-            else if (event.key === 'ArrowDown') item.quantity = Math.max(1, item.quantity - 1);
-
-            quantityChange(item);
+    function allPricecalc() {
+        allPrice = 0;
+        for (let i = 0; i < items.length; i++) {
+            allPrice += items[i].sumPrice;
         }
+        formatAllPrice = formatNumber(allPrice);
     }
 
     function selectStock(stock) {
@@ -161,6 +205,7 @@
         items = items;
         isActive2 = false;
         isActiveStockSearch = false;
+        allPricecalc();
     }
 
     function toggleAllSelection() {
@@ -188,10 +233,45 @@
     function deleteSelectedItems() {
         items = items.filter(item => !item.selected);
         itemAllSelected = false;
+        allPricecalc();
     }
 
-    function formatNumber(value) {
-        return value.toLocaleString('ko-KR');
+    function purchaseCreate() {
+        if (selectedClient.clientName == "") {
+            alert("거래처를 선택해 주세요.");
+            return;
+        }
+        if (formatAllPrice == 0) alert("최소 1개 이상 품목을 등록해 주세요.");
+    }
+
+    const submitSignupForm = async (event) => {
+        event.preventDefault();
+        try {
+            const data = {
+                dateInput:'',
+                selectedClient:'',
+                deliveryStatus:'false',
+                significant:'',
+                items:[],
+                allPrice
+            };
+
+            const response = await fetch('http://localhost:8080/api/v1/purchase/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                console.log("전표생성 완")
+            } else {
+                window.alert('회원가입이 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
     }
 
     onMount(() => {
@@ -199,7 +279,7 @@
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
         document.getElementById('searchDateInput2').value = getTodayDate();
-        document.getElementById('dateInput').value = getTodayDate();
+        dateInput = getTodayDate();
 
     });
 </script>
@@ -234,122 +314,124 @@
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <div class="chit-box flex fdc g12">
-                <ul class="w100per flex aic g20">
-                    <li class="flex aic g12">
-                        <span class="title-text f14 c333">일자</span>
-                        <div class="input-box input-type-2 f14 w140">
-                            <input type="date" id="dateInput" placeholder="일자">
-                        </div>
-                    </li>
-                    <li class="flex aic g12">
-                        <span class="title-text f14 c333">거래처</span>
-                        <div class="input-box flex aic g8 w200">
-                            <div class="input-type-2 f14 w100per">
-                                <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
+            <form on:submit|preventDefault={submitSignupForm}>
+                <div class="chit-box flex fdc g12">
+                    <ul class="w100per flex aic g20">
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">일자</span>
+                            <div class="input-box input-type-2 f14 w140">
+                                <input type="date" id="dateInput" placeholder="일자" bind:value={dateInput}>
                             </div>
-                            <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" style="min-width: 60px;" on:click={activateModalAccountSearch}>찾기</button>
-                        </div>
-                    </li>
-                    <li class="flex aic g12">
-                        <span class="title-text f14 c333">연락처</span>
-                        <div class="input-box input-type-2 f14">
-                            <input type="text" placeholder="연락처" readonly value={selectedClient.phoneNumber}>
-                        </div>
-                    </li>
-                </ul>
-                <ul class="w100per flex aic g20">
-                    <li class="flex aic g12" style="width:67%">
-                        <span class="title-text f14 c333">주소</span>
-                        <div class="input-box input-type-2 f14 w100per">
-                            <input type="text" placeholder="주소" readonly value={selectedClient.address}>
-                        </div>
-                    </li>
-                    <li class="flex aic g12" style="width:calc(33% - 20px)">
-                        <span class="title-text f14 c333">출고 여부</span>
-                        <div class="check-type-1">
-                            <input type="checkbox" id="w1">
-                            <label for="w1"></label>
-                        </div>
-                    </li>
-                </ul>
-                <div class="w100per">
-                    <div class="flex aic g12">
-                        <span class="title-text f14 c333">특이사항</span>
-                        <div class="input-box textarea-type-1 f14 w100per h60">
-                            <textarea placeholder="특이사항"></textarea>
+                        </li>
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">거래처</span>
+                            <div class="input-box flex aic g8 w200">
+                                <div class="input-type-2 f14 w100per">
+                                    <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
+                                </div>
+                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchAccountNameAll}>찾기</button>
+                            </div>
+                        </li>
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">연락처</span>
+                            <div class="input-box input-type-2 f14">
+                                <input type="text" placeholder="연락처" readonly disabled value={selectedClient.phoneNumber}>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="w100per flex aic g20">
+                        <li class="flex aic g12" style="width:67%">
+                            <span class="title-text f14 c333">주소</span>
+                            <div class="input-box input-type-2 f14 w100per">
+                                <input type="text" placeholder="주소" readonly disabled value={selectedClient.address}>
+                            </div>
+                        </li>
+                        <li class="flex aic g12" style="width:calc(33% - 20px)">
+                            <span class="title-text f14 c333">출고 여부</span>
+                            <div class="check-type-1">
+                                <input type="checkbox" id="w1" bind:value={deliveryStatus}>
+                                <label for="w1"></label>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="w100per">
+                        <div class="flex aic g12">
+                            <span class="title-text f14 c333">특이사항</span>
+                            <div class="input-box textarea-type-1 f14 w100per h60">
+                                <textarea placeholder="특이사항" bind:value={significant}></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
-            <div class="table-type-3 scr-type-2 rel">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="wsn" style="width: 44px; min-width:44px;">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="itemAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}>
-                                    <label for="itemAll"></label>
-                                </div> 
-                            </th>
-                            <th class="wsn">품목명</th>
-                            <th class="wsn" style="width: 100px; min-width:100px;">수량</th>
-                            <th class="wsn" style="width: 140px; min-width:140px;">단가</th>
-                            <th class="wsn" style="width: 160px; min-width:160px;">금액</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each items as item, index (item.id)}
-                        <tr>
-                            <td class="wsn">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id={`v${index}`} bind:checked={item.selected} on:click={() => toggleSelection(item)}>
-                                    <label for={`v${index}`}></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="number" placeholder="수량" bind:value={item.quantity} on:keydown={(event) => quantityChangeKeyUp(event, item)}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="number" placeholder="단가" readonly bind:value={item.price}>
-                                </div>
-                            </td>
-                            <td class="wsn">
-                                <div class="input-type-2 f14">
-                                    <input type="number" placeholder="금액" readonly bind:value={item.sumPrice}>
-                                </div>
-                            </td>
-                        </tr>
-                        {/each}
-                    </tbody>
-                    <tbody>
-                        <tr class="last">
-                            <td class="wsn"></td>
-                            <td class="wsn"></td>
-                            <td class="wsn"></td>
-                            <td class="wsn"></td>
-                            <td class="wsn">12,000,000</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
-                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={addRow}>추가</button>
-                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={deleteSelectedItems}>삭제</button>
+                <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
+                <div class="table-type-3 scr-type-2 rel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="wsn" style="width: 44px; min-width:44px;">
+                                    <div class="check-type-1">
+                                        <input type="checkbox" id="itemAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}>
+                                        <label for="itemAll"></label>
+                                    </div> 
+                                </th>
+                                <th class="wsn">품목명</th>
+                                <th class="wsn" style="width: 100px; min-width:100px;">수량</th>
+                                <th class="wsn" style="width: 140px; min-width:140px;">단가</th>
+                                <th class="wsn" style="width: 160px; min-width:160px;">금액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each items as item, index (item.id)}
+                            <tr>
+                                <td class="wsn">
+                                    <div class="check-type-1">
+                                        <input type="checkbox" id={`v${index}`} bind:checked={item.selected} on:click={() => toggleSelection(item)}>
+                                        <label for={`v${index}`}></label>
+                                    </div> 
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="수량" bind:value={item.quantity} on:input={() => quantityChange(item)}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="단가" readonly bind:value={item.price}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="금액" readonly bind:value={item.sumPrice}>
+                                    </div>
+                                </td>
+                            </tr>
+                            {/each}
+                        </tbody>
+                        <tbody>
+                            <tr class="last">
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn">{formatAllPrice}원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
+                        <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" type="button" on:click={addRow}>추가</button>
+                        <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" type="button" on:click={deleteSelectedItems}>삭제</button>
+                    </div>
                 </div>
-            </div>
-            <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">등록</button>
-                <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
-            </div>
+                <div class="btn-area flex aic jcc g8 mt40">
+                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="submit" on:click={(event) => purchaseCreate(event)}>등록</button>
+                    <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -435,9 +517,9 @@
         <div class="middle-box scr-type-1">
             <div class="search-type-1 flex aic">
                 <div class="search-box w100per">
-                    <input type="search" placeholder="거래처명">
+                    <input type="search" placeholder="거래처명" bind:value={clientSerachInput} on:keydown={(event) => searchClientNameEnter(event)}>
                 </div>
-                <button class="search-btn flex aic jcc">
+                <button class="search-btn flex aic jcc" on:click={searchClientNameClick}>
                     <span class="ico-box img-box w16">
                         <img src="/img/ico_search.svg" alt="검색 아이콘">
                     </span>
@@ -479,9 +561,9 @@
         <div class="middle-box scr-type-1">
             <div class="search-type-1 flex aic">
                 <div class="search-box w100per">
-                    <input type="search" placeholder="품목명" bind:value={serachInput} on:keydown={(event) => searchItemNameKeyUp(event, selectItem)}>
+                    <input type="search" placeholder="품목명" bind:value={itemSerachInput} on:keydown={(event) => searchItemNameEnter(event, selectItem)}>
                 </div>
-                <button class="search-btn flex aic jcc">
+                <button class="search-btn flex aic jcc" on:click={() => searchItemNameClick(selectItem)}>
                     <span class="ico-box img-box w16">
                         <img src="/img/ico_search.svg" alt="검색 아이콘">
                     </span>
