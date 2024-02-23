@@ -134,7 +134,7 @@ public class ClientController {
     }
 
     @PostMapping("/check")
-    public RsData<NameResponse> checkClientName(@Valid @RequestBody NameRequest nameRequest) {
+    public RsData<NameResponse> checkItemName(@Valid @RequestBody NameRequest nameRequest) {
         Optional<Client> clientName = clientService.findByClientName(nameRequest.getClientName());
         if (clientName.isPresent()) {
             return RsData.of("S-6", "중복된 거래처명", new NameResponse(clientName));

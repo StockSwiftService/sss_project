@@ -82,8 +82,8 @@ public class StockService {
         return stocksToDelete;
     }
 
-    public Optional<Stock> findByItemName(String itemName) {
-        return stockRepository.findByItemName(itemName);
+    public Optional<Stock> findByItemName(String clientName, String itemName) {
+        return stockRepository.findByItemName(clientName, itemName);
     }
 
     private Specification<Stock> search(String kw) {

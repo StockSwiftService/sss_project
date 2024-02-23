@@ -137,14 +137,16 @@ public class StockController {
     @Data
     public static class NameRequest {
         @NotBlank
+        private String clientName;
+        @NotBlank
         private String itemName;
     }
 
     @PostMapping("/check")
-    public RsData<StockController.NameResponse> checkClientName(@Valid @RequestBody NameRequest nameRequest) {
-        Optional<Stock> itemName = stockService.findByItemName(nameRequest.getItemName());
+    public RsData<NameResponse> checkClientName(@Valid @RequestBody NameRequest nameRequest) {
+        Optional<Stock> itemName = stockService.findByItemName(nameRequest.getClientName(),nameRequest.getItemName());
         if (itemName.isPresent()) {
-            return RsData.of("S-6", "중복된 품목명", new StockController.NameResponse(itemName));
+            return RsData.of("S-6", "중복된 품목명", new NameResponse(itemName));
         } else {
             return RsData.of("S-7", "사용 가능", null);
         }

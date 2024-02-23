@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
-    Optional<Stock> findByItemName(String itemName);
+    Optional<Stock> findByItemName(String clientName, String itemName);
 
     Page<Stock> findAll(Pageable pageable);
     Page<Stock> findAll(Specification<Stock> spec, Pageable pageable);

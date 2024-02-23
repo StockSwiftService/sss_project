@@ -105,7 +105,6 @@
                 const responseData = await response.json();
                 console.log(responseData);
                 window.alert('저장되었습니다.');
-                // deactivateModal();
                 goto(`/using/account_manage`);
                 setTimeout(() => {
                     location.reload();
@@ -177,7 +176,6 @@
                 const responseData = await response.json();
                 console.log(responseData);
                 window.alert('내용이 수정되었습니다.');
-                // deactivateModal();
                 goto(`/using/account_manage`);
                 setTimeout(() => {
                     location.reload();
@@ -247,12 +245,13 @@
             });
             if (response.ok) {
                 const clientData = await response.json();
-                formDataModify.clientNameModify = clientData.data.clients.clientName;
-                formDataModify.repNameModify = clientData.data.clients.repName;
-                formDataModify.phoneNumberModify = clientData.data.clients.phoneNumber;
-                formDataModify.addressModify = clientData.data.clients.address;
-                formDataModify.detailAddressModify = clientData.data.clients.detailAddress;
+                formDataModify.clientNameModify = clientData.data.client.clientName;
+                formDataModify.repNameModify = clientData.data.client.repName;
+                formDataModify.phoneNumberModify = clientData.data.client.phoneNumber;
+                formDataModify.addressModify = clientData.data.client.address;
+                formDataModify.detailAddressModify = clientData.data.client.detailAddress;
                 formDataModify = {...formDataModify};
+
             } else {
 
                 console.error("Failed to fetch client details");
@@ -286,6 +285,13 @@
         });
     };
 
+    function clearErrorMessage(fieldName) {
+        const errorElement = document.querySelector(`.error-text-box[data-field="${fieldName}"] .error-text`);
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+    }
+
     let isAddress = false;
     let element_layer;
 
@@ -317,6 +323,7 @@
 
                 document.getElementById("address").value = addr;
                 formData.address = addr;
+                clearErrorMessage('address');
                 document.getElementById("detailAddress").focus();
 
                 isAddress = true;
@@ -349,6 +356,7 @@
 
                 document.getElementById("addressModify").value = addr;
                 formDataModify.addressModify = addr;
+                clearErrorMessage('addressModify');
                 document.getElementById("detailAddressModify").focus();
 
                 isAddress = true;
@@ -430,7 +438,8 @@
 
     let searchQuery = '';
     let currentPage = 0;
-    async function changePage(searchQuery,currentPage) {
+
+    async function changePage(searchQuery, currentPage) {
         try {
 
             $page.url.searchParams.get('kw', searchQuery);
@@ -449,7 +458,7 @@
 
         $page.url.searchParams.set('kw', searchQuery);
         $page.url.searchParams.set('page', currentPage);
-        searchQuery = '';
+
         await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
 
         await dataLoad();
@@ -465,6 +474,7 @@
     onMount(async () => {
         await dataLoad();
         const unsubscribe = page.subscribe(async ($page) => {
+            searchQuery = '';
             // URL의 검색 파라미터가 변경되었는지 확인 후 데이터 로드
             await dataLoad();
         });
@@ -525,7 +535,6 @@
                                 확인
                             </button>
                         </div>
-
                         <div class="error-text-box" data-field="clientName">
                             <span class="error-text f13 mt8 cr"></span>
                         </div>
@@ -624,7 +633,8 @@
                     <div>
                         <h2 class="c333 f15 tm mb8">대표자명<span class="cr f16 tm inblock">*</span></h2>
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" name="repNameModify" placeholder="대표자명" bind:value={formDataModify.repNameModify}>
+                            <input type="text" name="repNameModify" placeholder="대표자명"
+                                   bind:value={formDataModify.repNameModify}>
                         </div>
                         <div class="error-text-box" data-field="repNameModify">
                             <span class="error-text f13 mt8 cr"></span>
@@ -645,7 +655,8 @@
                         <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input type="text" id="addressModify" name="addressModify" bind:value={formDataModify.addressModify} placeholder="주소">
+                                <input type="text" id="addressModify" name="addressModify"
+                                       bind:value={formDataModify.addressModify} placeholder="주소">
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff"
                                     on:click|preventDefault={initDaumPostcodeModify}>찾기
@@ -725,7 +736,7 @@
                         <tr>
                             <td class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox"  bind:checked={client.checked} id="{client.id}">
+                                    <input type="checkbox" bind:checked={client.checked} id="{client.id}">
                                     <label for="{client.id}"></label>
                                 </div>
                             </td>
@@ -734,7 +745,8 @@
                             <td class="wsn">{client.phoneNumber}</td>
                             <td class="wsn">{client.address} {client.detailAddress}</td>
                             <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={() => activateModalModify(client.id)}>
+                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"
+                                        on:click={() => activateModalModify(client.id)}>
                                     수정
                                 </button>
                             </td>
@@ -745,7 +757,8 @@
             </div>
             <div class="flex aic jcsb mt8">
                 <div class="flex aic g4">
-                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click="{deleteSelectedClients}">삭제</button>
+                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click="{deleteSelectedClients}">삭제
+                    </button>
                 </div>
                 <div class="flex aic g4">
                     <button class="w50 h30 btn-type-1 bm bdr4 f12 cfff" on:click="{activateModalAdd}">등록</button>

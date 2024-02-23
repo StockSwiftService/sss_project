@@ -1,8 +1,14 @@
 <script>
+    import {goto} from "$app/navigation";
+
+    export let data;
     let isActive = false;
+    let isActive2 = false;
+
     let isActiveAdd = false;
     let isActiveModifi = false;
     let isActiveRecord = false;
+    let isActiveAccountSearch = false;
 
     function activateModalAdd() {
         isActive = true;
@@ -19,15 +25,155 @@
         isActiveRecord = true;
     }
 
+    function activateModalAccountSearch() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
+    }
+
     function deactivateModal() {
         isActive = false;
         isActiveAdd = false;
         isActiveModifi = false;
         isActiveRecord = false;
     }
+
+    function deactivateAccountSearchModal() {
+        isActive2 = false;
+        isActiveAccountSearch = false;
+    }
+
+    let formData = {
+        clientName: '',
+        itemName: '',
+        quantity: '',
+        purchasePrice: '',
+        salesPrice: ''
+    };
+
+    const submitClientForm = async (event) => {
+        event.preventDefault();
+
+        const clientName = formData.clientName;
+        const itemName = formData.itemName;
+        const quantity = formData.quantity;
+        const purchasePrice = formData.purchasePrice;
+        const salesPrice = formData.salesPrice;
+
+        const errors = {};
+
+        if (!clientName.trim()) {
+            errors.clientName = '거래처명을 입력하세요.';
+        }
+
+        if (!itemName.trim()) {
+            errors.itemName = '품목명을 입력하세요.';
+        }
+
+        if (!quantity.trim()) {
+            errors.quantity = '수량을 입력하세요.';
+        }
+
+        if (!purchasePrice.trim()) {
+            errors.purchasePrice = '구매단가를 입력하세요.';
+        }
+
+        if (!salesPrice.trim()) {
+            errors.salesPrice = '판매단가를 입력하세요.';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            updateErrorMessages(errors);
+            return;
+        }
+
+        // 서버로 데이터 전송
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/stocks', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                console.log(responseData);
+                window.alert('저장되었습니다.');
+                goto(`/using/inventory_manage`);
+                setTimeout(() => {
+                    location.reload();
+                }, 100);
+            } else {
+                const responseData = await response.json();
+                console.error(responseData);
+                window.alert('저장에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    }
+
+    const updateErrorMessages = (errors) => {
+        // 각 오류 메시지 업데이트
+        for (const fieldName in errors) {
+            const errorElement = document.querySelector(
+                `.error-text-box[data-field="${fieldName}"] .error-text`
+            );
+            if (errorElement) {
+                errorElement.textContent = errors[fieldName];
+            }
+        }
+        const inputFields = document.querySelectorAll('.input-type-1 input');
+        inputFields.forEach((inputField) => {
+            inputField.addEventListener('input', () => {
+                const fieldName = inputField.getAttribute('name');
+                const errorElement = document.querySelector(
+                    `.error-text-box[data-field="${fieldName}"] .error-text`
+                );
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+            });
+        });
+    };
+
+    let confirmNameErrorMessage = '';
+    let confirmNameSuccessMessage = '';
+    const checkDuplicate = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/stocks/check', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({itemName: formData.itemName }),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                if (responseData.resultCode === 'S-6') {
+                    confirmNameErrorMessage = '중복된 품목명입니다.';
+                    confirmNameSuccessMessage = '';
+
+                } else {
+                    confirmNameSuccessMessage = '중복되지 않는 품목명입니다.';
+                    confirmNameErrorMessage = '';
+                }
+            } else {
+                const responseData = await response.json();
+                console.error(responseData);
+                window.alert('내용을 입력하세요.');
+            }
+        } catch (error) {
+            console.error('Error checking duplicate:', error);
+        }
+    };
 </script>
 
-<div class="modal-area wh100per fixed zi9" class:active="{isActive}">
+<div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
 
     <!-- 재고 등록 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
@@ -38,19 +184,94 @@
             </button>
         </div>
         <div class="middle-box scr-type-1">
+            <form on:submit|preventDefault={submitClientForm}>
+                <div class="flex fdc g36">
+                    <div>
+                        <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="flex g8">
+                            <div class="input-type-1 f14 w100per">
+                                <input bind:value={formData.clientName} type="text" name="clientName"
+                                       placeholder="거래처명">
+                            </div>
+                            <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기
+                            </button>
+                        </div>
+                        <div class="error-text-box" data-field="clientName">
+                            <span class="error-text f13 mt8 cr"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="c333 f15 tm mb8">품목명<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="flex g8">
+                            <div class="input-type-1 f14 w100per">
+                                <input bind:value={formData.itemName} type="text" name="itemName" placeholder="품목명">
+                            </div>
+                            <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={checkDuplicate}>확인</button>
+                        </div>
+                        <div class="error-text-box" data-field="itemName">
+                            <span class="error-text f13 mt8 cr"></span>
+                        </div>
+                        {#if confirmNameErrorMessage}
+                            <span class="f13 mt8 cr">{confirmNameErrorMessage}</span>
+                        {/if}
+                        {#if confirmNameSuccessMessage}
+                            <span class="f13 mt8 cg">{confirmNameSuccessMessage}</span>
+                        {/if}
+                    </div>
+                    <div>
+                        <h2 class="c333 f15 tm mb8">수량<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="input-type-1 f14 w100per">
+                            <input bind:value={formData.quantity} type="text" name="quantity" placeholder="수량">
+                        </div>
+                        <div class="error-text-box" data-field="quantity">
+                            <span class="error-text f13 mt8 cr"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="c333 f15 tm mb8">구매 단가<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="input-type-1 f14 w100per">
+                            <input bind:value={formData.purchasePrice} type="text" name="purchasePrice" placeholder="구매 단가">
+                        </div>
+                        <div class="error-text-box" data-field="purchasePrice">
+                            <span class="error-text f13 mt8 cr"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="c333 f15 tm mb8">판매 단가<span class="cr f16 tm inblock">*</span></h2>
+                        <div class="input-type-1 f14 w100per">
+                            <input bind:value={formData.salesPrice} type="text" name="salesPrice" placeholder="판매 단가">
+                        </div>
+                        <div class="error-text-box" data-field="salesPrice">
+                            <span class="error-text f13 mt8 cr"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-area flex aic jcc g8 mt40">
+                    <button type="submit" class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">등록</button>
+                    <button type="button" class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 재고 수정 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveModifi}">
+        <div class="top-box rel">
+            <h3 class="tb c121619 f18">재고 수정</h3>
+            <button class="x-btn img-box abs" on:click="{deactivateModal}">
+                <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
+            </button>
+        </div>
+        <div class="middle-box scr-type-1">
             <div class="flex fdc g36">
                 <div>
                     <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="거래처명" readonly>
+                        </div>
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기
+                        </button>
                     </div>
                     <div class="error-text-box">
                         <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
@@ -99,73 +320,6 @@
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">등록</button>
-                <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 재고 수정 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveModifi}">
-        <div class="top-box rel">
-            <h3 class="tb c121619 f18">재고 수정</h3>
-            <button class="x-btn img-box abs" on:click="{deactivateModal}">
-                <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
-            </button>
-        </div>
-        <div class="middle-box scr-type-1">
-            <div class="flex fdc g36">
-                <div>
-                    <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">품목명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="flex g8">
-                        <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="품목명">
-                        </div>
-                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">중복된 품목명입니다.</span>
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                        <span class="f13 mt8 cg">사용할 수 있는 품목명입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">구매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="구매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">판매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="판매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="btn-area flex aic jcc g8 mt40">
                 <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
                 <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
             </div>
@@ -189,15 +343,15 @@
                         <option value="">구매</option>
                     </select>
                     <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
+                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>
                     </span>
                 </div>
                 <div class="flex aic g8">
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <span class="f14">~</span>
-                    <div class="input-type-2 f14 w200">
+                    <div class="input-type-2 f14 w140">
                         <input type="date" placeholder="조회">
                     </div>
                     <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
@@ -208,60 +362,106 @@
             <div class="table-type-2 mt12">
                 <table>
                     <thead>
-                        <tr>
-                            <th colspan="4">2024-02-10</th>
-                        </tr>
+                    <tr>
+                        <th colspan="4">2024-02-10</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td colspan="4">기존 재고 : 50개</td>
-                        </tr>
+                    <tr>
+                        <td colspan="4">기존 재고 : 50개</td>
+                    </tr>
                     </tbody>
                     <thead>
-                        <tr>
-                            <th colspan="4">2024-02-16</th>
-                        </tr>
+                    <tr>
+                        <th colspan="4">2024-02-16</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="w120">2024-02-16</td>
-                            <td class="w60">
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>김네모</td>
-                            <td>50개</td>
-                        </tr>
-                        <tr>
-                            <td class="w120">2024-02-16</td>
-                            <td>
-                                <span class="inblock cr">구매</span>
-                            </td>
-                            <td>(주)네모컴퍼니</td>
-                            <td>50개</td>
-                        </tr>
+                    <tr>
+                        <td class="w120">2024-02-16</td>
+                        <td class="w60">
+                            <span class="inblock cb">판매</span>
+                        </td>
+                        <td>김네모</td>
+                        <td>50개</td>
+                    </tr>
+                    <tr>
+                        <td class="w120">2024-02-16</td>
+                        <td>
+                            <span class="inblock cr">구매</span>
+                        </td>
+                        <td>(주)네모컴퍼니</td>
+                        <td>50개</td>
+                    </tr>
                     </tbody>
                     <thead>
-                        <tr>
-                            <th colspan="4">2024-02-18</th>
-                        </tr>
+                    <tr>
+                        <th colspan="4">2024-02-18</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="w120">2024-02-16</td>
-                            <td class="w60">
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>김철수</td>
-                            <td>3개</td>
-                        </tr>
-                        <tr>
-                            <td class="w120">2024-02-16</td>
-                            <td>
-                                <span class="inblock cb">판매</span>
-                            </td>
-                            <td>박지수</td>
-                            <td>1개</td>
-                        </tr>
+                    <tr>
+                        <td class="w120">2024-02-16</td>
+                        <td class="w60">
+                            <span class="inblock cb">판매</span>
+                        </td>
+                        <td>김철수</td>
+                        <td>3개</td>
+                    </tr>
+                    <tr>
+                        <td class="w120">2024-02-16</td>
+                        <td>
+                            <span class="inblock cb">판매</span>
+                        </td>
+                        <td>박지수</td>
+                        <td>1개</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-area-2 modal-area wh100per fixed zi10" class:active="{isActive2}">
+
+    <!-- 거래처 찾기 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi10 w480" class:active="{isActiveAccountSearch}">
+        <div class="top-box rel">
+            <h3 class="tb c121619 f18">거래처 찾기</h3>
+            <button class="x-btn img-box abs" on:click="{deactivateAccountSearchModal}">
+                <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
+            </button>
+        </div>
+        <div class="middle-box scr-type-1">
+            <div class="search-type-1 flex aic">
+                <div class="search-box w100per">
+                    <input type="search" placeholder="거래처명">
+                </div>
+                <button class="search-btn flex aic jcc">
+                    <span class="ico-box img-box w16">
+                        <img src="/img/ico_search.svg" alt="검색 아이콘">
+                    </span>
+                </button>
+            </div>
+            <div class="table-type-3 scr-type-2 mt20">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="wsn">거래처명</th>
+                        <th class="wsn">대표자명</th>
+                        <th class="wsn">연락처</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="wsn">
+                            <button class="inblock tdu c162b60">(주)네모컴퍼니</button>
+                        </td>
+                        <td class="wsn">김네모</td>
+                        <td class="wsn">01033333333</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -279,7 +479,7 @@
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box">
+                        <div class="search-box w200">
                             <input type="search" placeholder="검색어 입력">
                         </div>
                         <button class="search-btn flex aic jcc">
@@ -299,61 +499,64 @@
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
                     <thead>
-                        <tr>
-                            <th class="wsn" style="width: 44px;">
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="all">
-                                    <label for="all"></label>
-                                </div> 
-                            </th>
-                            <th class="wsn">거래처명</th>
-                            <th class="wsn">품목명</th>
-                            <th class="wsn">수량</th>
-                            <th class="wsn">구매 단가</th>
-                            <th class="wsn">판매 단가</th>
-                            <th class="wsn">이력</th>
-                            <th class="wsn">수정</th>
-                        </tr>
+                    <tr>
+                        <th class="wsn" style="width: 44px;">
+                            <div class="check-type-1">
+                                <input type="checkbox" id="all">
+                                <label for="all"></label>
+                            </div>
+                        </th>
+                        <th class="wsn">거래처명</th>
+                        <th class="wsn">품목명</th>
+                        <th class="wsn">수량</th>
+                        <th class="wsn">구매 단가</th>
+                        <th class="wsn">판매 단가</th>
+                        <th class="wsn">이력</th>
+                        <th class="wsn">수정</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn tal">네모네모 스낵 100g</td>
-                            <td class="wsn">300</td>
-                            <td class="wsn">1,000</td>
-                            <td class="wsn">1,500</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={activateModalRecord}>이력</button>
-                            </td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v2">
-                                    <label for="v2"></label>
-                                </div> 
-                            </td>
-                            <td class="wsn">(주)네모컴퍼니</td>
-                            <td class="wsn tal">네모네모 사탕 30g</td>
-                            <td class="wsn">500</td>
-                            <td class="wsn">500</td>
-                            <td class="wsn">800</td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13">이력</button>
-                            </td>
-                            <td class="wsn tac">
-                                <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정</button>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td class="wsn" style="width: 44px;">
+                            <div class="check-type-1">
+                                <input type="checkbox" id="v1">
+                                <label for="v1"></label>
+                            </div>
+                        </td>
+                        <td class="wsn">(주)네모컴퍼니</td>
+                        <td class="wsn tal">네모네모 스낵 100g</td>
+                        <td class="wsn">300</td>
+                        <td class="wsn">1,000</td>
+                        <td class="wsn">1,500</td>
+                        <td class="wsn tac">
+                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={activateModalRecord}>이력
+                            </button>
+                        </td>
+                        <td class="wsn tac">
+                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="wsn" style="width: 44px;">
+                            <div class="check-type-1">
+                                <input type="checkbox" id="v2">
+                                <label for="v2"></label>
+                            </div>
+                        </td>
+                        <td class="wsn">(주)네모컴퍼니</td>
+                        <td class="wsn tal">네모네모 사탕 30g</td>
+                        <td class="wsn">500</td>
+                        <td class="wsn">500</td>
+                        <td class="wsn">800</td>
+                        <td class="wsn tac">
+                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13">이력</button>
+                        </td>
+                        <td class="wsn tac">
+                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click="{activateModalModifi}">수정
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
