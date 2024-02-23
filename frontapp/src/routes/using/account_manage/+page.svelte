@@ -31,6 +31,8 @@
         isActive = false;
         isActiveAdd = false;
         isActiveModify = false;
+        confirmNameErrorMessage = '';
+        confirmNameSuccessMessage = '';
     }
 
     let formData = {
@@ -156,7 +158,6 @@
             return;
         }
 
-        // 서버로 데이터 전송
         try {
             const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
                 method: 'PATCH',
@@ -172,17 +173,10 @@
                     detailAddressModify: formDataModify.detailAddressModify
                 }),
             });
-            console.log(JSON.stringify({
-                clientName: formDataModify.clientNameModify,
-                repName: formDataModify.repNameModify,
-                phoneNumber: formDataModify.phoneNumberModify,
-                address: formDataModify.addressModify,
-                detailAddress: formDataModify.detailAddressModify
-            }));
             if (response.ok) {
                 const responseData = await response.json();
                 console.log(responseData);
-                window.alert('저장되었습니다.');
+                window.alert('내용이 수정되었습니다.');
                 // deactivateModal();
                 goto(`/using/account_manage`);
                 setTimeout(() => {
@@ -191,10 +185,52 @@
             } else {
                 const responseData = await response.json();
                 console.error(responseData);
-                window.alert('저장에 실패했습니다.');
+                window.alert('수정에 실패했습니다.');
             }
         } catch (error) {
             console.error('Error submitting form:', error);
+        }
+    }
+
+    async function deleteSelectedClients() {
+        const selectedIds = data.data.clients.content
+            .filter(client => client.checked)
+            .map(client => client.id);
+
+
+        if (selectedIds.length === 0) {
+            alert('삭제할 거래처를 선택해주세요.');
+            return;
+        }
+
+        const isConfirmed = confirm('선택한 거래처를 삭제하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/clients/deleteMultiple', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(selectedIds),
+            });
+
+            if (response.ok) {
+                alert('선택한 거래처가 삭제되었습니다.');
+                goto(`/using/account_manage`);
+                setTimeout(() => {
+                    location.reload();
+                }, 100);
+            } else {
+                alert('거래처 삭제에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error deleting clients:', error);
+            alert('거래처 삭제 중 에러가 발생했습니다.');
         }
     }
 
@@ -205,14 +241,12 @@
         currentClientId = clientId;
         resetForm();
 
-        // 서버로부터 거래처 상세 정보 가져오기
         try {
             const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
                 credentials: 'include'
             });
             if (response.ok) {
                 const clientData = await response.json();
-                // formData 상태 업데이트
                 formDataModify.clientNameModify = clientData.data.clients.clientName;
                 formDataModify.repNameModify = clientData.data.clients.repName;
                 formDataModify.phoneNumberModify = clientData.data.clients.phoneNumber;
@@ -220,7 +254,7 @@
                 formDataModify.detailAddressModify = clientData.data.clients.detailAddress;
                 formDataModify = {...formDataModify};
             } else {
-                // 에러 처리
+
                 console.error("Failed to fetch client details");
             }
         } catch (error) {
@@ -706,7 +740,7 @@
             </div>
             <div class="flex aic jcsb mt8">
                 <div class="flex aic g4">
-                    <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
+                    <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click="{deleteSelectedClients}">삭제</button>
                 </div>
                 <div class="flex aic g4">
                     <button class="w50 h30 btn-type-1 bm bdr4 f12 cfff" on:click="{activateModalAdd}">등록</button>

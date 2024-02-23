@@ -76,6 +76,12 @@ public class ClientService {
         return RsData.of("S-5", "정보 삭제", client);
     }
 
+    public List<Client> deleteMultiple(List<Long> id) {
+        List<Client> clientsToDelete = clientRepository.findAllById(id);
+        clientRepository.deleteAll(clientsToDelete);
+        return clientsToDelete;
+    }
+
     public Optional<Client> findByClientName(String clientName) {
         return clientRepository.findByClientName(clientName);
     }
