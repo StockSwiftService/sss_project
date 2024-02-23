@@ -11,7 +11,6 @@
 				},
 				credentials: 'include'
 			});
-
 			if (response.ok) {
 				const data = await response.json();
                 loginUser =data.data.member
@@ -23,6 +22,7 @@
 			}
 		} catch (error) {
 			console.error('오류 발생:', error);
+			// window.location.href = 'http://localhost:5173';
 			alert('다시 시도 해주세요.');
 		}
 	});

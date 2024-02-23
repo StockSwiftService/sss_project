@@ -6,7 +6,7 @@ export function fetchInterceptor(fetch) {
             const response = await fetch(input, { ...init, credentials: 'include' });
             if (!response.ok && response.status === 401) {
                 alert("로그인 후 이용해 주세요.");
-                window.location.href = 'http://localhost:5173/';
+                window.location.href = 'http://localhost:5173';
             }
             return response;
         } catch (error) {
