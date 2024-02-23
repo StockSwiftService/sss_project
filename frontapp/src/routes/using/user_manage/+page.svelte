@@ -349,31 +349,38 @@
         if (selectedMemberIds.length === 0) {
             alert('삭제할 회원을 선택해주세요.');
             return;
-        }
-        const url = 'http://localhost:8080/api/v1/member/delete?ids=' + selectedMemberIds.join(','); // 선택된 멤버들의 아이디를 URL에 포함시킴
-        try {
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(selectedMemberIds)
-            });
-            if (response.ok) {
-                const data = await response.json();
+        } else {
+            const confirmation = confirm('선택한 회원을 정말 삭제하시겠습니까?');
 
-                if (data.resultCode === 'S-3') {
-                    alert('사원 삭제가 완료되었습니다.');
-                    window.location.href = '/using/user_manage';
-                } else {
-                    const errorMessage = data.errorMessage;
-                    console.error('삭제 실패:', errorMessage);
+            if (confirmation) {
+                const url = 'http://localhost:8080/api/v1/member/delete?ids=' + selectedMemberIds.join(','); // 선택된 멤버들의 아이디를 URL에 포함시킴
+                try {
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(selectedMemberIds)
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        if (data.resultCode === 'S-3') {
+                            alert('사원 삭제가 완료되었습니다.');
+                            window.location.href = '/using/user_manage';
+                        } else {
+                            const errorMessage = data.errorMessage;
+                            console.error('삭제 실패:', errorMessage);
+                        }
+                    } else {
+                        console.error('서버 응답 오류:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('오류 발생:', error);
                 }
             } else {
-                console.error('서버 응답 오류:', response.statusText());
+                console.log('삭제가 취소되었습니다.');
             }
-        } catch (error) {
-            console.error('오류 발생:', error);
         }
     }
 
