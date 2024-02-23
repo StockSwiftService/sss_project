@@ -14,11 +14,11 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT COUNT(p) FROM Purchase p WHERE p.purchaseDate = :date")
     int getCountByDate(@Param("date") LocalDate date);
 
-    @Query(value = "SELECT SUM(purchase_total) FROM Purchase WHERE YEAR(purchase_date) = :year AND WEEK(purchase_date, 3) = :week", nativeQuery = true)
-    Long getSalesByWeek(@Param("year") int year, @Param("week") int week);
+    @Query(value = "SELECT SUM(purchase_total) FROM Purchase WHERE YEARWEEK(purchase_date, 3) = YEARWEEK(:date, 3)", nativeQuery = true)
+    Long getSalesByWeek(@Param("date") LocalDate date);
 
-    @Query(value = "SELECT COUNT(*) FROM Purchase WHERE YEAR(purchase_date) = :year AND WEEK(purchase_date, 3) = :week", nativeQuery = true)
-    int getCountByWeek(@Param("year") int year, @Param("week") int week);
+    @Query(value = "SELECT COUNT(*) FROM Purchase WHERE YEARWEEK(purchase_date, 3) = YEARWEEK(:date, 3)", nativeQuery = true)
+    int getCountByWeek(@Param("date") LocalDate date);
 
     @Query("SELECT SUM(p.purchaseTotal) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
     Long getSalesByMonth(@Param("year") int year, @Param("month") int month);

@@ -29,6 +29,9 @@ class StockSwiftServiceApplicationTests {
         salesManagementService.printTotalSales(9L);
         salesManagementService.printTotalSales(10L);
         salesManagementService.printTotalSales(11L);
+        salesManagementService.printTotalSales(12L);
+        salesManagementService.printTotalSales(13L);
+        salesManagementService.printTotalSales(14L);
 //        System.out.println(salesManagemant);
     }
 
@@ -37,6 +40,7 @@ class StockSwiftServiceApplicationTests {
     void createPur(){
         purchaseService.create(6543123L, "2023-12-17");
         purchaseService.create(1234553L, "2023-12-01");
+        purchaseService.create(12353L, "2023-11-11");
         purchaseService.create(1200000L, "2024-02-14");
         purchaseService.create(1200123L, "2024-02-14");
         purchaseService.create(360000L, "2024-02-14");
@@ -46,5 +50,7 @@ class StockSwiftServiceApplicationTests {
         purchaseService.create(800000L, "2024-03-10");
         purchaseService.create(8213430L, "2024-03-27");
         purchaseService.create(800000L, "2024-04-26");
+        purchaseService.create(800000L, "2025-01-20");
+        purchaseService.create(12354444L, "2023-11-22");
     }
 }
