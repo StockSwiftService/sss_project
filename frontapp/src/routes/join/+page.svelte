@@ -20,29 +20,32 @@
     //기업명 검증
     let confirmNameErrorMessage = ''
     let confirmNameSuccessMessage = ''
+    let isConfirmName = false //기업명 확인 여부
+
     //사업자 번호 검증
     let businessNumberErrorMessage = ''
     let businessNumberSuccessMessage = ''
+    let isBusinessNumber = false //사업자 번호 확인 여부
+
     //이메일 검증
     let emailSuccessMessage = ''
     let emailErrorMessage = ''
+    let isEmail = false
 
     //이메일 인증코드 검증
     let emailNumberSuccessMessage = ''
     let emailNumberErrorMessage = ''
+    let isEmailConfirmed = false; // 이메일 인증 여부
+
     //패스워드
     let passwordSuccessMessage = ''
     let passwordErrorMessage = ''
+    let isPassword = false
     //패스워드 확인
     let passwordConfirmErrorMessage = ''
     let passwordConfirmSuccessMessage = ''
+    let isPasswordConfirm = false
 
-    let isEmailConfirmed = false; // 이메일 인증 여부
-    let isBusinessNumberConfirm = false; // 사업자 번호 인증 여부
-
-    let isEmailButton = false
-    let isEmailConfirmButton = false
-    let isBusinessNumberButton = false
 
     let element_layer;
 
@@ -133,9 +136,11 @@
                 if (data.resultCode == 'S-2') {
                     confirmNameErrorMessage = '중복된 아이디 입니다'
                     confirmNameSuccessMessage = ''
+                    isConfirmName = false
                 } else {
                     confirmNameErrorMessage = ''
                     confirmNameSuccessMessage = '사용가능한 아이디 입니다'
+                    isConfirmName = true
                 }
             }
         } catch (error) {
@@ -145,7 +150,6 @@
 
     // 사업자 번호 검사
     async function businessNumberConfirm() {
-        isBusinessNumberButton = true
         try {
             if (!formData.businessNumber.trim()) {
                 businessNumberErrorMessage = '필수 항목입니다'
@@ -167,11 +171,11 @@
                 if (data.resultCode == 'S-3') {
                     businessNumberErrorMessage = ''
                     businessNumberSuccessMessage = '등록 가능한 사업자 번호 입니다'
-                    isBusinessNumberConfirm = true
+                    isBusinessNumber = true
                 } else {
                     businessNumberErrorMessage = '사용하실 수 없는 사업자 번호 입니다'
                     businessNumberSuccessMessage = ''
-                    isBusinessNumberConfirm = false
+                    isBusinessNumber = false
                 }
             }
         } catch (error) {
@@ -181,7 +185,6 @@
 
     //이메일
     async function emailButton() {
-        isEmailButton = true
         try {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식을 나타내는 정규 표현식
             if (!emailRegex.test(formData.email.trim())) {
@@ -200,10 +203,11 @@
                 if (data.resultCode === 'S-5') {
                     emailSuccessMessage = ''
                     emailErrorMessage = '이미 가입된 메일입니다';
+                    isEmail = false
                 } else if (data.resultCode === 'S-6' && data.resultCode !== null) {
                     emailSuccessMessage = '메일 발송이 완료되었습니다';
                     emailErrorMessage = ''
-                    isEmailButton = true
+                    isEmail = true
                     const num = data.data.number
                     emailNum = num;
                     console.log(emailNum)
@@ -211,19 +215,17 @@
                 } else {
                     emailSuccessMessage = ''
                     emailErrorMessage = '메일이 존재하지 않습니다';
+                    isEmail = false
                     console.error('서버 응답 오류:', response.statusText);
                 }
             }
         } catch (error) {
-            emailErrorMessage = '이미 가입된 이메일 입니다';
-            emailSuccessMessage = ''
             console.error('오류 발생:', error);
         }
     }
 
     //이메일 인증번호 확인
     async function emailConfirm() {
-        isEmailConfirmButton = true
         try {
             const userVerificationCode = document.getElementById('userVerificationCode').value;
             if (userVerificationCode === emailNum && userVerificationCode !== null) {
@@ -245,8 +247,10 @@
         if (!passwordRegex.test(formData.password)) {
             passwordSuccessMessage = ''
             passwordErrorMessage = '비밀번호는 6~16자 영문 대 소문자, 숫자, 특수문자를 사용해야 합니다';
+            isPassword = false
         } else {
             passwordErrorMessage = ''
+            isPassword = true
             return formData.password;
         }
     }
@@ -256,47 +260,61 @@
         if (formData.password === formData.passwordConfirm) {
             passwordConfirmSuccessMessage = '비밀번호가 일치합니다'
             passwordConfirmErrorMessage = '';
+            isPasswordConfirm = true
         } else {
             passwordConfirmSuccessMessage = ''
             passwordConfirmErrorMessage = '비밀번호가 일치하지 않습니다';
+            isPasswordConfirm = false
         }
     }
 
     //회원가입 제출
     const joinSubmit = async () => {
-       if(!formData.name.trim()) {
-
-       }
-
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/company/join', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data)
-                // 회원가입 성공
-                if (data.resultCode === 'S-1') {
-                    window.location.href = '/';
-                    alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
-                } else {
-                    // 회원가입 실패
-                    const errorMessage = data.errorMessage;
-                    console.error('가입 실패:', errorMessage);
-                }
-            } else {
-                console.error('서버 응답 오류:', response.statusText);
-                alert('양식을 모두 입력 해주세요.');
-                return;
-            }
-        } catch (error) {
-            console.error('오류 발생:', error);
+        if (!formData.name.trim() || isConfirmName == false) {
+            alert('기업명을 다시 확인해 주세요.')
+        } else if (!formData.address.trim()) {
+            alert('주소를 입력해 주세요.')
+        } else if (isBusinessNumber == false || !formData.businessNumber.trim()) {
+            alert('사업자 번호를 확인해 주세요.')
+        } else if (!formData.email.trim() || isEmail == false) {
+            alert('이메일을 다시 확인해 주세요.')
+        } else if (isEmailConfirmed == false) {
+            alert('이메일 인증코드를 다시 확인해 주세요.')
+        } else if (!formData.repName.trim() || !formData.username || !formData.birthday.trim()) {
+            alert('양식을 모두 입력해 주세요.')
+        } else if(!formData.password.trim() || isPassword == false || isPasswordConfirm == false || formData.password != formData.passwordConfirm) {
+            alert('비밀번호를 다시 확인해 주세요.');
         }
-
+        else {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/company/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    // 회원가입 성공
+                    if (data.resultCode === 'S-1') {
+                        window.location.href = '/';
+                        alert('회원가입 신청이 완료되었습니다. 관리자의 승인 후 서비스를 이용하실 수 있습니다. 승인 여부는 입력하신 메일로 발송이 되며, 신청일 기준 2-3 소요될 수 있습니다.');
+                    } else {
+                        // 회원가입 실패
+                        const errorMessage = data.errorMessage;
+                        console.error('가입 실패:', errorMessage);
+                    }
+                } else {
+                    console.error('서버 응답 오류:', response.statusText);
+                    alert('양식을 다시 입력 해주세요.');
+                    return;
+                }
+            } catch (error) {
+                console.error('오류 발생:', error);
+            }
+        }
     }
 </script>
 <div class="cnt-in pt60 wh100per flex fdc aic jcc">
