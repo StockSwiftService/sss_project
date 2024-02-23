@@ -4,6 +4,9 @@
     import {page} from "$app/stores";
     import {onMount} from "svelte";
 
+    let email = '';
+    let subject = '';
+    let content = '';
     let searchQuery = '';
     let currentPage = 0;
 
@@ -77,6 +80,36 @@
             console.error('Error fetching data:', error);
         }
     }
+    function submitContact() {
+        if (email.trim() === "" || subject.trim() === "" || content.trim() === "") {
+            window.alert('필수 입력 항목이 비어 있습니다.');
+            console.error("필수 입력 항목이 비어 있습니다.");
+            return;
+        }
+        const createData = {
+            email: email,
+            subject: subject,
+            content: content
+        };
+
+        fetch('http://localhost:8080/api/v1/questions/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(createData)
+        })
+        .then(result => {
+            console.log('Success:', result);
+
+            window.alert('문의가 완료되었습니다!');
+            deactivateModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.alert('문의에 실패하였습니다');
+        });
+    }
 
 </script>
 
@@ -120,33 +153,39 @@
                 <div>
                     <h2 class="c333 f15 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="email" placeholder="이메일">
+                        <input type="email" placeholder="이메일" bind:value={email}>
                     </div>
                     <div class="error-text-box">
+                        {#if email.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {/if}
                     </div>
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">제목<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="제목">
+                        <input type="text" placeholder="제목" bind:value={subject}>
                     </div>
                     <div class="error-text-box">
+                        {#if subject.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {/if}
                     </div>
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
                     <div class="textarea-type-1 f14 w100per h160">
-                        <textarea placeholder="내용"></textarea>
+                        <textarea placeholder="내용" bind:value={content}></textarea>
                     </div>
                     <div class="error-text-box">
+                        {#if content.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {/if}
                     </div>
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">전송</button>
+                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" on:click="{submitContact}">전송</button>
                 <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
             </div>
         </div>

@@ -103,15 +103,16 @@ public class QuestionService {
 
     public Boolean sendMail(QuestionMessage questionMessage, String type) {
         String htmlContent = createHtmlContent(questionMessage.getFrom(), questionMessage.getContent(), type);
+        String from = questionMessage.getFrom();
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setFrom(questionMessage.getFrom()); // 메일 발신자
+            mimeMessageHelper.setFrom(from);
             mimeMessageHelper.setTo("jhseodevelopment@gmail.com");
-            mimeMessageHelper.setSubject(questionMessage.getSubject()); // 메일 제목
-            mimeMessageHelper.setText(htmlContent, true); // 메일 본문 내용, HTML 여부
+            mimeMessageHelper.setSubject(questionMessage.getSubject());
+            mimeMessageHelper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);
 
             log.info("Success");

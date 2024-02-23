@@ -1,7 +1,7 @@
 <script>
     export let data;
     import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
+    import {goto, replaceState} from "$app/navigation";
     import {page} from "$app/stores";
     let isChecked = true;
     let questionId = null;
@@ -14,7 +14,7 @@
     let questionCheckboxStates = Array(data.data.questions.content.length).fill(allSelectCheckboxState);
 
     onMount(() => {
-
+        dataLoad();
 	});
 
     async function fetchData(question) {
@@ -77,7 +77,7 @@
                 window.alert('등록이 완료되었습니다!');
                 fetchLatestPosts();
                 deactivateModal();
-                navigateToFirstPage();
+                // navigateToFirstPage();
             } catch (error) {
                 console.error('Error:', error);
                 window.alert('등록에 실패하였습니다');
@@ -154,9 +154,9 @@
             questionCheckboxStates = Array(data.data.questions.content.length).fill(allSelectCheckboxState);
 
             await fetchLatestPosts();
-            if (data.result.data.questions.content.length === 0) {
-                navigateToFirstPage();
-            }
+            // if (data.data.questions.content.length === 0) {
+            //     navigateToFirstPage();
+            // }
             window.alert('삭제되었습니다');
         } else {
             window.alert('삭제에 실패하였습니다');
@@ -171,7 +171,7 @@
 
 
     const navigateToFirstPage = () => {
-        const location = 'http://localhost:5173/admin/using/qna/0'
+        const location = 'http://localhost:5173/admin/using/qna?page=0'
         goto(location);
     }
 
@@ -202,37 +202,46 @@
     }
     async function fetchLatestPosts() {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/questions/admin?page=${data.currentPage}`); // Replace with your actual endpoint
+            const response = await fetch(`http://localhost:8080/api/v1/questions/admin?page=${currentPage}`); 
             const result = await response.json();
 
-            // Update data with the latest set of posts
             data.data.questions.content = result.data.questions.content;
             data.data.questions.totalElements = result.data.questions.totalElements;
+            data.data.questions.number = result.data.questions.number;
+            data.data.questions.totalPages = result.data.questions.totalPages;
         } catch (error) {
             console.error('Error fetching latest posts:', error);
         }
     }
     function generatePageButtons(totalPages) {
-        const buttons = [];
-        for (let i = 0; i < totalPages; i++) {
-            buttons.push(i + 1);
+            const buttons = [];
+            for (let i = 0; i < totalPages; i++) {
+                buttons.push(i + 1);
+            }
+            return buttons;
         }
-        return buttons;
-    }
 
-    async function changePage(searchQuery,currentPage) {
+        async function changePage(currentPage) {
         try {
-
-            $page.url.searchParams.get('kw', searchQuery);
             $page.url.searchParams.set('page', currentPage);
 
-            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await goto(`?${$page.url.searchParams.toString()}`, { replaceState });
             await dataLoad();
-
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
+
+    async function dataLoad() {
+        const queryString = window.location.search;
+
+        const res = await fetch(`http://localhost:8080/api/v1/questions/admin${queryString}`, {
+            credentials: 'include'
+        });
+
+        data = await res.json();
+    }
+
 </script>
 
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -395,11 +404,9 @@
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
                     {#if data.data.questions.number > 0}
-                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                        <li class="page-btn"
-                            on:click={() => changePage(data.searchKeyword, data.data.questions.number - 1)}>
+                        <li class="page-btn" on:click={() => changePage(data.data.questions.number - 1)}>
                             <a href="">이전</a>
                         </li>
                     {/if}
@@ -407,18 +414,16 @@
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                         <li
-                                class="num"
-                                on:click={() => data.data.questions.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                            class="num"
+                            on:click={() => data.data.questions.number !== button - 1 && changePage(button - 1)}
                         >
                             <a href="" class:active={data.data.questions.number === button - 1}>{button}</a>
                         </li>
                     {/each}
                     {#if data.data.questions.number < data.data.questions.totalPages - 1}
-                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                        <li class="page-btn"
-                            on:click={() => changePage(data.searchKeyword, data.data.questions.number + 1)}>
+                        <li class="page-btn" on:click={() => changePage(data.data.questions.number + 1)}>
                             <a href="">다음</a>
                         </li>
                     {/if}
