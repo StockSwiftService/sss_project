@@ -17,11 +17,13 @@ import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/stocks")
@@ -32,29 +34,55 @@ public class StockController {
     @Getter
     @AllArgsConstructor
     public static class StocksResponse {
-        private final Page<Stock> stocks;
-        private final List<Stock> stockList;
+        private final Page<StockDto> stocks;
+        private final List<StockDto> stockList;
+    }
+    @Data
+    public class StockDto {
+        private Long id;
+        private String itemName;
+        private Long quantity;
+        private Long purchasePrice;
+        private Long salesPrice;
+        private String clientName;
+
+        public StockDto(Stock stock) {
+            this.id = stock.getId();
+            this.itemName = stock.getItemName();
+            this.quantity = stock.getQuantity();
+            this.purchasePrice = stock.getPurchasePrice();
+            this.salesPrice = stock.getSalesPrice();
+            this.clientName = stock.getClient().getClientName();
+        }
     }
 
     @GetMapping("")
     public RsData<StocksResponse> stocks(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Stock> stocks = this.stockService.getSearchList(kw, page);
-        List<Stock> stockList = this.stockService.getList();
+        Page<Stock> stockPage = this.stockService.getSearchList(kw, page);
+        List<StockDto> stockDtoList = stockPage.getContent().stream()
+                .map(StockDto::new)
+                .collect(Collectors.toList());
 
-        return RsData.of("S-1", "다건 성공", new StocksResponse(stocks, stockList));
+        Page<StockDto> stockDtoPage = new PageImpl<>(stockDtoList, stockPage.getPageable(), stockPage.getTotalElements());
+        List<StockDto> stockList = this.stockService.getList().stream()
+                .map(StockDto::new)
+                .collect(Collectors.toList());
+
+        return RsData.of("S-1", "다건 성공", new StocksResponse(stockDtoPage, stockList));
     }
 
     @Getter
     @AllArgsConstructor
     public static class StockResponse {
-        private final Stock stock;
+        private final StockDto stockDto;
     }
 
     @GetMapping("/{id}")
     public RsData<StockResponse> stock(@PathVariable("id") Long id) {
         Stock stock = this.stockService.getStock(id);
+        StockDto stockDto = new StockDto(stock);
 
-        return RsData.of("S-2", "단건 성공", new StockResponse(stock));
+        return RsData.of("S-2", "단건 성공", new StockResponse(stockDto));
     }
 
     @Data
@@ -180,7 +208,7 @@ public class StockController {
         for (Stock stock : list) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
-            cell.setCellValue(stock.getClientName());
+            cell.setCellValue(stock.getClient().getClientName());
             cell = row.createCell(1);
             cell.setCellValue(stock.getItemName());
             cell = row.createCell(2);

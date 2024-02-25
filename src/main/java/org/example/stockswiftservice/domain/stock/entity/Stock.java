@@ -1,7 +1,11 @@
 package org.example.stockswiftservice.domain.stock.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
+import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
 
 @Entity
@@ -11,7 +15,10 @@ import org.example.stockswiftservice.global.baseentity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Stock extends BaseEntity {
-    private String clientName;
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    @JsonBackReference
+    private Client client;
     private String itemName;
     private Long quantity;
     private Long purchasePrice;

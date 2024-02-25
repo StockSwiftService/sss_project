@@ -10,6 +10,7 @@ import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.client.service.ClientService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -143,4 +144,16 @@ public class ClientController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Client>> searchClients(@RequestParam(value = "clientName") String clientName) {
+        List<Client> clients;
+        if (clientName != null && !clientName.isEmpty()) {
+            // 검색어가 있을 경우, 해당 검색어를 포함하는 거래처 목록을 조회
+            clients = clientService.findByClientNameContaining(clientName);
+        } else {
+            // 검색어가 없을 경우, 모든 거래처 목록을 조회
+            clients = clientService.getList();
+        }
+        return ResponseEntity.ok(clients);
+    }
 }

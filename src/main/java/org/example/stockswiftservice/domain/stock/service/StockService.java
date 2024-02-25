@@ -1,10 +1,9 @@
 package org.example.stockswiftservice.domain.stock.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.client.entity.Client;
+import org.example.stockswiftservice.domain.client.repository.ClientRepository;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.repository.StockRepository;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -23,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StockService {
     private final StockRepository stockRepository;
+    private final ClientRepository clientRepository;
 
     public List<Stock> getList() {
         return this.stockRepository.findAll();
@@ -47,8 +47,10 @@ public class StockService {
     }
 
     public RsData<Stock> create(String clientName, String itemName, Long quantity, Long purchasePrice, Long salesPrice){
+        Client client = clientRepository.findByClientName(clientName)
+                .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
         Stock stock = Stock.builder()
-                .clientName(clientName)
+                .client(client)
                 .itemName(itemName)
                 .quantity(quantity)
                 .purchasePrice(purchasePrice)
@@ -61,7 +63,10 @@ public class StockService {
     }
 
     public RsData<Stock> modify(Stock stock, String clientName, String itemName, Long purchasePrice, Long salesPrice) {
-        stock.setClientName(clientName);
+        Client client = clientRepository.findByClientName(clientName)
+                .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
+
+        stock.setClient(client);
         stock.setItemName(itemName);
         stock.setPurchasePrice(purchasePrice);
         stock.setSalesPrice(salesPrice);
@@ -87,14 +92,15 @@ public class StockService {
     }
 
     private Specification<Stock> search(String kw) {
-        return new Specification<>() {
+        return new Specification<Stock>() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public Predicate toPredicate(Root<Stock> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 query.distinct(true);
+                Join<Stock, Client> clientJoin = a.join("client");
                 return cb.or(
-                        cb.like(a.get("clientName"), "%" + kw + "%"),
+                        cb.like(clientJoin.get("clientName"), "%" + kw + "%"),
                         cb.like(a.get("itemName"), "%" + kw + "%")
                 );
             }

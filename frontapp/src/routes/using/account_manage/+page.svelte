@@ -474,8 +474,8 @@
     onMount(async () => {
         await dataLoad();
         const unsubscribe = page.subscribe(async ($page) => {
-            searchQuery = '';
-            // URL의 검색 파라미터가 변경되었는지 확인 후 데이터 로드
+            // URL에서 검색어(kw) 쿼리 파라미터 값을 가져와 searchQuery에 할당
+            searchQuery = $page.url.searchParams.get('kw') || '';
             await dataLoad();
         });
 
@@ -485,6 +485,9 @@
         };
     })
 
+    let totalClients = 0; // 전체 거래처 개수
+    let searchResultCount = 0; // 검색 결과의 개수
+
     async function dataLoad() {
         const queryString = window.location.search;
 
@@ -492,7 +495,11 @@
             credentials: 'include'
         })
         data = await res.json();
+
+        searchResultCount = data.data.clients.totalElements;
+        totalClients = data.data.clientList.length;
     }
+    $: hasSearchQuery = searchQuery.trim().length > 0;
 
     let allChecked = false;
 
@@ -712,7 +719,7 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">{data.data.clientList.length}</span>개
+                전체 <span class="number inblock cm tm">{hasSearchQuery ? searchResultCount : totalClients}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
