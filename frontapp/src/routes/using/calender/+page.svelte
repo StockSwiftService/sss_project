@@ -43,7 +43,7 @@
             },
             eventContent: function(arg) {
             return {
-                html: `<strong>${arg.event.title}</strong> - ${arg.event.extendedProps.content}`,
+                html: `<div><strong>${arg.event.title}</strong> - ${arg.event.extendedProps.content}</div>`,
                 };
             },
             select: handleDateSelect,
@@ -76,10 +76,29 @@
         isDeleteEnabled = false;
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
+    function handleEnableDelete() {
+        calendar.setOption('selectable', false);
+        isDeleteEnabled = true;
+        window.alert('삭제할 일정을 클릭해주세요');
+    }
+    function handleEnableModify() {
+        calendar.setOption('selectable', false);
+        isModifyEnabled = true;
+        window.alert('수정할 일정을 클릭해주세요');
+    }
     function handleDateSelect(info) {
         if (!isDeleteEnabled) {
             const title = window.prompt('Enter the event title:');
             const content = window.prompt('Enter the event content:');
+
+            if(title == '') {
+                window.alert('제목을 기입해주세요');
+                return;
+            }
+            if(content == '') {
+                window.alert('내용을 기입해주세요');
+                return;
+            }
     
             if (title && content) {
                 const event = { title, content, start: info.startStr, end: info.endStr };
@@ -102,12 +121,13 @@
                         subject: title,
                         content,
                         startDate: updateStartDate,
-                        endDate: updateEndDate,
+                        endDate: updateEndDate
                     }),
                 })
                 .then(response => response.json())
                 .then(data => {
                     console.log('Event saved:', data);
+                    window.alert('일정이 등록되었습니다');
                 })
                 .catch(error => {
                     console.error('Error saving event:', error);
@@ -119,17 +139,6 @@
                 calendar.setOption('selectable', false);
             }
         }
-    }
-
-    function handleEnableDelete() {
-        calendar.setOption('selectable', false);
-        isDeleteEnabled = true;
-        window.alert('삭제할 일정을 클릭해주세요');
-    }
-    function handleEnableModify() {
-        calendar.setOption('selectable', false);
-        isModifyEnabled = true;
-        window.alert('수정할 일정을 클릭해주세요');
     }
 
     onMount(() => {
@@ -184,6 +193,14 @@
             const startDateString = window.prompt('시작날짜를 수정하세요 (yyyy-mm-dd):', formattedStartDate);
             const endDateString = window.prompt('종료날짜를 수정하세요 (yyyy-mm-dd):', formattedEndDate);
 
+            if(newTitle == '') {
+                window.alert('제목을 입력해주세요');
+                return;
+            }
+            if(newContent == '') {
+                window.alert('내용을 입력해주세요');
+                return;
+            }
             if(startDateString > endDateString) {
                 window.alert('올바른 날짜를 입력하세요');
                 return;

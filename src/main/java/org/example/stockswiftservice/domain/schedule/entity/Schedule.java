@@ -20,6 +20,4 @@ public class Schedule extends BaseEntity {
     private String content;
     private LocalDate startDate;
     private LocalDate endDate;
-    @Column(length = 7)
-    private String color;
 }

@@ -42,8 +42,4 @@ public class ScheduleService {
         this.scheduleRepository.delete(schedule);
     }
 
-    public Schedule setColor(Schedule schedule, String color) {
-        schedule.setColor(color);
-        return this.scheduleRepository.save(schedule);
-    }
 }

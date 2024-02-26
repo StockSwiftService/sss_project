@@ -60,23 +60,12 @@ public class ScheduleController {
         Schedule schedule = this.scheduleService.create(scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
         return RsData.of("S-3", "스케쥴 생성 성공", new ScheduleResponse(schedule));
     }
-    @Data
-    public static class ColorRequest {
-        @NotBlank
-        private String color;
-    }
     @PatchMapping("/{id}")
     public RsData<ScheduleResponse> modifySchedule(@PathVariable("id") Long id, @Valid @RequestBody ScheduleRequest scheduleRequest) {
         Schedule schedule = this.scheduleService.getListById(id);
         this.scheduleService.modify(schedule, scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
         return RsData.of("S-4", "스케쥴 수정 성공", new ScheduleResponse(schedule));
     }
-//    @PatchMapping("/color/{id}")
-//    public RsData<ScheduleResponse> modifyColor(@PathVariable("id") Long id, @Valid @RequestBody ColorRequest colorRequest) {
-//        Schedule schedule = this.scheduleService.getListById(id);
-//        this.scheduleService.setColor(schedule, colorRequest.getColor());
-//        return RsData.of("S-5", "스케쥴 색 변경 성공", new ScheduleResponse(schedule));
-//    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSchedule(@PathVariable("id") Long id) {
         Schedule schedule = this.scheduleService.getListById(id);

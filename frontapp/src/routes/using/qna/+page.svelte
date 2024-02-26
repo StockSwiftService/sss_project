@@ -52,7 +52,7 @@
     onMount(async () => {
     await dataLoad();
     const unsubscribe = page.subscribe(async ($page) => {
-            searchQuery='';
+        searchQuery = $page.url.searchParams.get('kw') || '';
             await dataLoad();
         });
         // 컴포넌트가 언마운트될 때 구독 해제
