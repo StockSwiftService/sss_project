@@ -13,17 +13,20 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.controller.CompanyController;
 import org.example.stockswiftservice.domain.company.entity.Company;
+import org.example.stockswiftservice.domain.company.service.CompanyService;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -133,6 +136,7 @@ public class MemberController {
         }
 
     }
+
     @PostMapping(value = "/logout", consumes = APPLICATION_JSON_VALUE)
     public RsData<loginresponse> logout(HttpServletResponse resp) {
 
@@ -154,15 +158,15 @@ public class MemberController {
     public static class loginUser {
         private final Member member;
     }
+
     @GetMapping(value = "/loginUser", consumes = APPLICATION_JSON_VALUE)
-    public RsData<?> loginUser (HttpServletRequest request){
+    public RsData<?> loginUser(HttpServletRequest request) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
 
         Member loginUser = this.memberService.findbyId(userId).orElse(null);
-        return RsData.of("S-99","현재 로그인 유저",new loginUser(loginUser));
+        return RsData.of("S-99", "현재 로그인 유저", new loginUser(loginUser));
     }
-
 
 
     public void TokenExtension(HttpServletRequest request) {
@@ -191,23 +195,27 @@ public class MemberController {
     //회원 리스트
     @GetMapping(value = "/user-manages", consumes = APPLICATION_JSON_VALUE)
     public RsData<MembersResponse> employeeList(HttpServletRequest request,
-                                                @RequestParam(value="page", defaultValue="0") int page,
-                                                @RequestParam(value="keyWord", defaultValue="")String keyWord) {
+                                                @RequestParam(value = "page", defaultValue = "0") int page,
+                                                @RequestParam(value = "keyWord", defaultValue = "") String keyWord) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 회사코드 값
         Member member = memberService.findbyId(userId).orElse(null);
 
         List<Member> memberList = this.memberService.getEmployeeList(member.getCompany().getCompanyCode());
-        Page<Member> pagingList = this.memberService.pagingFindAll(page,keyWord);
+        Page<Member> pagingList = this.memberService.pagingFindByCompany(page, keyWord,member.getCompany());
 
-        if (member.getAuthority() == 1 || member.getAuthority() == 2) {
+        if (member.getAuthority() == 1) {
+            memberList = Collections.emptyList();
+            pagingList = new PageImpl<>(Collections.emptyList());
+            return RsData.of("S-1", "성공", new MembersResponse(memberList, pagingList));
+        } else if (member.getAuthority() == 1 || member.getAuthority() == 2) {
             List<Member> filteredList = memberList.stream()
                     .filter(m -> m.getAuthority() != 1 && m.getAuthority() != 2)
                     .collect(Collectors.toList());
-            return RsData.of("S-2", "성공", new MembersResponse(filteredList,pagingList));
+            return RsData.of("S-2", "성공", new MembersResponse(filteredList, pagingList));
         } else {
             // 권한이 1 또는 2가 아닌 경우 전체 목록 리턴
-            return RsData.of("S-2", "성공", new MembersResponse(memberList,pagingList));
+            return RsData.of("S-2", "성공", new MembersResponse(memberList, pagingList));
         }
     }
 

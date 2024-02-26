@@ -57,8 +57,11 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                members = data.data.memberList
-
+                if (data.resultCode == 'S-1') {
+                    members = ''
+                } else {
+                    members = data.data.memberList
+                }
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
@@ -124,12 +127,10 @@
 
         // 클릭된 버튼의 id에서 member를 추출
         const buttonId = event.target.id;
-        const memberId = buttonId.split('_')[1]; // 'modify_{member.id}' 형식에서 member.id 부분만 추출
+        const memberId = buttonId.split('_')[1];
         const member = JSON.parse(memberId); // member를 객체로 파싱
 
-
         // 회원 정보를 모달 창에 적절히 표시 (예시: input 요소에 값을 할당)
-
         modifyData.id = member.id
         modifyData.employeeName = member.name
         modifyData.position = member.position;
@@ -137,7 +138,6 @@
         modifyData.username = member.username;
         modifyData.password = member.password;
         modifyData.birthday = member.birthday;
-
     }
 
 
