@@ -1,16 +1,20 @@
 package org.example.stockswiftservice.domain.purchase.controller;
 
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
+import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,5 +34,23 @@ public class PurchaseController {
         List<Purchase> purchases = this.purchaseService.getList();
 
         return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+    }
+
+    @Data
+    public static class purchaseRequest {
+        private LocalDate purchaseDate;
+        private Client client;
+        private Boolean deliveryStatus;
+        private String significant;
+        private List<Stock> stocks;
+        private Long allPrice;
+    }
+
+    @PostMapping("/create")
+    public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
+
+        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getStocks(), purchaseRequest.getAllPrice());
+
+        return rsData;
     }
 }

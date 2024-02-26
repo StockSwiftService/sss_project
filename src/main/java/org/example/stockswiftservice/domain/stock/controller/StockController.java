@@ -169,8 +169,8 @@ public class StockController {
     }
 
     @GetMapping("/search")
-    public RsData<StocksResponse> searchStocks(@RequestParam("itemName") String itemName) {
-        List<Stock> stocks = stockService.searchByName(itemName);
+    public RsData<StocksResponse> searchStocks(@RequestParam("itemName") String searchText) {
+        List<Stock> stocks = stockService.searchByName(searchText);
         return RsData.of("S-1", "검색 성공", new StocksResponse(stocks));
     }
 }

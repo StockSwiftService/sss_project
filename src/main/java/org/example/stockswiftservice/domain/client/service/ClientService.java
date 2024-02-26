@@ -56,4 +56,8 @@ public class ClientService {
         this.clientRepository.delete(client);
         return RsData.of("S-5", "정보 삭제", client);
     }
+
+    public List<Client> searchByName(String searchText) {
+        return this.clientRepository.findByClientNameOrRepNameOrPhoneNumberContaining(searchText);
+    }
 }

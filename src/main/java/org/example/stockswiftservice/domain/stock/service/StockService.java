@@ -61,7 +61,7 @@ public class StockService {
 
     }
 
-    public List<Stock> searchByName(String searchItemName) {
-        return this.stockRepository.findByItemNameContaining(searchItemName);
+    public List<Stock> searchByName(String searchText) {
+        return this.stockRepository.findByItemNameOrClientNameContaining(searchText);
     }
 }
