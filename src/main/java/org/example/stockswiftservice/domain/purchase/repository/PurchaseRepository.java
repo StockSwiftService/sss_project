@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT SUM(p.purchaseTotal) FROM Purchase p WHERE p.purchaseDate = :date")
@@ -25,4 +26,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     @Query("SELECT COUNT(p) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
     int getCountByMonth(@Param("year") int year, @Param("month") int month);
+
+    List<Purchase> findByPurchaseDate(LocalDate date);
 }

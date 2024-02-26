@@ -10,6 +10,30 @@
     let isActiveRecord = false;
     let isActive = false;
 
+    // 해당 날짜
+    let currentdate = '';
+
+    let formdata = [];
+
+    async function getList(date) {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/purchase/list', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({date: date})
+            });
+            if (response.ok) {
+                const data = await response.json();
+                currentdate = date;
+                formdata = data.data.purchase;
+
+                console.log(formdata)
+            }
+        } catch (error) {
+            console.error('또 오류루:', error);
+        }
+    }
+
     // 날짜의 매출을 클릭하면 해당 날짜가 포함된 구매 혹은 판매 리스트를 출력 시키게 구현 해야함
     function handleEventClick(info) {
         isActiveRecord = true;
@@ -18,10 +42,10 @@
         let startDate = info.event.start;
         // 날짜형식을 yyyy-mm-dd형식으로 바꾸는 구문
         let startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-        // 여기에 fetch를 사용해서 해당 날짜가 포함된 구매 판매 리스트를 갖고올 예정 post형식으로
-
 
         console.log(startDateStr)
+        // 여기에 fetch를 사용해서 해당 날짜가 포함된 구매 판매 리스트를 갖고올 예정 post형식으로
+        getList(startDateStr)
     }
 
     function deactivateModal() {
@@ -42,8 +66,7 @@
     };
 
     onMount(async () => {
-        console.log(globalSalesData)
-
+        // console.log(globalSalesData)
         const calendarEl = document.getElementById('calendar');
 
         const calendar = new Calendar(calendarEl, {
@@ -172,11 +195,11 @@
                         calendar.removeAllEvents();
 
                         let monthDataKey = `${year}-${month.toString().padStart(2, '0')}`;
-                        let maxMonthData = { [monthDataKey]: { monthTotalSales: 0, monthTotal: 0 } };
+                        let maxMonthData = {[monthDataKey]: {monthTotalSales: 0, monthTotal: 0}};
 
                         let maxWeeklyData = {};
                         for (let i = 1; i <= 6; i++) {
-                            maxWeeklyData[i] = { weekTotalSales: 0, weekTotal: 0 };
+                            maxWeeklyData[i] = {weekTotalSales: 0, weekTotal: 0};
                         }
                         salesData.data.salesManagement.forEach((sale) => {
                             // console.log('sale', sale)
@@ -228,7 +251,10 @@
                             // 월 매출
                             if (saleKey === monthDataKey) {
                                 if (!maxMonthData[saleKey]) {
-                                    maxMonthData[saleKey] = { monthTotalSales: sale.monthTotalSales, monthTotal: sale.monthSalesNumber };
+                                    maxMonthData[saleKey] = {
+                                        monthTotalSales: sale.monthTotalSales,
+                                        monthTotal: sale.monthSalesNumber
+                                    };
                                 } else {
                                     maxMonthData[saleKey].monthTotalSales = Math.max(maxMonthData[saleKey].monthTotalSales, sale.monthTotalSales);
                                     maxMonthData[saleKey].monthTotal = Math.max(maxMonthData[saleKey].monthTotal, sale.monthSalesNumber);
@@ -305,63 +331,39 @@
                 </div>
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
-            <h1 class="f14 c777 tm">거래처명 : (주)네모컴퍼니 | 품목명 : 네모네모 스넥 100g</h1>
+            <h1 class="f14 c777 tm">{currentdate}</h1>
             <div class="table-type-2 mt12">
                 <table>
                     <thead>
                     <tr>
-                        <th colspan="4">2024-02-10</th>
+                        <th colspan="4">구매 리스트</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td colspan="4">기존 재고 : 50개</td>
-                    </tr>
+                    {#each formdata as purchaseList}
+                        <tr>
+                            <td class="w120">{currentdate}</td>
+                            <td class="w60">
+                                <span class="inblock cb">구매</span>
+                            </td>
+                            <td>{purchaseList.purchaseTotal}</td>
+                            <td>{purchaseList.id}</td>
+                        </tr>
+                    {/each}
                     </tbody>
                     <thead>
                     <tr>
-                        <th colspan="4">2024-02-16</th>
+                        <th colspan="4">판매 리스트</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김네모</td>
-                        <td>50개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cr">구매</span>
-                        </td>
-                        <td>(주)네모컴퍼니</td>
-                        <td>50개</td>
-                    </tr>
-                    </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">2024-02-18</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
+                        <td class="w120">{currentdate}</td>
                         <td class="w60">
                             <span class="inblock cb">판매</span>
                         </td>
                         <td>김철수</td>
                         <td>3개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>박지수</td>
-                        <td>1개</td>
                     </tr>
                     </tbody>
                 </table>
