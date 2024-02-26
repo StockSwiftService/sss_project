@@ -79,4 +79,7 @@
             <span class="text tm">자주 묻는 질문</span>
         </a>
     </li>
+    <li>
+        <a href="/using/calender" class="h50 flex aic jcc abs cm tm bdm bdr999 x-middle f16" style="width: calc(100% - 48px); bottom: 28px;" on:click="{(event) => setActive(7, event)}" class:active="{activeIndex === 7}">캘린더</a>
+    </li>
 </ul>

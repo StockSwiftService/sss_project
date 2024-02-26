@@ -39,6 +39,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     //excel
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
+
+    implementation 'org.apache.poi:poi:5.2.0'
+    //email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
