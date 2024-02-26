@@ -47,8 +47,8 @@
         return `${year}-${month}-${day}`;
     }
 
-    let dateInput;
-    let deliveryStatus = false;
+    let purchaseDate;
+    let deliveryStatus = true;
     let significant = "";
 
     // 숫자 세자리 포멧팅
@@ -248,12 +248,12 @@
         event.preventDefault();
         try {
             const data = {
-                dateInput:'',
-                selectedClient:'',
-                deliveryStatus:'false',
-                significant:'',
-                items:[],
-                allPrice
+                purchaseDate: purchaseDate,
+                selectedClient: selectedClient,
+                deliveryStatus: deliveryStatus,
+                significant: significant,
+                items: items,
+                allPrice: allPrice
             };
 
             const response = await fetch('http://localhost:8080/api/v1/purchase/create', {
@@ -265,7 +265,8 @@
             });
 
             if (response.ok) {
-                console.log("전표생성 완")
+                console.log("전표생성 완");
+                console.log(data);
             } else {
                 window.alert('회원가입이 실패했습니다.');
             }
@@ -279,7 +280,7 @@
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
         document.getElementById('searchDateInput2').value = getTodayDate();
-        dateInput = getTodayDate();
+        purchaseDate = getTodayDate();
 
     });
 </script>
@@ -320,7 +321,7 @@
                         <li class="flex aic g12">
                             <span class="title-text f14 c333">일자</span>
                             <div class="input-box input-type-2 f14 w140">
-                                <input type="date" id="dateInput" placeholder="일자" bind:value={dateInput}>
+                                <input type="date" placeholder="일자" bind:value={purchaseDate}>
                             </div>
                         </li>
                         <li class="flex aic g12">

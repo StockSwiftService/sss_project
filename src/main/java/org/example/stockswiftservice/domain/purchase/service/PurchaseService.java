@@ -20,13 +20,13 @@ public class PurchaseService {
         return this.purchaseRepository.findAll();
     }
 
-    public RsData<Purchase> create(LocalDate purchaseDate, Client client, Boolean deliveryStatus, String significant, List<Stock> stocks, Long allPrice) {
+    public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<Stock> items, Long allPrice) {
         Purchase purchase = Purchase.builder()
                 .purchaseDate(purchaseDate)
-                .client(client)
+                .client(selectedClient)
                 .deliveryStatus(deliveryStatus)
                 .significant(significant)
-                .stocks(stocks)
+                .stocks(items)
                 .allPrice(allPrice)
                 .build();
 
