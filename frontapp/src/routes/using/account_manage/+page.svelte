@@ -517,6 +517,18 @@
         data = data;
     }
 
+    let phoneNumber = '';
+
+    function formatPhoneNumber(phoneNumber) {
+        if (phoneNumber.length === 10) {
+            return phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        } else if (phoneNumber.length === 11) {
+            return phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        }
+        return phoneNumber;
+    }
+
+
 </script>
 
 <div class="modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -750,7 +762,7 @@
                             </td>
                             <td class="wsn">{client.clientName}</td>
                             <td class="wsn">{client.repName}</td>
-                            <td class="wsn">{client.phoneNumber}</td>
+                            <td class="wsn">{formatPhoneNumber(client.phoneNumber)}</td>
                             <td class="wsn">{client.address} {client.detailAddress}</td>
                             <td class="wsn tac">
                                 <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13"

@@ -120,7 +120,7 @@ public class ClientController {
     @PostMapping("/deleteMultiple")
     public RsData<List<Client>> deleteMultiple(@RequestBody List<Long> id) {
         List<Client> deletedClients = clientService.deleteMultiple(id);
-        return RsData.of("S-5", "정보 삭제", deletedClients);
+        return RsData.of("S-5", "정보 삭제", null);
     }
     @AllArgsConstructor
     @Getter

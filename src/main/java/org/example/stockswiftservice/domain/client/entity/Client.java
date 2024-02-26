@@ -6,7 +6,9 @@ import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,6 +23,9 @@ public class Client extends BaseEntity {
     private String phoneNumber;
     private String address;
     private String detailAddress;
+
+    @CreatedDate
+    private LocalDateTime createDate;
 
     @OneToMany(mappedBy = "client")
     @JsonManagedReference

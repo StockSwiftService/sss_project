@@ -7,6 +7,9 @@ import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,4 +26,7 @@ public class Stock extends BaseEntity {
     private Long quantity;
     private Long purchasePrice;
     private Long salesPrice;
+
+    @CreatedDate
+    private LocalDateTime createDate;
 }

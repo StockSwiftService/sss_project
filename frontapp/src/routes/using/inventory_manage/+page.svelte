@@ -451,6 +451,18 @@
             console.error('Error downloading Excel file:', error);
         }
     }
+
+    let phoneNumber = '';
+
+    function formatPhoneNumber(phoneNumber) {
+        if (phoneNumber.length === 10) {
+            return phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        } else if (phoneNumber.length === 11) {
+            return phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        }
+        return phoneNumber;
+    }
+
 </script>
 
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -738,7 +750,7 @@
                                 <button class="inblock tdu c162b60" on:click={() => selectClient(client)}>{client.clientName}</button>
                             </td>
                             <td class="wsn">{client.repName}</td>
-                            <td class="wsn">{client.phoneNumber}</td>
+                            <td class="wsn">{formatPhoneNumber(client.phoneNumber)}</td>
                         </tr>
                     {/each}
                     </tbody>
@@ -807,9 +819,9 @@
                         </td>
                         <td class="wsn">{stock.clientName}</td>
                         <td class="wsn tal">{stock.itemName}</td>
-                        <td class="wsn">{stock.quantity}</td>
-                        <td class="wsn">{stock.purchasePrice}</td>
-                        <td class="wsn">{stock.salesPrice}</td>
+                        <td class="wsn">{stock.quantity.toLocaleString()}</td>
+                        <td class="wsn">{stock.purchasePrice.toLocaleString()}</td>
+                        <td class="wsn">{stock.salesPrice.toLocaleString()}</td>
                         <td class="wsn tac">
                             <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={activateModalRecord}>이력
                             </button>

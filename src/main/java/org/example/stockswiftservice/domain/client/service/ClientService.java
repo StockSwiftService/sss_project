@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,13 +48,16 @@ public class ClientService {
     }
 
     public RsData<Client> create(String clientName, String repName, String phoneNumber, String address, String detailAddress){
-        Client client = Client.builder()
-                .clientName(clientName)
-                .repName(repName)
-                .phoneNumber(phoneNumber)
-                .address(address)
-                .detailAddress(detailAddress)
-                .build();
+
+
+        Client client = new Client();
+                client.setClientName(clientName);
+                client.setRepName(repName);
+                client.setPhoneNumber(phoneNumber);
+                client.setAddress(address);
+                client.setDetailAddress(detailAddress);
+                client.setCreateDate(LocalDateTime.now());
+
 
         clientRepository.save(client);
 
