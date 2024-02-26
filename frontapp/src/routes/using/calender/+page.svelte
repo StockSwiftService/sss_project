@@ -281,7 +281,7 @@
 
 
     :global(.fc-day) {
-        background-color: #fdfafa;
+        background-color: #ffffff;
     }
 
     :global(.fc .fc-daygrid-day-frame) {
