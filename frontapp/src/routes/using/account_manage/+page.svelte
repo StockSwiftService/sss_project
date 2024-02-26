@@ -54,7 +54,12 @@
 
     const submitClientForm = async (event) => {
         event.preventDefault();
+        await checkDuplicate();
 
+        if (confirmNameErrorMessage) {
+            alert(confirmNameErrorMessage);
+            return;
+        }
         // 클라이언트 측 유효성 검사 수행
         const clientName = formData.clientName;
         const repName = formData.repName;
@@ -485,8 +490,6 @@
         };
     })
 
-    let totalClients = 0; // 전체 거래처 개수
-    let searchResultCount = 0; // 검색 결과의 개수
 
     async function dataLoad() {
         const queryString = window.location.search;
@@ -496,10 +499,8 @@
         })
         data = await res.json();
 
-        searchResultCount = data.data.clients.totalElements;
-        totalClients = data.data.clientList.length;
     }
-    $: hasSearchQuery = searchQuery.trim().length > 0;
+
 
     let allChecked = false;
 
@@ -719,7 +720,7 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">{hasSearchQuery ? searchResultCount : totalClients}</span>개
+                전체 <span class="number inblock cm tm">{data.data.clients.totalElements}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>

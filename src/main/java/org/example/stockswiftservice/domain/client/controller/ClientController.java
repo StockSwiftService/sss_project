@@ -140,7 +140,7 @@ public class ClientController {
         if (clientName.isPresent()) {
             return RsData.of("S-6", "중복된 거래처명", new NameResponse(clientName));
         } else {
-            return RsData.of("S-7", "사용 가능", null);
+            return RsData.of("S-7", "중복되지 않은 거래처명", null);
         }
     }
 

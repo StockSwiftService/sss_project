@@ -31,7 +31,7 @@ public class ClientService {
     public Page<Client> getSearchList(String kw, int page) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
-        Pageable pageable = PageRequest.of(page, 2, Sort.by(sorts));
+        Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
         Specification<Client> spec = search(kw);
         return this.clientRepository.findAll(spec, pageable);
     }

@@ -8,10 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.service.StockService;
@@ -191,18 +188,28 @@ public class StockController {
         Cell cell = null;
         int rowNum = 0;
 
+        CellStyle headerStyle = wb.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+
+        headerStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        headerStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        headerStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        headerStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+
         // Header
         row = sheet.createRow(rowNum++);
-        cell = row.createCell(0);
-        cell.setCellValue("거래처명");
-        cell = row.createCell(1);
-        cell.setCellValue("품목명");
-        cell = row.createCell(2);
-        cell.setCellValue("수량");
-        cell = row.createCell(3);
-        cell.setCellValue("구매단가");
-        cell = row.createCell(4);
-        cell.setCellValue("판매단가");
+        String[] headers = {"거래처명", "품목명", "수량", "구매단가", "판매단가"};
+        for(int i = 0; i < headers.length; i++) {
+            cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
 
         // Body
         for (Stock stock : list) {

@@ -84,6 +84,12 @@
 
     const submitClientForm = async (event) => {
         event.preventDefault();
+        await checkDuplicate();
+
+        if (confirmNameErrorMessage) {
+            alert(confirmNameErrorMessage);
+            return;
+        }
 
         const clientName = formData.clientName;
         const itemName = formData.itemName;
@@ -406,8 +412,6 @@
 
     }
 
-    let totalClients = 0; // 전체 거래처 개수
-    let searchResultCount = 0; // 검색 결과의 개수
     async function dataLoad() {
         const queryString = window.location.search;
 
@@ -416,10 +420,7 @@
         })
         data = await res.json();
 
-        searchResultCount = data.data.stocks.totalElements;
-        totalClients = data.data.stockList.length;
     }
-    $: hasSearchQuery = searchQuery.trim().length > 0;
 
     let allChecked = false;
 
@@ -434,6 +435,21 @@
         })
 
         data = data;
+    }
+
+    async function downloadExcel() {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/stocks/excel');
+            const blob = await response.blob();
+            const a = document.createElement('a');
+            a.href = window.URL.createObjectURL(blob);
+            a.download = 'stocks.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading Excel file:', error);
+        }
     }
 </script>
 
@@ -758,7 +774,8 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-                전체 <span class="number inblock cm tm">{hasSearchQuery ? searchResultCount : totalClients}</span>개
+<!--                전체 <span class="number inblock cm tm">{hasSearchQuery ? searchResultCount : totalClients}</span>개-->
+                전체 <span class="number inblock cm tm">{data.data.stocks.totalElements}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -813,6 +830,7 @@
                     <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click="{deleteSelectedClients}">삭제</button>
                 </div>
                 <div class="flex aic g4">
+                    <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={downloadExcel}>Excel</button>
                     <button class="w50 h30 btn-type-1 bm bdr4 f12 cfff" on:click="{activateModalAdd}">등록</button>
                 </div>
             </div>
