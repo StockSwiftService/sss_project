@@ -8,6 +8,7 @@ import org.example.stockswiftservice.global.baseentity.BaseEntity;
 import org.springframework.boot.autoconfigure.security.oauth2.server.servlet.OAuth2AuthorizationServerProperties;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,11 +20,12 @@ import java.util.List;
 public class Purchase extends BaseEntity {
     private LocalDate purchaseDate;
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
     private boolean deliveryStatus;
     private String significant;
     @ManyToMany
-    private List<Stock> stocks;
+    private List<Stock> stocks = new ArrayList<>();
     private Long allPrice;
     private boolean approval;
 }

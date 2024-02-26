@@ -18,6 +18,4 @@ public class Client extends BaseEntity {
     private String repName;
     private String phoneNumber;
     private String address;
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<Purchase> purchases;
 }

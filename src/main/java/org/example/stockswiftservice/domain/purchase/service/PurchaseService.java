@@ -32,22 +32,6 @@ public class PurchaseService {
 
         purchaseRepository.save(purchase);
 
-        return RsData.of("1", "회원가입 완료", purchase);
+        return RsData.of("1", "판매 등록 완료", purchase);
     }
-
-
-//    public RsData<SiteUser> signup(String username, String nickName, String password, String email, String name, LocalDate birthDate) {
-//        SiteUser siteUser = SiteUser.builder()
-//                .username(username)
-//                .nickName(nickName)
-//                .password(passwordEncoder.encode(password))
-//                .email(email)
-//                .name(name)
-//                .birthDate(birthDate)
-//                .build();
-//
-//        userRepository.save(siteUser);
-//
-//        return RsData.of("1", "회원가입 완료", siteUser);
-//    }
 }

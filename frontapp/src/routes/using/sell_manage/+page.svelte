@@ -48,7 +48,7 @@
     }
 
     let purchaseDate;
-    let deliveryStatus = true;
+    let deliveryStatus = false;
     let significant = "";
 
     // 숫자 세자리 포멧팅
@@ -100,8 +100,8 @@
         {
             id: 1,
             itemName: "",
-            quantity: 0,
-            price: 0,
+            inputQuantity: 0,
+            salesPrice: 0,
             sumPrice: 0,
             selected: false
         }
@@ -117,8 +117,8 @@
         const newItem = {
             id: items.length + 1,
             itemName: "",
-            quantity: 0,
-            price: 0,
+            inputQuantity: 0,
+            salesPrice: 0,
             sumPrice: 0,
             selected: false,
         };
@@ -134,9 +134,9 @@
                 stocks = responseData.data.stocks;
                 if (stocks.length == 1) {
                     item.itemName = stocks[0].itemName;
-                    item.quantity = 1;
-                    item.price = stocks[0].salesPrice;
-                    item.sumPrice = item.quantity * item.price;
+                    item.inputQuantity = 1;
+                    item.salesPrice = stocks[0].salesPrice;
+                    item.sumPrice = item.inputQuantity * item.salesPrice;
                     items = items;
                     allPricecalc();
                 }
@@ -158,9 +158,9 @@
             stocks = responseData.data.stocks;
             if (stocks.length == 1) {
                 item.itemName = stocks[0].itemName;
-                item.quantity = 1;
-                item.price = stocks[0].salesPrice;
-                item.sumPrice = item.quantity * item.price;
+                item.inputQuantity = 1;
+                item.salesPrice = stocks[0].salesPrice;
+                item.sumPrice = item.inputQuantity * item.salesPrice;
                 items = items;
                 isActive2 = false;
                 isActiveStockSearch = false;
@@ -183,8 +183,8 @@
     }
 
     function quantityChange(item) {
-        if (item.quantity <= 0) item.quantity = 1;
-        item.sumPrice = item.quantity * item.price;
+        if (item.inputQuantity <= 0) item.inputQuantity = 1;
+        item.sumPrice = item.inputQuantity * item.salesPrice;
         items = items;
         allPricecalc();
     }
@@ -199,9 +199,9 @@
 
     function selectStock(stock) {
         selectItem.itemName = stock.itemName;
-        selectItem.quantity = 1;
-        selectItem.price = stock.salesPrice;
-        selectItem.sumPrice = selectItem.quantity * selectItem.price;
+        selectItem.inputQuantity = 1;
+        selectItem.salesPrice = stock.salesPrice;
+        selectItem.sumPrice = selectItem.inputQuantity * selectItem.salesPrice;
         items = items;
         isActive2 = false;
         isActiveStockSearch = false;
@@ -275,7 +275,19 @@
         }
     }
 
-    onMount(() => {
+    //판매 게시글 출력
+    let purchases = [];
+
+    onMount(async () => {
+
+        //판매 게시글 출력
+        const response = await fetch('http://localhost:8080/api/v1/purchase');
+        if (response.ok) {
+            const responseData = await response.json();
+            purchases = responseData.data.purchases;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
 
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
@@ -350,7 +362,7 @@
                         <li class="flex aic g12" style="width:calc(33% - 20px)">
                             <span class="title-text f14 c333">출고 여부</span>
                             <div class="check-type-1">
-                                <input type="checkbox" id="w1" bind:value={deliveryStatus}>
+                                <input type="checkbox" id="w1" bind:checked={deliveryStatus}>
                                 <label for="w1"></label>
                             </div>
                         </li>
@@ -397,12 +409,12 @@
                                 </td>
                                 <td class="wsn">
                                     <div class="input-type-2 f14">
-                                        <input type="number" placeholder="수량" bind:value={item.quantity} on:input={() => quantityChange(item)}>
+                                        <input type="number" placeholder="수량" bind:value={item.inputQuantity} on:input={() => quantityChange(item)}>
                                     </div>
                                 </td>
                                 <td class="wsn">
                                     <div class="input-type-2 f14">
-                                        <input type="number" placeholder="단가" readonly bind:value={item.price}>
+                                        <input type="number" placeholder="단가" readonly bind:value={item.salesPrice}>
                                     </div>
                                 </td>
                                 <td class="wsn">
@@ -660,6 +672,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {#each purchases as purchase}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
@@ -668,30 +681,29 @@
                                 </div> 
                             </td>
                             <td class="wsn">
-                                <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">2024-02-14</button>
+                                <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">{purchase.purchaseDate}</button>
                             </td>
-                            <td class="wsn">김철수</td>
-                            <td class="wsn tal">네모네모 스낵 100g 외 2건</td>
-                            <td class="wsn">12개</td>
-                            <td class="wsn">120,000원</td>
-                            <td class="wsm"></td>
-                        </tr>
-                        <tr>
-                            <td class="wsn" style="width: 44px;">   
-                                <div class="check-type-1">
-                                    <input type="checkbox" id="v2">
-                                    <label for="v2"></label>
-                                </div> 
+                            <td class="wsn">{purchase.client.clientName}</td>
+                            <td class="wsn tal">
+                            {#each purchase.stocks as stock}
+                                {#if stock.id === 1}{stock.itemName}
+                                {/if}
+                            {/each}
+                            외 {purchase.stocks.length}건
                             </td>
                             <td class="wsn">
-                                <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">2024-02-14</button>
+                                {#each purchase.stocks as stock}
+                                    
+                                {/each}
                             </td>
-                            <td class="wsn">김유리</td>
-                            <td class="wsn tal">네모네모 사탕 30g 외 10건</td>
-                            <td class="wsn">24개</td>
-                            <td class="wsn">540,000원</td>
-                            <td class="wsm">완료</td>
+                            <td class="wsn tal">{purchase.allPrice}원</td>
+                            <td class="wsn">
+                                {#if purchase.deliveryStatus}완료
+                                {:else}
+                                {/if}
+                            </td>
                         </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>
