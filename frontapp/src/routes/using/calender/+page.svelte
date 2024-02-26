@@ -11,7 +11,9 @@
 
     async function fetchDataAndRenderCalendar() {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/schedules');
+            const response = await fetch('http://localhost:8080/api/v1/schedules', {
+                credentials: 'include'
+            });
             const data = await response.json();
             events = data.data.schedules.map(event => ({
                 eventId: event.id,
@@ -117,6 +119,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         subject: title,
                         content,
@@ -158,6 +161,7 @@
 
         if (confirmation) {
             fetch(`http://localhost:8080/api/v1/schedules/${eventId}`, {
+                credentials: 'include',
                 method: 'DELETE',
             })
             .then(response => response.json())
@@ -224,6 +228,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         subject: newTitle,
                         content: newContent,

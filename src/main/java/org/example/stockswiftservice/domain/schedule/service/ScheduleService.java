@@ -1,6 +1,7 @@
 package org.example.stockswiftservice.domain.schedule.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.schedule.entity.Schedule;
 import org.example.stockswiftservice.domain.schedule.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,9 @@ public class ScheduleService {
     public Schedule getListById(Long id) {
         return this.scheduleRepository.findById(id).orElseThrow();
     }
-    public Schedule create(String subject, String content, LocalDate startDate, LocalDate endDate) {
+    public Schedule create(Member member , String subject, String content, LocalDate startDate, LocalDate endDate) {
         Schedule schedule = Schedule.builder()
+                .member(member)
                 .subject(subject)
                 .content(content)
                 .startDate(startDate)
