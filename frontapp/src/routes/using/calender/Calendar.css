@@ -12,15 +12,6 @@
     font-size: 16px;
 }
 
-.fc-event {
-    border-radius: 5px;
-    margin: 2px;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-}
-
 .fc .fc-daygrid-day.fc-day-today {
     background-color: transparent !important;
 }
@@ -41,10 +32,24 @@
     text-align: left !important;
 }
 
+.fc .fc-daygrid-day {
+    width: auto;
+    height: auto;
+}
+
 #calendar > * {
     font-family: "Pretendard-Regular";
 }
 
 .fc .fc-daygrid-day-frame {
     height: 12vh;
+}
+
+.fc-event {
+    border-radius: 5px;
+    margin: 2px;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 }
