@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -34,5 +35,13 @@ public class PurchaseService {
        Optional<Purchase> purchase = purchaseRepository.findById(id);
 
        return purchase.get();
+    }
+
+    public List<Purchase> getPurchaseList(String dateString){
+        LocalDate date = LocalDate.parse(dateString);
+
+        List<Purchase> getPurchaseList = purchaseRepository.findByPurchaseDate(date);
+
+        return getPurchaseList;
     }
 }

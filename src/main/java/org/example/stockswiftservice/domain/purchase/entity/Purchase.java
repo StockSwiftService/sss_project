@@ -18,5 +18,4 @@ public class Purchase extends BaseEntity {
     private Long purchaseTotal;
 
     private LocalDate purchaseDate;
-
 }

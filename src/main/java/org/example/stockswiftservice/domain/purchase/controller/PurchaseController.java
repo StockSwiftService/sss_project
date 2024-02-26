@@ -8,10 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
@@ -40,5 +39,25 @@ public class PurchaseController {
         Purchase purchases = purchaseService.create(createPurchase.getPurchaseTotal(), createPurchase.getPurchaseDate());
 
         return RsData.of("R-1", "성공", new ApprovalPur(purchases));
+    }
+
+
+    @Data
+    public static class GetPurchaseDate {
+        private String date;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class PurchaseList {
+        private final List<Purchase> purchase;
+    }
+
+    @PostMapping(value = "/list", consumes = ALL_VALUE)
+    public RsData<PurchaseList> getList(@RequestBody GetPurchaseDate getPurchaseDate){
+
+        List<Purchase> purchases = purchaseService.getPurchaseList(getPurchaseDate.getDate());
+
+        return RsData.of("R-1", "성공", new PurchaseList(purchases));
     }
 }
