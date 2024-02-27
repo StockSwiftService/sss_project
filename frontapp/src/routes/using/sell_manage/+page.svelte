@@ -68,7 +68,8 @@
         const response = await fetch('http://localhost:8080/api/v1/clients');
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData.data.clients.content;
+            console.log(clients);
         } else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
@@ -78,7 +79,7 @@
         const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData.data.clients.content;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -268,7 +269,8 @@
                 console.log("전표생성 완");
                 console.log(data);
             } else {
-                window.alert('회원가입이 실패했습니다.');
+                console.log("전표생성 실패");
+                console.log(data);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -684,13 +686,13 @@
                                 <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">{purchase.purchaseDate}</button>
                             </td>
                             <td class="wsn">{purchase.client.clientName}</td>
-                            <td class="wsn tal">
+                            <!-- <td class="wsn tal">
                             {#each purchase.stocks as stock}
                                 {#if stock.id === 1}{stock.itemName}
                                 {/if}
                             {/each}
                             외 {purchase.stocks.length}건
-                            </td>
+                            </td> -->
                             <td class="wsn">
                                 {#each purchase.stocks as stock}
                                     
