@@ -79,11 +79,13 @@
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
     function handleEnableDelete() {
+        fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isDeleteEnabled = true;
         window.alert('삭제할 일정을 클릭해주세요');
     }
     function handleEnableModify() {
+        fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isModifyEnabled = true;
         window.alert('수정할 일정을 클릭해주세요');
@@ -135,7 +137,6 @@
                 .catch(error => {
                     console.error('Error saving event:', error);
                 });
-
                 calendar.setOption('selectable', false);
             } else {
                 window.alert("일정 등록을 취소하였습니다");
@@ -151,7 +152,8 @@
     afterUpdate(() => {
         fetchDataAndRenderCalendar();
     });
-    function handleEventClick(info) {
+    async function handleEventClick(info) {
+
     if (isDeleteEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
@@ -159,7 +161,15 @@
         const confirmation = window.confirm(`이벤트 "${eventTitle}"를 삭제하시겠습니까?`);
         isDeleteEnabled = false;
 
-        if (confirmation) {
+        try {
+            const authorization = await checkMemberAuthorization(info);
+
+            console.log("정보:" + authorization);
+            if (!authorization) {
+                window.alert('회원 정보가 일치하지 않아 수정할 수 없습니다.');
+                return;
+            }
+            if (confirmation) {
             fetch(`http://localhost:8080/api/v1/schedules/${eventId}`, {
                 credentials: 'include',
                 method: 'DELETE',
@@ -173,7 +183,10 @@
             });
 
             info.event.remove();
+        }} catch (error) {
+            console.error('Error handling event click:', error);
         }
+        
     } else if (isModifyEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
@@ -182,8 +195,17 @@
         isModifyEnabled = false;
         console.log(info);
 
-        if (confirmation) {
-            console.log(info.event.end);
+        try {
+            const authorization = await checkMemberAuthorization(info);
+
+            console.log("정보:" + authorization);
+            if (!authorization) {
+                window.alert('회원 정보가 일치하지 않아 수정할 수 없습니다.');
+                return;
+            }
+
+            if (confirmation) {
+                console.log('event:' + info.event); 
             const formattedStartDate = formatDate(info.event.start);
             let formattedEndDate = null;
 
@@ -243,13 +265,16 @@
                 .catch(error => {
                     console.error('Error updating event:', error);
                 });
-
+                
                 info.event.setProp('title', newTitle);
                 info.event.setExtendedProp('content', newContent);
                 info.event.setStart(startDate);
                 info.event.setEnd(endDate);
             }
         }
+            } catch (error) {
+                console.error('Error handling event click:', error);
+            }
     }
 }
     function formatDate(date) {
@@ -258,6 +283,25 @@
         const day = String(date.getDate()).padStart(2, '0');
 
         return `${year}-${month}-${day}`;
+    }
+    function checkMemberAuthorization(info) {
+    const eventId = info.event.extendedProps.eventId;
+
+    return fetch(`http://localhost:8080/api/v1/schedules/check/${eventId}`, {
+        credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.data.isConfirm);
+            if (data.data.isConfirm) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+        .catch(error => {
+            console.error('Error checking member authorization:', error);
+        });
     }
 </script>
 

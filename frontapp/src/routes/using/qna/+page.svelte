@@ -254,7 +254,7 @@
                         </p>
                     </div>
                 </li>
-            {/each}
+                {/each}
             </ul>
             <div class="flex aic jce mt8">
                 <div class="flex aic g4">

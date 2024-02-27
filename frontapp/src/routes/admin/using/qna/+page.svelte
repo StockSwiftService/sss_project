@@ -26,7 +26,9 @@
             }
             questionId = question.id;
 
-            const response = await fetch(`http://localhost:8080/api/v1/questions/admin/${questionId}`);
+            const response = await fetch(`http://localhost:8080/api/v1/questions/admin/${questionId}`, {
+                credentials: 'include'
+            });
             const data = await response.json();
             subject = data.data.question.subject;
             content = data.data.question.content;
@@ -99,6 +101,7 @@
 
         fetch(`http://localhost:8080/api/v1/questions/admin/${questionId}`, {
             method: 'PATCH',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -141,6 +144,7 @@
         try {
         const response = await fetch('http://localhost:8080/api/v1/questions/admin/delete', {
             method: 'POST',
+            credentials: 'include',
             headers: {
             'Content-Type': 'application/json',
             },
@@ -202,7 +206,9 @@
     }
     async function fetchLatestPosts() {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/questions/admin?page=${currentPage}`); 
+            const response = await fetch(`http://localhost:8080/api/v1/questions/admin?page=${currentPage}`, {
+                credentials: 'include'
+            }); 
             const result = await response.json();
 
             data.data.questions.content = result.data.questions.content;
