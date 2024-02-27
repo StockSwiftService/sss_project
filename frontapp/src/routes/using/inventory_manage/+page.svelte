@@ -438,6 +438,13 @@
     }
 
     async function downloadExcel() {
+
+        const isConfirmed = confirm('EXCEL로 다운로드 하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
         try {
             const response = await fetch('http://localhost:8080/api/v1/stocks/excel');
             const blob = await response.blob();
