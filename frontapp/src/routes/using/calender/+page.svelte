@@ -38,6 +38,7 @@
             selectable: false,
             events: events,
             dayMaxEventRows: true,
+            eventColor: '#34c3eb',
             views: {
                 dayGrid: {
                 dayMaxEventRows: 4
@@ -310,7 +311,7 @@
         width: 100%;
         margin-top: 20px;
         font-size: 16px;
-        overflow: hidden;
+        /* overflow: hidden; */
     }
     /* :global(.fc) {
         border: 1px solid #ffffff;
