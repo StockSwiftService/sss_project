@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
+import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -42,7 +43,7 @@ public class PurchaseController {
         private Client selectedClient;
         private Boolean deliveryStatus;
         private String significant;
-        private List<Stock> items;
+        private List<PurchaseStock> items;
         private Long allPrice;
     }
 

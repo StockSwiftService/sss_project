@@ -24,8 +24,8 @@ public class Purchase extends BaseEntity {
     private Client client;
     private boolean deliveryStatus;
     private String significant;
-    @ManyToMany
-    private List<Stock> stocks = new ArrayList<>();
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
+    private List<PurchaseStock> purchaseStocks;
     private Long allPrice;
     private boolean approval;
 }

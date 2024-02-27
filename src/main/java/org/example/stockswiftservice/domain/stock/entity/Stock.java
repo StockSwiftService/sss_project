@@ -21,8 +21,4 @@ public class Stock extends BaseEntity {
     private Long quantity;
     private Long purchasePrice;
     private Long salesPrice;
-    private Long inputQuantity;
-    private Long sumPrice;
-    @ManyToMany
-    private List<Purchase> purchases = new ArrayList<>();
 }

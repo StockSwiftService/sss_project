@@ -3,6 +3,7 @@ package org.example.stockswiftservice.domain.purchase.service;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
+import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.rs.RsData;
@@ -20,13 +21,13 @@ public class PurchaseService {
         return this.purchaseRepository.findAll();
     }
 
-    public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<Stock> items, Long allPrice) {
+    public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> items, Long allPrice) {
         Purchase purchase = Purchase.builder()
                 .purchaseDate(purchaseDate)
                 .client(selectedClient)
                 .deliveryStatus(deliveryStatus)
                 .significant(significant)
-                .stocks(items)
+                .purchaseStocks(items)
                 .allPrice(allPrice)
                 .build();
 
