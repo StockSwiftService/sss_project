@@ -26,6 +26,7 @@
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
+                console.log(memberTotal)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
                 if (!response.ok && response.status != 401) {
@@ -62,6 +63,7 @@
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
+                console.log(resList)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
             }
