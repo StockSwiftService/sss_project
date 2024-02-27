@@ -61,7 +61,7 @@
         });
     }
 
-    //클릭 시 창 열림
+    //클릭 시 주소 창 열림
     async function initDaumPostcode() {
         element_layer = document.getElementById('layer');
         await loadScript();
