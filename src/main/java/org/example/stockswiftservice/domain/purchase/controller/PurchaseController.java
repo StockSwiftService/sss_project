@@ -26,6 +26,7 @@ public class PurchaseController {
         private Long purchaseTotal;
         private String purchaseDate;
     }
+//    ddd
 
     @AllArgsConstructor
     @Getter
