@@ -15,6 +15,7 @@ import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,6 +34,12 @@ public class StockController {
     public static class StocksResponse {
         private final Page<StockDto> stocks;
         private final List<StockDto> stockList;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class StocksResponse2 {
+        private final List<Stock> stocks;
     }
     @Data
     public class StockDto {
@@ -233,5 +240,11 @@ public class StockController {
         // Excel File Output
         wb.write(response.getOutputStream());
         wb.close();
+    }
+
+    @GetMapping("/search")
+    public RsData<StocksResponse2> searchStocks(@RequestParam("itemName") String searchText) {
+        List<Stock> stocks = stockService.searchByName(searchText);
+        return RsData.of("S-1", "검색 성공", new StocksResponse2(stocks));
     }
 }

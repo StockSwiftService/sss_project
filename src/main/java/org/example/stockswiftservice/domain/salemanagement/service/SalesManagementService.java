@@ -35,7 +35,7 @@ public class SalesManagementService {
             int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
 
             createSalesManagement.setSalesDate(String.valueOf(date));
-            createSalesManagement.setDailyTotalSales(purchase.getPurchaseTotal());
+            createSalesManagement.setDailyTotalSales(purchase.getAllPrice());
             createSalesManagement.setDailySalesNumber(staerNum);
             createSalesManagement.setWeekDate(weekOfMonth);
 

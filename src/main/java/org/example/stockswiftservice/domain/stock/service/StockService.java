@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,6 +87,10 @@ public class StockService {
         List<Stock> stocksToDelete = stockRepository.findAllById(id);
         stockRepository.deleteAll(stocksToDelete);
         return stocksToDelete;
+    }
+
+    public List<Stock> searchByName(String searchText) {
+        return this.stockRepository.findByItemNameOrClientNameContaining(searchText);
     }
 
     public Optional<Stock> findByItemName(String clientName, String itemName) {

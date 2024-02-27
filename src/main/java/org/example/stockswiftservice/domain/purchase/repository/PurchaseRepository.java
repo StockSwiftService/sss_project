@@ -4,12 +4,14 @@ import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
-    @Query("SELECT SUM(p.purchaseTotal) FROM Purchase p WHERE p.purchaseDate = :date")
+    @Query("SELECT SUM(p.allPrice) FROM Purchase p WHERE p.purchaseDate = :date")
     Long getSalesByDate(@Param("date") LocalDate date);
 
     @Query("SELECT COUNT(p) FROM Purchase p WHERE p.purchaseDate = :date")
@@ -21,7 +23,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query(value = "SELECT COUNT(*) FROM Purchase WHERE YEARWEEK(purchase_date, 3) = YEARWEEK(:date, 3)", nativeQuery = true)
     int getCountByWeek(@Param("date") LocalDate date);
 
-    @Query("SELECT SUM(p.purchaseTotal) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
+    @Query("SELECT SUM(p.allPrice) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
     Long getSalesByMonth(@Param("year") int year, @Param("month") int month);
 
     @Query("SELECT COUNT(p) FROM Purchase p WHERE YEAR(p.purchaseDate) = :year AND MONTH(p.purchaseDate) = :month")
@@ -29,3 +31,4 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     List<Purchase> findByPurchaseDate(LocalDate date);
 }
+

@@ -156,4 +156,10 @@ public class ClientController {
         }
         return ResponseEntity.ok(clients);
     }
+
+//    @GetMapping("/search")
+//    public RsData<ClientController.ClientsResponse> searchClients(@RequestParam("clientName") String searchText) {
+//        List<Client> clients = clientService.searchByName(searchText);
+//        return RsData.of("S-1", "검색 성공", new ClientController.ClientsResponse(clients));
+//    }
 }
