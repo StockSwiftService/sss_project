@@ -8,8 +8,35 @@
     let isDeleteEnabled = false;
     let isModifyEnabled = false;
     let events = [];
+    let loggedInUserId = null;
+    
+    onMount(async() => {
+		try {
+			const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				credentials: 'include'
+			});
+			if (response.ok) {
+                console.log('지나가요');
+				const data = await response.json();
+                loggedInUserId = data.data.member.id;
+                fetchDataAndRenderCalendar(loggedInUserId);
+			} else {
+				console.error('서버 응답 오류:', response.statusText);
+				if (!response.ok && response.status != 401) {
+					alert('다시 시도 해주세요.');
+				}
+			}
+		} catch (error) {
+			console.error('오류 발생:', error);
+			alert('다시 시도 해주세요.');
+		}
+	});
 
-    async function fetchDataAndRenderCalendar() {
+    async function fetchDataAndRenderCalendar(loggedInUserId) {
         try {
             const response = await fetch('http://localhost:8080/api/v1/schedules', {
                 credentials: 'include'
@@ -20,7 +47,8 @@
                 title: event.subject,
                 content: event.content,
                 start: new Date(event.startDate),
-                end: new Date(event.endDate)
+                end: new Date(event.endDate),
+                color: event.member.id === loggedInUserId ? '#4caf50' : '#eb3483',
             }));
 
             renderCalendar();
@@ -38,7 +66,6 @@
             selectable: false,
             events: events,
             dayMaxEventRows: true,
-            eventColor: '#34c3eb',
             views: {
                 dayGrid: {
                 dayMaxEventRows: 4
@@ -80,13 +107,13 @@
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
     function handleEnableDelete() {
-        fetchDataAndRenderCalendar();
+        // fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isDeleteEnabled = true;
         window.alert('삭제할 일정을 클릭해주세요');
     }
     function handleEnableModify() {
-        fetchDataAndRenderCalendar();
+        // fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isModifyEnabled = true;
         window.alert('수정할 일정을 클릭해주세요');
@@ -106,15 +133,23 @@
             }
 
             if (title && content) {
-                const event = { title, content, start: info.startStr, end: info.endStr };
-
-                calendar.addEvent(event);
+                let event = [];
 
                 const updateStartDate = new Date(info.startStr);
                 const updateEndDate = new Date(info.endStr);
 
                 updateStartDate.setDate(updateStartDate.getDate());
                 updateEndDate.setDate(updateEndDate.getDate() - 1);
+                console.log('start' + updateStartDate.getDate());
+                console.log(updateEndDate.getDate());
+
+                if(updateStartDate.getDate() === updateEndDate.getDate()){
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, 
+                        backgroundColor: 'inherit', textColor: 'black' , borderColor: 'black' };
+                } else {
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#4caf50' };
+                }
+                calendar.addEvent(event);
 
 
                 fetch('http://localhost:8080/api/v1/schedules', {
@@ -146,13 +181,6 @@
         }
     }
 
-    onMount(() => {
-        fetchDataAndRenderCalendar();
-    });
-
-    afterUpdate(() => {
-        fetchDataAndRenderCalendar();
-    });
     async function handleEventClick(info) {
 
     if (isDeleteEnabled) {
