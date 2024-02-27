@@ -208,18 +208,15 @@ public class MemberController {
         List<Member> memberList = this.memberService.getEmployeeList(member.getCompany().getCompanyCode());
         Page<Member> pagingList = this.memberService.pagingFindByCompany(page, keyWord, member.getCompany());
 
-        if (member.getAuthority() == 1) {
+        if (member.getAuthority() != 2) { //대표가 아닌 경우
             memberList = Collections.emptyList();
             pagingList = new PageImpl<>(Collections.emptyList());
             return RsData.of("S-1", "성공", new MembersResponse(memberList, pagingList));
-        } else if (member.getAuthority() == 1 || member.getAuthority() == 2) {
+        } else { //대표인 경우
             List<Member> filteredList = memberList.stream()
                     .filter(m -> m.getAuthority() != 1 && m.getAuthority() != 2)
                     .collect(Collectors.toList());
             return RsData.of("S-2", "성공", new MembersResponse(filteredList, pagingList));
-        } else {
-            // 권한이 1 또는 2가 아닌 경우 전체 목록 리턴
-            return RsData.of("S-2", "성공", new MembersResponse(memberList, pagingList));
         }
     }
 

@@ -9,6 +9,31 @@
 
     let members = [];
     let selectedMemberIds = []; //체크박스에 체크된 멤버의 아이디를 저장
+    let loginUser = [];
+
+    onMount(async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                loginUser = data.data.member
+            } else {
+                console.error('서버 응답 오류:', response.statusText);
+                if (!response.ok && response.status != 401) {
+                    alert('다시 시도 해주세요.');
+                }
+            }
+        } catch (error) {
+            console.error('오류 발생:', error);
+            alert('다시 시도 해주세요.');
+        }
+    });
 
 
     const changePage = async (page) => {
@@ -58,9 +83,12 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                if (data.resultCode == 'S-1') {
+                if (data.resultCode === 'S-1') {
                     members = ''
-                } else {
+                    alert('접근 권한이 없습니다.')
+                    window.location.href = '/using/account_manage'
+                }
+                else {
                     members = data.data.memberList
                 }
                 resList = data.data.pagingList;
