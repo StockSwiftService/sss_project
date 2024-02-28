@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +24,6 @@ import java.util.Optional;
 public class StockService {
     private final StockRepository stockRepository;
     private final ClientRepository clientRepository;
-
     public List<Stock> getList() {
         return this.stockRepository.findAll();
     }
@@ -44,7 +42,6 @@ public class StockService {
         if (optionalStock.isEmpty()) {
             throw  new RuntimeException("없음");
         }
-
         return optionalStock.get();
     }
 

@@ -1,12 +1,11 @@
 package org.example.stockswiftservice.domain.purchase.controller;
 
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
@@ -17,19 +16,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
-
-
-import org.example.stockswiftservice.domain.client.entity.Client;
-import org.example.stockswiftservice.domain.purchase.entity.Purchase;
-import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
-import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
-import org.example.stockswiftservice.domain.stock.entity.Stock;
-import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/purchase", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
@@ -56,8 +42,6 @@ public class PurchaseController {
 //
 //        return RsData.of("R-1", "성공", new ApprovalPur(purchases));
 //    }
-
-
     @Data
     public static class GetPurchaseDate {
         private String date;

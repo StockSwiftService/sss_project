@@ -59,7 +59,7 @@
     //거래처명 입력 후 검색
     let clients = [];
     let selectedClient = { clientName: '', phoneNumber: '', address: '' };
-    let clientSerachInput ="";
+    let clientSerachInput ='';
 
     async function searchAccountNameAll() {
         isActive2 = true;
@@ -74,25 +74,27 @@
         }
     }
 
-    async function searchClientNameKeyUp() {
-        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
+    async function searchClientNameKeyUp(clientSerachInput = '') {
+        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        });
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
     }
-
     function searchClientNameEnter(event) {
         if (event.key === 'Enter') {
             searchClientNameKeyUp();
         }
     }
 
-    function searchClientNameClick() {
-        searchClientNameKeyUp();
+    async function searchClientNameClick() {
+        await searchClientNameKeyUp(clientSerachInput);
     }
 
     //재고 영역 품목명 입력 후 검색
