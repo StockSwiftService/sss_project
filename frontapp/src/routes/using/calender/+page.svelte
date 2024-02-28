@@ -3,6 +3,8 @@
     import { Calendar } from '@fullcalendar/core';
     import interactionPlugin from '@fullcalendar/interaction';
     import dayGridPlugin from '@fullcalendar/daygrid';
+    import tippy from 'tippy.js';
+    import 'tippy.js/dist/tippy.css';
 
     let calendar;
     let isDeleteEnabled = false;
@@ -20,7 +22,6 @@
 				credentials: 'include'
 			});
 			if (response.ok) {
-                console.log('지나가요');
 				const data = await response.json();
                 loggedInUserId = data.data.member.id;
                 fetchDataAndRenderCalendar(loggedInUserId);
@@ -66,6 +67,7 @@
             selectable: false,
             events: events,
             dayMaxEventRows: true,
+            eventDidMount: handleEventDidMount,
             views: {
                 dayGrid: {
                 dayMaxEventRows: 4
@@ -100,6 +102,38 @@
 
         calendar.render();
     }
+    function handleEventDidMount(info) {
+        console.log(info.event);
+        const startDate = new Date(info.event.start);
+        const endDate = new Date(info.event.end);
+
+        // start와 end를 원하는 형식으로 포맷팅
+        const formattedStartDate = new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        }).format(startDate);
+
+        const formattedEndDate = new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        }).format(endDate);
+        console.log(formattedEndDate);
+
+        if(formattedEndDate == '01/01') {
+            tippy(info.el, {
+            content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+            theme: 'light',
+            });
+        } else {
+            tippy(info.el, {
+            content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+            theme: 'light',
+            });
+        }
+
+        
+    }
+
 
     function handleEnableDateSelect() {
         calendar.setOption('selectable', true);
@@ -140,8 +174,6 @@
 
                 updateStartDate.setDate(updateStartDate.getDate());
                 updateEndDate.setDate(updateEndDate.getDate() - 1);
-                console.log('start' + updateStartDate.getDate());
-                console.log(updateEndDate.getDate());
 
                 if(updateStartDate.getDate() === updateEndDate.getDate()){
                     event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, 
@@ -150,7 +182,6 @@
                     event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#4caf50' };
                 }
                 calendar.addEvent(event);
-
 
                 fetch('http://localhost:8080/api/v1/schedules', {
                     method: 'POST',
@@ -355,6 +386,9 @@
         padding-top: 3px;
         padding-bottom: 3px;
         box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
     }
 
 
