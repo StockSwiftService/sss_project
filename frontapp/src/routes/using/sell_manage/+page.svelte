@@ -240,20 +240,31 @@
     function purchaseCreate() {
         if (selectedClient.clientName == "") {
             alert("거래처를 선택해 주세요.");
-            return;
+            return true;
         }
-        if (formatAllPrice == 0) alert("최소 1개 이상 품목을 등록해 주세요.");
+        if (formatAllPrice == 0) {
+            alert("최소 1개 이상 품목을 등록해 주세요.");
+            return true;
+        }
     }
 
-    const submitSignupForm = async (event) => {
-        event.preventDefault();
+    const submitSignupForm = async () => {
+        if(purchaseCreate()) {
+            return;
+        }
+        
         try {
+            const filteredItems = items.map(item => ({
+                itemName: item.itemName,
+                inputQuantity: item.inputQuantity
+            }));
+
             const data = {
                 purchaseDate: purchaseDate,
                 selectedClient: selectedClient,
                 deliveryStatus: deliveryStatus,
                 significant: significant,
-                items: items,
+                filteredItems: filteredItems,
                 allPrice: allPrice
             };
 
@@ -329,7 +340,8 @@
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <form on:submit|preventDefault={submitSignupForm}>
+            <form>
+                <!-- <form on:submit|preventDefault={submitSignupForm}> -->
                 <div class="chit-box flex fdc g12">
                     <ul class="w100per flex aic g20">
                         <li class="flex aic g12">
@@ -443,7 +455,7 @@
                     </div>
                 </div>
                 <div class="btn-area flex aic jcc g8 mt40">
-                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="submit" on:click={(event) => purchaseCreate(event)}>등록</button>
+                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitSignupForm}>등록</button>
                     <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
                 </div>
             </form>
@@ -693,11 +705,11 @@
                             {/each}
                             외 {purchase.stocks.length}건
                             </td> -->
-                            <td class="wsn">
+                            <!-- <td class="wsn">
                                 {#each purchase.stocks as stock}
                                     
                                 {/each}
-                            </td>
+                            </td> -->
                             <td class="wsn tal">{purchase.allPrice}원</td>
                             <td class="wsn">
                                 {#if purchase.deliveryStatus}완료

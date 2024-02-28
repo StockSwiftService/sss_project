@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.purchase.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
@@ -24,8 +25,9 @@ public class Purchase extends BaseEntity {
     private Client client;
     private boolean deliveryStatus;
     private String significant;
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
-    private List<PurchaseStock> purchaseStocks;
     private Long allPrice;
     private boolean approval;
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    private List<PurchaseStock> purchaseStocks;
 }

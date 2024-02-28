@@ -21,7 +21,7 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     Page<Stock> findAll(Pageable pageable);
     Page<Stock> findAll(Specification<Stock> spec, Pageable pageable);
-//    @Query(value = "SELECT * FROM stock WHERE item_name LIKE %?1% OR client_name LIKE %?1%", nativeQuery = true)
+//    @Query(value = "SELECT * FROM stock WHERE item_name LIKE %?1% OR client.client_name LIKE %?1%", nativeQuery = true)
     @Query(value = "SELECT * FROM stock WHERE item_name LIKE %?1%", nativeQuery = true)
     List<Stock> findByItemNameOrClientNameContaining(String searchText);
 }

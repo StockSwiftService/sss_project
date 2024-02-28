@@ -84,14 +84,14 @@ public class PurchaseController {
         private Client selectedClient;
         private Boolean deliveryStatus;
         private String significant;
-        private List<PurchaseStock> items;
+        private List<PurchaseStock> filteredItems;
         private Long allPrice;
     }
 
     @PostMapping("/create")
     public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
-        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getItems(), purchaseRequest.getAllPrice());
+        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
         return rsData;
     }
