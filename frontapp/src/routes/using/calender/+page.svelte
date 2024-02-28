@@ -49,7 +49,7 @@
                 content: event.content,
                 start: new Date(event.startDate),
                 end: new Date(event.endDate),
-                color: event.member.id === loggedInUserId ? '#4caf50' : '#eb3483',
+                color: event.member.id === loggedInUserId ? '#8fdf82' : '#3788d8',
             }));
 
             renderCalendar();
