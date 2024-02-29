@@ -127,6 +127,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    fetchDataAndRenderCalendar();
                     console.log('Event saved:', data);
                     window.alert('일정이 등록되었습니다');
                 })

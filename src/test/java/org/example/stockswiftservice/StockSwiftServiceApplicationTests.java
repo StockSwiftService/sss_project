@@ -2,6 +2,7 @@ package org.example.stockswiftservice;
 
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
+import org.example.stockswiftservice.domain.question.service.QuestionService;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.junit.jupiter.api.DisplayName;
 import org.example.stockswiftservice.domain.client.service.ClientService;
@@ -24,6 +25,9 @@ class StockSwiftServiceApplicationTests {
 
     @Autowired
     private StockService stockService;
+
+    @Autowired
+    private QuestionService questionService;
 
     @Test
     void clientTest() {
@@ -57,5 +61,14 @@ class StockSwiftServiceApplicationTests {
         stockService.create("대구식자재마트", "매운 핫바 1kg", 200L, 15000L, 20000L);
         stockService.create("제주도식품유통", "감귤 초콜렛 500g", 300L, 5000L, 8000L);
         stockService.create("제주도식품유통", "감귤 크래커 500g", 200L, 7000L, 10000L);
+    }
+
+    @Test
+    void questionTest() {
+        questionService.createQuestion("질문1", "내용1", true);
+        questionService.createQuestion("질문2", "내용2", true);
+        questionService.createQuestion("질문3", "내용3", true);
+        questionService.createQuestion("질문4", "내용4", true);
+        questionService.createQuestion("질문5", "내용5", true);
     }
 }
