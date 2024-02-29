@@ -68,7 +68,8 @@
         const response = await fetch('http://localhost:8080/api/v1/clients');
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData.data.clients.content;
+            console.log(clients);
         } else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
@@ -78,7 +79,7 @@
         const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData.data.clients.content;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -239,20 +240,31 @@
     function purchaseCreate() {
         if (selectedClient.clientName == "") {
             alert("거래처를 선택해 주세요.");
-            return;
+            return true;
         }
-        if (formatAllPrice == 0) alert("최소 1개 이상 품목을 등록해 주세요.");
+        if (formatAllPrice == 0) {
+            alert("최소 1개 이상 품목을 등록해 주세요.");
+            return true;
+        }
     }
 
-    const submitSignupForm = async (event) => {
-        event.preventDefault();
+    const submitSignupForm = async () => {
+        if(purchaseCreate()) {
+            return;
+        }
+        
         try {
+            const filteredItems = items.map(item => ({
+                itemName: item.itemName,
+                inputQuantity: item.inputQuantity
+            }));
+
             const data = {
                 purchaseDate: purchaseDate,
                 selectedClient: selectedClient,
                 deliveryStatus: deliveryStatus,
                 significant: significant,
-                items: items,
+                filteredItems: filteredItems,
                 allPrice: allPrice
             };
 
@@ -265,10 +277,12 @@
             });
 
             if (response.ok) {
-                console.log("전표생성 완");
+                alert("판매 등록이 완료되었습니다.");
+                window.location.reload();
                 console.log(data);
             } else {
-                window.alert('회원가입이 실패했습니다.');
+                console.log("전표생성 실패");
+                console.log(data);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -327,7 +341,7 @@
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <form on:submit|preventDefault={submitSignupForm}>
+            <form>
                 <div class="chit-box flex fdc g12">
                     <ul class="w100per flex aic g20">
                         <li class="flex aic g12">
@@ -441,7 +455,7 @@
                     </div>
                 </div>
                 <div class="btn-area flex aic jcc g8 mt40">
-                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="submit" on:click={(event) => purchaseCreate(event)}>등록</button>
+                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitSignupForm}>등록</button>
                     <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
                 </div>
             </form>
@@ -659,25 +673,26 @@
                         <tr>
                             <th class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="all">
-                                    <label for="all"></label>
+                                    <!-- <input type="checkbox" id="purchaseAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}> -->
+                                    <input type="checkbox" id="purchaseAll">
+                                    <label for="purchaseAll"></label>
                                 </div> 
                             </th>
                             <th class="wsn">일자</th>
                             <th class="wsn">거래처</th>
                             <th class="wsn">품목명</th>
-                            <th class="wsn">수량</th>
+                            <!-- <th class="wsn">수량</th> -->
                             <th class="wsn">금액</th>
                             <th class="wsn">출고 여부</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each purchases as purchase}
+                        {#each purchases as purchase, index}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
+                                    <input type="checkbox" id={`vv${index}`}>
+                                    <label for={`vv${index}`}></label>
                                 </div> 
                             </td>
                             <td class="wsn">
@@ -685,17 +700,17 @@
                             </td>
                             <td class="wsn">{purchase.client.clientName}</td>
                             <td class="wsn tal">
-                            {#each purchase.stocks as stock}
-                                {#if stock.id === 1}{stock.itemName}
+                                {purchase.purchaseStocks[0].itemName}
+                                {#if purchase.purchaseStocks.length > 1}
+                                외 {purchase.purchaseStocks.length - 1}건
                                 {/if}
-                            {/each}
-                            외 {purchase.stocks.length}건
                             </td>
-                            <td class="wsn">
-                                {#each purchase.stocks as stock}
-                                    
+                            <!-- <td class="wsn">
+                                {#each purchase.purchaseStocks as stock}
+                                inputQuantity
+                                재고간 총 수량 로직 작성해야함
                                 {/each}
-                            </td>
+                            </td> -->
                             <td class="wsn tal">{purchase.allPrice}원</td>
                             <td class="wsn">
                                 {#if purchase.deliveryStatus}완료

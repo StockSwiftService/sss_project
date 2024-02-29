@@ -1,26 +1,10 @@
 package org.example.stockswiftservice.domain.purchase.controller;
 
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.stockswiftservice.domain.purchase.entity.Purchase;
-import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
-import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
-import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
-
-
-import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
@@ -31,8 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+
+import org.example.stockswiftservice.domain.client.entity.Client;
+
 @RestController
-@RequestMapping(value = "/api/v1/purchase", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+//@RequestMapping(value = "/api/v1/purchase", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+@RequestMapping("/api/v1/purchase")
 @RequiredArgsConstructor
 public class PurchaseController {
     private final PurchaseService purchaseService;
@@ -96,14 +84,14 @@ public class PurchaseController {
         private Client selectedClient;
         private Boolean deliveryStatus;
         private String significant;
-        private List<PurchaseStock> items;
+        private List<PurchaseStock> filteredItems;
         private Long allPrice;
     }
 
     @PostMapping("/create")
     public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
-        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getItems(), purchaseRequest.getAllPrice());
+        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
         return rsData;
     }

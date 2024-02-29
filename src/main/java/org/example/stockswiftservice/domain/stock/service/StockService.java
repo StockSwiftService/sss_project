@@ -89,10 +89,6 @@ public class StockService {
         return stocksToDelete;
     }
 
-    public List<Stock> searchByName(String searchText) {
-        return this.stockRepository.findByItemNameOrClientNameContaining(searchText);
-    }
-
     public Optional<Stock> findByItemName(String clientName, String itemName) {
         return stockRepository.findByItemName(clientName, itemName);
     }
@@ -111,5 +107,9 @@ public class StockService {
                 );
             }
         };
+    }
+
+    public List<Stock> searchByName(String searchText) {
+        return this.stockRepository.findByItemNameOrClientNameContaining(searchText);
     }
 }
