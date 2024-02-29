@@ -52,6 +52,8 @@
         detailAddressModify: ''
     };
 
+
+
     const submitClientForm = async (event) => {
         event.preventDefault();
         await checkDuplicate();
@@ -401,7 +403,9 @@
 
     let confirmNameErrorMessage = '';
     let confirmNameSuccessMessage = '';
+
     const checkDuplicate = async () => {
+
         try {
             const response = await fetch('http://localhost:8080/api/v1/clients/check', {
                 method: 'POST',
@@ -489,8 +493,6 @@
             unsubscribe();
         };
     })
-
-
     async function dataLoad() {
         const queryString = window.location.search;
 
@@ -498,9 +500,7 @@
             credentials: 'include'
         })
         data = await res.json();
-
     }
-
 
     let allChecked = false;
 
@@ -589,7 +589,7 @@
                         <h2 class="c333 f15 tm mb8">주소<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input type="text" id="address" name="address" placeholder="주소">
+                                <input type="text" id="address" name="address" placeholder="주소" readonly>
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff"
                                     on:click|preventDefault={initDaumPostcode}>찾기
@@ -676,7 +676,7 @@
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
                                 <input type="text" id="addressModify" name="addressModify"
-                                       bind:value={formDataModify.addressModify} placeholder="주소">
+                                       bind:value={formDataModify.addressModify} placeholder="주소" readonly>
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff"
                                     on:click|preventDefault={initDaumPostcodeModify}>찾기
