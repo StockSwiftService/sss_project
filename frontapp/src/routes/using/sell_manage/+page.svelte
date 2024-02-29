@@ -277,7 +277,8 @@
             });
 
             if (response.ok) {
-                console.log("전표생성 완");
+                alert("판매 등록이 완료되었습니다.");
+                window.location.reload();
                 console.log(data);
             } else {
                 console.log("전표생성 실패");
@@ -341,7 +342,6 @@
         </div>
         <div class="middle-box scr-type-1">
             <form>
-                <!-- <form on:submit|preventDefault={submitSignupForm}> -->
                 <div class="chit-box flex fdc g12">
                     <ul class="w100per flex aic g20">
                         <li class="flex aic g12">
@@ -673,41 +673,42 @@
                         <tr>
                             <th class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="all">
-                                    <label for="all"></label>
+                                    <!-- <input type="checkbox" id="purchaseAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}> -->
+                                    <input type="checkbox" id="purchaseAll">
+                                    <label for="purchaseAll"></label>
                                 </div> 
                             </th>
                             <th class="wsn">일자</th>
                             <th class="wsn">거래처</th>
                             <th class="wsn">품목명</th>
-                            <th class="wsn">수량</th>
+                            <!-- <th class="wsn">수량</th> -->
                             <th class="wsn">금액</th>
                             <th class="wsn">출고 여부</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each purchases as purchase}
+                        {#each purchases as purchase, index}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
-                                    <input type="checkbox" id="v1">
-                                    <label for="v1"></label>
+                                    <input type="checkbox" id={`vv${index}`}>
+                                    <label for={`vv${index}`}></label>
                                 </div> 
                             </td>
                             <td class="wsn">
                                 <button class="c162b60 tdu inblock" on:click="{activateModalModifi}">{purchase.purchaseDate}</button>
                             </td>
                             <td class="wsn">{purchase.client.clientName}</td>
-                            <!-- <td class="wsn tal">
-                            {#each purchase.stocks as stock}
-                                {#if stock.id === 1}{stock.itemName}
+                            <td class="wsn tal">
+                                {purchase.purchaseStocks[0].itemName}
+                                {#if purchase.purchaseStocks.length > 1}
+                                외 {purchase.purchaseStocks.length - 1}건
                                 {/if}
-                            {/each}
-                            외 {purchase.stocks.length}건
-                            </td> -->
+                            </td>
                             <!-- <td class="wsn">
-                                {#each purchase.stocks as stock}
-                                    
+                                {#each purchase.purchaseStocks as stock}
+                                inputQuantity
+                                재고간 총 수량 로직 작성해야함
                                 {/each}
                             </td> -->
                             <td class="wsn tal">{purchase.allPrice}원</td>

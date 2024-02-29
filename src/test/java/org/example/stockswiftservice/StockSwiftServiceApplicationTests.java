@@ -27,31 +27,35 @@ class StockSwiftServiceApplicationTests {
 
     @Test
     void clientTest() {
-        clientService.create("이니시스", "이지훈", "01031245742", "대전 중구 계룡로816번길 32-4", "105호");
-        clientService.create("다음카카오", "김범수", "01045678901", "제주특별자치도 제주시 첨단로 242", "105호");
-        clientService.create("네이버", "이해진", "01098765432", "경기도 성남시 분당구 불정로 6", "105호");
-        clientService.create("삼성전자", "김기남", "01012345678", "서울특별시 서초구 서초대로 74길 11", "105호");
-        clientService.create("LG전자", "권봉석", "01087654321", "서울특별시 영등포구 여의대로 128", "105호");
-        clientService.create("SK하이닉스", "이석희", "01056789012", "경기도 이천시 부발읍 경충대로 2091", "105호");
-        clientService.create("현대자동차", "정의선", "01034567890", "서울특별시 서초구 헌릉로 12", "105호");
-        clientService.create("기아자동차", "송호성", "01023456789", "서울특별시 서초구 양재대로 12길 37", "105호");
-        clientService.create("포스코", "최정우", "01078901234", "경상북도 포항시 남구 포스코대로 1", "105호");
-        clientService.create("롯데케미칼", "김교현", "01089012345", "서울특별시 송파구 올림픽로 300", "105호");
-        clientService.create("한화솔루션", "김동관", "01090123456", "서울특별시 중구 청계천로 1", "105호");
-        clientService.create("CJ제일제당", "신현재", "01067890123", "서울특별시 중구 을지로 100", "105호");
-        clientService.create("두산중공업", "박지원", "01078901234", "경상남도 창원시 성산구 두산볼보로 22", "105호");
-        clientService.create("LG화학", "신학철", "01089012345", "서울특별시 영등포구 여의나루로 4", "105호");
-        clientService.create("셀트리온", "서정진", "01090123456", "인천광역시 연수구 송도과학로 85", "105호");
-        clientService.create("넥슨", "김정주", "01012345678", "경기도 성남시 분당구 판교로 256번길 7", "105호");
-        clientService.create("NC소프트", "김택진", "01023456789", "경기도 성남시 분당구 판교로 256번길 12", "105호");
-        clientService.create("넷마블", "방준혁", "01034567890", "서울특별시 구로구 디지털로 300", "105호");
-        clientService.create("카카오", "여민수", "01045678901", "제주특별자치도 제주시 첨단로 242", "105호");
-        clientService.create("우아한형제들", "김봉진", "01056789012", "서울특별시 송파구 올림픽로 300", "105호");
-        clientService.create("야놀자", "이수진", "01067890123", "서울특별시 중구 퇴계로 123", "105호");
+        clientService.create("한국식품유통", "이지훈", "01031245742", "대전 중구 계룡로816번길 32-4", "105호");
+        clientService.create("서울농산물", "김민수", "01082716345", "서울특별시 강남구 테헤란로 152", "201호");
+        clientService.create("부산수산유통", "박지영", "01046281729", "부산광역시 해운대구 센텀2로 25", "301호");
+        clientService.create("인천냉동식품", "정수빈", "01058319427", "인천광역시 남동구 정각로 29", "402호");
+        clientService.create("광주청과", "이현우", "01073925148", "광주광역시 서구 치평로 20", "503호");
+        clientService.create("대구식자재마트", "최유나", "01089237456", "대구광역시 중구 달구벌대로 2222", "604호");
+        clientService.create("울산건강식품", "황도윤", "01031725849", "울산광역시 남구 문수로 85", "705호");
+        clientService.create("세종농수산", "김태리", "01082615937", "세종특별자치시 도움8로 15", "806호");
+        clientService.create("제주도식품유통", "정민재", "01049271638", "제주특별자치도 제주시 첨단로 242", "907호");
+        clientService.create("청주식자재", "한지원", "01068721395", "충청북도 청주시 테크노폴리스로 123", "1008호");
     }
 
     @Test
     void stockTest() {
-        stockService.create("야놀자", "", "", "", "")
+        stockService.create("청주식자재", "국물 떡볶이 200g", 200L, 2800L, 5500L);
+        stockService.create("청주식자재", "로제 떡볶이 200g", 200L, 3500L, 6500L);
+        stockService.create("한국식품유통", "아이스 아메리카노 스틱 100T", 300L, 10100L, 15300L);
+        stockService.create("한국식품유통", "바닐라 라떼 스틱 50T", 200L, 20200L, 28000L);
+        stockService.create("서울농산물", "백미 20kg", 100L, 25000L, 38000L);
+        stockService.create("서울농산물", "현미 10kg", 50L, 18000L, 25000L);
+        stockService.create("부산수산유통", "쥐포 500g", 200L, 15000L, 23000L);
+        stockService.create("부산수산유통", "오징어 다리 200g", 300L, 8000L, 12000L);
+        stockService.create("인천냉동식품", "군만두 500g", 200L, 6000L, 9000L);
+        stockService.create("인천냉동식품", "치킨 팝콘 500g", 300L, 7000L, 10000L);
+        stockService.create("광주청과", "세척 사과 1kg", 200L, 20000L, 30000L);
+        stockService.create("광주청과", "샤인 머스켓 1kg", 100L, 40000L, 55000L);
+        stockService.create("대구식자재마트", "윙봉 1kg", 300L, 10000L, 15000L);
+        stockService.create("대구식자재마트", "매운 핫바 1kg", 200L, 15000L, 20000L);
+        stockService.create("제주도식품유통", "감귤 초콜렛 500g", 300L, 5000L, 8000L);
+        stockService.create("제주도식품유통", "감귤 크래커 500g", 200L, 7000L, 10000L);
     }
 }
