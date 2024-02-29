@@ -103,7 +103,6 @@
         calendar.render();
     }
     function handleEventDidMount(info) {
-        console.log(info.event);
         const startDate = new Date(info.event.start);
         const endDate = new Date(info.event.end);
 
@@ -117,7 +116,6 @@
         month: '2-digit',
         day: '2-digit',
         }).format(endDate);
-        console.log(formattedEndDate);
 
         if(formattedEndDate == '01/01') {
             tippy(info.el, {
@@ -141,13 +139,11 @@
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
     function handleEnableDelete() {
-        // fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isDeleteEnabled = true;
         window.alert('삭제할 일정을 클릭해주세요');
     }
     function handleEnableModify() {
-        // fetchDataAndRenderCalendar();
         calendar.setOption('selectable', false);
         isModifyEnabled = true;
         window.alert('수정할 일정을 클릭해주세요');
@@ -179,7 +175,7 @@
                     event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, 
                         backgroundColor: 'inherit', textColor: 'black' , borderColor: 'black' };
                 } else {
-                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#4caf50' };
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#8fdf82' };
                 }
                 calendar.addEvent(event);
 
@@ -198,6 +194,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    fetchDataAndRenderCalendar(loggedInUserId);
                     console.log('Event saved:', data);
                     window.alert('일정이 등록되었습니다');
                 })
@@ -222,11 +219,12 @@
         isDeleteEnabled = false;
 
         try {
+            console.log('로그인아이디:' + loggedInUserId);
             const authorization = await checkMemberAuthorization(info);
 
             console.log("정보:" + authorization);
             if (!authorization) {
-                window.alert('회원 정보가 일치하지 않아 수정할 수 없습니다.');
+                window.alert('회원 정보가 일치하지 않아 삭제할 수 없습니다.');
                 return;
             }
             if (confirmation) {
