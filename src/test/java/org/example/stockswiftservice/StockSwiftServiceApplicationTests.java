@@ -1,6 +1,9 @@
 package org.example.stockswiftservice;
 
+import org.example.stockswiftservice.domain.client.entity.Client;
+import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
+import org.example.stockswiftservice.domain.purchase.repository.PurchaseStockRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.question.service.QuestionService;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
@@ -11,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 @SpringBootTest
 class StockSwiftServiceApplicationTests {
     @Autowired
@@ -19,6 +26,9 @@ class StockSwiftServiceApplicationTests {
     private PurchaseRepository purchaseRepository;
     @Autowired
     private SalesManagementService salesManagementService;
+
+    @Autowired
+    private PurchaseStockRepository purchaseStockRepository;
 
     @Autowired
     private ClientService clientService;

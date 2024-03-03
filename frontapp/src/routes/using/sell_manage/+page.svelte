@@ -289,9 +289,6 @@
         }
     }
 
-    //판매 게시글 출력
-    let purchases = [];
-
     onMount(async () => {
 
         //판매 게시글 출력
@@ -309,6 +306,65 @@
         purchaseDate = getTodayDate();
 
     });
+
+    let isUnapprovedActive = true;
+    let isApprovedActive = false;
+
+    function setActiveButtons(unapprovedActive) {
+        isUnapprovedActive = unapprovedActive;
+        isApprovedActive = !unapprovedActive;
+    }
+
+    const unApprovalPurchase = async (unapprovedActive) => {
+        setActiveButtons(unapprovedActive);
+        const response = await fetch('http://localhost:8080/api/v1/purchase');
+        if (response.ok) {
+            const responseData = await response.json();
+            purchases = responseData.data.purchases;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    const approvalPurchase = async (unapprovedActive) => {
+        setActiveButtons(unapprovedActive);
+        const response = await fetch('http://localhost:8080/api/v1/purchase/approval');
+        if (response.ok) {
+            const responseData = await response.json();
+            purchases = responseData.data.purchases;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+    }
+
+    onMount(async () => {
+        // 여기서 데이터를 불러오고, 각 항목에 대해 isChecked 필드를 추가합니다.
+        purchases = (await fetchData()).map(purchase => ({ ...purchase, isChecked: false }));
+    });
+
+    function approveSelected() {
+        if(confirm("승인 처리 하시겠습니까?")) {
+            const selectedIds = purchases.filter(purchase => purchase.isChecked).map(purchase => purchase.id);
+            // 이 부분에서 서버로 selectedIds를 보내면 됩니다. 
+            // 예시: await fetch('/api/approve', { method: 'POST', body: JSON.stringify(selectedIds) });
+            fetch("http://localhost:8080/api/v1/purchase/approvalRequest", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ purchaseIds: checkedPurchaseIds }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 성공적으로 처리된 경우에는 서버로부터의 응답을 처리할 수 있습니다.
+                console.log("승인 처리 완료", data);
+            })
+            .catch(error => {
+                console.error("승인 처리 중 오류 발생", error);
+            });
+        }
+
+    }
 </script>
 
 <style>
@@ -660,9 +716,13 @@
         </div>
         <div class="line"></div>
         <div class="middle-area">
-            <div class="approval-btn-box flex aic g8">
+            <!-- <div class="approval-btn-box flex aic g8">
                 <button class="active">미승인</button>
                 <button>승인</button>
+            </div> -->
+            <div class="approval-btn-box flex aic g8">
+                <button class:active={isUnapprovedActive} on:click={() => unApprovalPurchase(true)}>미승인</button>
+                <button class:active={isApprovedActive} on:click={() => approvalPurchase(false)}>승인</button>
             </div>
             <div class="all-text c121619 f14 mt16">
                 전체 <span class="number inblock cm tm">0</span>개
@@ -673,7 +733,7 @@
                         <tr>
                             <th class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <!-- <input type="checkbox" id="purchaseAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}> -->
+                                    <!-- <input type="checkbox" id="purchaseAll" bind:checked={purchaseAllSelected} on:click={purchaseAllSelection}> -->
                                     <input type="checkbox" id="purchaseAll">
                                     <label for="purchaseAll"></label>
                                 </div> 
@@ -681,18 +741,17 @@
                             <th class="wsn">일자</th>
                             <th class="wsn">거래처</th>
                             <th class="wsn">품목명</th>
-                            <!-- <th class="wsn">수량</th> -->
                             <th class="wsn">금액</th>
                             <th class="wsn">출고 여부</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each purchases as purchase, index}
+                        {#each purchases as purchase}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
-                                    <input type="checkbox" id={`vv${index}`}>
-                                    <label for={`vv${index}`}></label>
+                                    <input type="checkbox" bind:checked={purchase.isChecked} id={purchase.id}>
+                                    <label for={purchase.id}></label>
                                 </div> 
                             </td>
                             <td class="wsn">
@@ -705,12 +764,6 @@
                                 외 {purchase.purchaseStocks.length - 1}건
                                 {/if}
                             </td>
-                            <!-- <td class="wsn">
-                                {#each purchase.purchaseStocks as stock}
-                                inputQuantity
-                                재고간 총 수량 로직 작성해야함
-                                {/each}
-                            </td> -->
                             <td class="wsn tal">{purchase.allPrice}원</td>
                             <td class="wsn">
                                 {#if purchase.deliveryStatus}완료
@@ -724,7 +777,8 @@
             </div>
             <div class="flex aic jcsb mt8">
                 <div class="flex aic g4">
-                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">승인</button>
+                    <!-- <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">승인</button> -->
+                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approveSelected}>승인</button>
                     <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
                 </div>
                 <div class="flex aic g4">

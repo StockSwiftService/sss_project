@@ -20,7 +20,11 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final PurchaseStockRepository purchaseStockRepository;
     public List<Purchase> getList() {
-        return this.purchaseRepository.findAll();
+        return this.purchaseRepository.findAllByApprovalFalse();
+    }
+
+    public List<Purchase> getApprovalList() {
+        return this.purchaseRepository.findAllByApprovalTrue();
     }
 
     public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> filteredItems, Long allPrice) {
@@ -55,4 +59,9 @@ public class PurchaseService {
 
         return getPurchaseList;
     }
+
+//    public RsData<Purchase> approval(Long id) {
+//        Purchase purchase = this.purchaseRepository.findById(id);
+//        return RsData.of("1", "판매 등록 완료", purchase);
+//    }
 }
