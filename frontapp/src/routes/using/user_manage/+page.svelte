@@ -9,6 +9,31 @@
 
     let members = [];
     let selectedMemberIds = []; //체크박스에 체크된 멤버의 아이디를 저장
+    let loginUser = [];
+
+    onMount(async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                loginUser = data.data.member
+            } else {
+                console.error('서버 응답 오류:', response.statusText);
+                if (!response.ok && response.status != 401) {
+                    alert('다시 시도 해주세요.');
+                }
+            }
+        } catch (error) {
+            console.error('오류 발생:', error);
+            alert('다시 시도 해주세요.');
+        }
+    });
 
 
     const changePage = async (page) => {
@@ -26,6 +51,7 @@
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
+                console.log(memberTotal)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
                 if (!response.ok && response.status != 401) {
@@ -57,11 +83,17 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                members = data.data.memberList
-
+                if (data.resultCode === 'S-1') {
+                    members = ''
+                    alert('접근 권한이 없습니다.')
+                    window.location.href = '/using/account_manage'
+                } else {
+                    members = data.data.memberList
+                }
                 resList = data.data.pagingList;
                 memberList = resList.content;
                 memberTotal = data.data.memberList;
+                console.log(resList)
             } else {
                 console.error('서버 응답 오류:', response.statusText);
             }
@@ -124,12 +156,10 @@
 
         // 클릭된 버튼의 id에서 member를 추출
         const buttonId = event.target.id;
-        const memberId = buttonId.split('_')[1]; // 'modify_{member.id}' 형식에서 member.id 부분만 추출
+        const memberId = buttonId.split('_')[1];
         const member = JSON.parse(memberId); // member를 객체로 파싱
 
-
         // 회원 정보를 모달 창에 적절히 표시 (예시: input 요소에 값을 할당)
-
         modifyData.id = member.id
         modifyData.employeeName = member.name
         modifyData.position = member.position;
@@ -137,7 +167,6 @@
         modifyData.username = member.username;
         modifyData.password = member.password;
         modifyData.birthday = member.birthday;
-
     }
 
 
@@ -527,40 +556,20 @@
                     </div>
                 </div>
                 <div>
-                    {#if duplicatedUsername}
-                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
-                        <div class="flex g8">
-                            <div class="input-type-1 f14 w100per">
-                                <input type="text" placeholder="아이디" style="background-color: floralwhite"
-                                       bind:value={employeeFormData.username} disabled>
-                            </div>
-                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                    on:click|preventDefault={checkUsernameDuplicate}>확인
-                            </button>
+                    <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="아이디" bind:value={employeeFormData.username}>
                         </div>
-                        {#if confirmUsernameErrorMessage}
-                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
-                        {/if}
-                        {#if confirmUsernameSuccessMessage}
-                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
-                        {/if}
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
+                                on:click|preventDefault={checkUsernameDuplicate}>확인
+                        </button>
+                    </div>
+                    {#if confirmUsernameErrorMessage}
+                        <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
                     {/if}
-                    {#if !duplicatedUsername}
-                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
-                        <div class="flex g8">
-                            <div class="input-type-1 f14 w100per">
-                                <input type="text" placeholder="아이디" bind:value={employeeFormData.username}>
-                            </div>
-                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                    on:click|preventDefault={checkUsernameDuplicate}>확인
-                            </button>
-                        </div>
-                        {#if confirmUsernameErrorMessage}
-                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
-                        {/if}
-                        {#if confirmUsernameSuccessMessage}
-                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
-                        {/if}
+                    {#if confirmUsernameSuccessMessage}
+                        <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
                     {/if}
                 </div>
                 <div>
@@ -654,40 +663,20 @@
                     </div>
                 </div>
                 <div>
-                    {#if duplicatedUsername}
-                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
-                        <div class="flex g8">
-                            <div class="input-type-1 f14 w100per">
-                                <input type="text" placeholder="아이디" style="background-color: floralwhite"
-                                       bind:value={modifyData.username} disabled>
-                            </div>
-                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                    on:click|preventDefault={checkModifyUsernameDuplicate}>확인
-                            </button>
+                    <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="flex g8">
+                        <div class="input-type-1 f14 w100per">
+                            <input type="text" placeholder="아이디" style="background-color: floralwhite"
+                                   bind:value={modifyData.username} disabled>
                         </div>
-                        {#if confirmUsernameErrorMessage}
-                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
-                        {/if}
-                        {#if confirmUsernameSuccessMessage}
-                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
-                        {/if}
+                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff" disabled>확인
+                        </button>
+                    </div>
+                    {#if confirmUsernameErrorMessage}
+                        <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
                     {/if}
-                    {#if !duplicatedUsername}
-                        <h2 class="c333 f15 tm mb8">아이디<span class="cr f16 tm inblock">*</span></h2>
-                        <div class="flex g8">
-                            <div class="input-type-1 f14 w100per">
-                                <input type="text" placeholder="아이디" bind:value={modifyData.username}>
-                            </div>
-                            <button class="btn-type-1 w80 f14 bdr4 b333 cfff"
-                                    on:click|preventDefault={checkModifyUsernameDuplicate}>확인
-                            </button>
-                        </div>
-                        {#if confirmUsernameErrorMessage}
-                            <span class="f13 mt4 cr">{confirmUsernameErrorMessage}</span>
-                        {/if}
-                        {#if confirmUsernameSuccessMessage}
-                            <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
-                        {/if}
+                    {#if confirmUsernameSuccessMessage}
+                        <span class="f13 mt4 cg">{confirmUsernameSuccessMessage}</span>
                     {/if}
                 </div>
                 <div>

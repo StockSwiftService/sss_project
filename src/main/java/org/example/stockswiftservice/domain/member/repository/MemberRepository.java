@@ -26,8 +26,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findAll(Pageable pageable);
 
     @Query("SELECT m FROM Member m WHERE "+
+            "m.company = :company AND (" +
             "m.name LIKE %:keyword% OR " +
             "m.position LIKE %:keyword% OR " +
-            "m.username LIKE %:keyword%")
-    Page<Member> findByKeyword(Pageable pageable,@Param("keyword")String keyword);
+            "m.username LIKE %:keyword%)")
+    Page<Member> findByKeyword(Pageable pageable,@Param("keyword")String keyword,@Param("company")Company company);
 }

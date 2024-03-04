@@ -8,7 +8,7 @@
 </script>
 
 <div class="wrap flex">
-	<div class="left-area scr-type-1">
+	<div class="left-area scr-type-1 rel">
 		<LeftMenu />
 	</div>
 	<div class="right-area">

@@ -110,7 +110,7 @@ public class QuestionService {
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setFrom(from);
-            mimeMessageHelper.setTo("jhseodevelopment@gmail.com");
+            mimeMessageHelper.setTo("k2ho33333@gmail.com");
             mimeMessageHelper.setSubject(questionMessage.getSubject());
             mimeMessageHelper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);

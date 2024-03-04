@@ -1,4 +1,5 @@
 <script>
+    import './Calendar.css';
     import { onMount, afterUpdate } from 'svelte';
     import { Calendar } from '@fullcalendar/core';
     import interactionPlugin from '@fullcalendar/interaction';
@@ -126,6 +127,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    fetchDataAndRenderCalendar();
                     console.log('Event saved:', data);
                     window.alert('일정이 등록되었습니다');
                 })
@@ -256,45 +258,42 @@
     }
 </script>
 
-<style>
-    #calendar {
-        width: 100%;
-        margin-top: 20px;
-        font-size: 16px;
-        overflow: hidden;
-    }
-    /* :global(.fc) {
-        border: 1px solid #ffffff;
-        border-radius: 8px;
-        font-size: 16px;
-        background-color: #fff;
-    } */
+<!--<style>-->
+<!--    #calendar {-->
+<!--        width: 100%;-->
+<!--        margin-top: 20px;-->
+<!--        font-size: 16px;-->
+<!--        overflow: hidden;-->
+<!--    }-->
+<!--    /* :global(.fc) {-->
+<!--        border: 1px solid #ffffff;-->
+<!--        border-radius: 8px;-->
+<!--        font-size: 16px;-->
+<!--        background-color: #fff;-->
+<!--    } */-->
 
-    :global(.fc-event) {
-        border-radius: 5px;
-        margin: 2px;
-        padding-left: 10px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-    }
-
-
-    :global(.fc-day) {
-        background-color: #ffffff;
-    }
-
-    :global(.fc .fc-daygrid-day-frame) {
-        height: 16vh;
-    }
-
-    :global(.fc-day-today) {
-        background-color: #f5f8ff !important;
-        border-radius: 8px !important;
-    }
-</style>
-
-
+<!--    :global(.fc-event) {-->
+<!--        border-radius: 5px;-->
+<!--        margin: 2px;-->
+<!--        padding-left: 10px;-->
+<!--        padding-top: 3px;-->
+<!--        padding-bottom: 3px;-->
+<!--        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);-->
+<!--    }-->
+<!--    :global(.fc-day) {-->
+<!--        background-color: #ffffff;-->
+<!--    }-->
+<!--    :global(.fc .fc-daygrid-day-frame) {-->
+<!--        /*height: 16vh;*/-->
+<!--    }-->
+<!--    :global(.fc-day-today) {-->
+<!--        background-color: #f5f8ff !important;-->
+<!--        border-radius: 8px !important;-->
+<!--    }-->
+<!--    #calendar > * {-->
+<!--        font-family: "Pretendard-Regular";-->
+<!--    }-->
+<!--</style>-->
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">

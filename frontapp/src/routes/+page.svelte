@@ -57,7 +57,7 @@
 				const data = await response.json();
 
 				// 로그인이 성공한 경우
-				if (data.resultCode === 'S-1' || data.resultCode === 'S-0') {
+				if (data.resultCode === 'S-1-2') {
 					if (rememberCompany) {
 						const remComCode = encryptData(formData.companyCode, secret_key);
 						setCookies('companyCode', remComCode, 365);
@@ -71,7 +71,23 @@
 						deleteCookie('userId');
 					}
 					window.location.href = '/using/user_manage';
-				} else {
+				} else if(data.resultCode === 'S-1-4' || data.resultCode === 'S-0'){
+					if (rememberCompany) {
+						const remComCode = encryptData(formData.companyCode, secret_key);
+						setCookies('companyCode', remComCode, 365);
+					} else {
+						deleteCookie('companyCode');
+					}
+					if (rememberID) {
+						const remUserId = encryptData(formData.username, secret_key);
+						setCookies('userId', remUserId, 365);
+					} else {
+						deleteCookie('userId');
+					}
+					window.location.href = '/using/account_manage';
+
+				}
+				else {
 					// 로그인이 실패한 경우
 					const errorMessage = data.errorMessage;
 					console.error('로그인 실패:', errorMessage);
@@ -89,10 +105,6 @@
 			alert('다시 시도 해주세요.');
 		}
 	};
-
-	function check() {
-		console.log(1);
-	}
 
 	function setCookies(name, value, expirationDays) {
 		const d = new Date();

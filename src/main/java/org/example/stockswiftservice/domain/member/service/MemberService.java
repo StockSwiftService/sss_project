@@ -190,8 +190,8 @@ public class MemberService {
         return modifiedMember;
     }
 
-    public Page<Member> pagingFindAll(int page, String keyWord) {
+    public Page<Member> pagingFindByCompany(int page, String keyWord, Company company) {
         Pageable pageable = PageRequest.of(page, 10);
-        return this.memberRepository.findByKeyword(pageable,keyWord);
+        return this.memberRepository.findByKeyword(pageable,keyWord, company);
     }
 }
