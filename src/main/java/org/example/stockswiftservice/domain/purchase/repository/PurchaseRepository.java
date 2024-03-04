@@ -1,6 +1,10 @@
 package org.example.stockswiftservice.domain.purchase.repository;
 
+import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,5 +38,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     List<Purchase> findAllByApprovalFalse();
 
     List<Purchase> findAllByApprovalTrue();
+
+    Page<Purchase> findAllByApprovalFalse(Specification<Purchase> spec, Pageable pageable);
 }
 

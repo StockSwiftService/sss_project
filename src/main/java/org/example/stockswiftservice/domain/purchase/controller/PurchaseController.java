@@ -10,6 +10,7 @@ import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -65,25 +66,34 @@ public class PurchaseController {
 //        return RsData.of("R-1", "성공", new PurchaseList(purchases));
 //    }
 
-    @AllArgsConstructor
     @Getter
-    public static class PurchasesResponse {
-        private final List<Purchase> purchases;
+    @AllArgsConstructor
+    public static class PurchasesSearchResponse {
+        private final Page<Purchase> purchases;
+        private final List<Purchase> purchaseList;
     }
+
+
+//    @AllArgsConstructor
+//    @Getter
+//    public static class PurchasesResponse {
+//        private final List<Purchase> purchases;
+//    }
 
     @GetMapping("")
-    public RsData<PurchasesResponse> purchases() {
-        List<Purchase> purchases = this.purchaseService.getList();
+    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page);
+        List<Purchase> purchaseList = this.purchaseService.getList();
 
-        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+        return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases, purchaseList));
     }
 
-    @GetMapping("/approval")
-    public RsData<PurchasesResponse> approvalPurchases() {
-        List<Purchase> purchases = this.purchaseService.getApprovalList();
-
-        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
-    }
+//    @GetMapping("/approval")
+//    public RsData<PurchasesResponse> approvalPurchases() {
+//        List<Purchase> purchases = this.purchaseService.getApprovalList();
+//
+//        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+//    }
 
     @Data
     public static class purchaseRequest {

@@ -1,5 +1,9 @@
 <script>    
+    import {page} from "$app/stores";
+    import {goto, replaceState} from "$app/navigation";
     import { onMount } from 'svelte';
+
+    export let data;
 
     let isActive = false;
     let isActive2 = false;
@@ -460,25 +464,91 @@
     }
 
     //판매 게시글 출력
-    let purchases = [];
+    // let purchases = [];
     
     onMount(async () => {
 
         //판매 게시글 출력
-        const response = await fetch('http://localhost:8080/api/v1/purchase');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+        // const response = await fetch('http://localhost:8080/api/v1/purchase');
+        // if (response.ok) {
+        //     const responseData = await response.json();
+        //     purchases = responseData.data.purchases;
+        // } else {
+        //     console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        // }
 
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
         document.getElementById('searchDateInput2').value = getTodayDate();
         purchaseDate = getTodayDate();
 
+        await dataLoad();
+        const unsubscribe = page.subscribe(async ($page) => {
+            // URL에서 검색어(kw) 쿼리 파라미터 값을 가져와 searchQuery에 할당
+            searchQuery = $page.url.searchParams.get('kw') || '';
+            await dataLoad();
+        });
+
+        // 컴포넌트가 언마운트될 때 구독 해제
+        return () => {
+            unsubscribe();
+        };
+
     });
+
+    //페이징
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
+
+    let searchQuery = '';
+    let currentPage = 0;
+
+    async function changePage(searchQuery, currentPage) {
+        try {
+
+            $page.url.searchParams.get('kw', searchQuery);
+            $page.url.searchParams.set('page', currentPage);
+
+            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await dataLoad();
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    //검색
+    const performSearch = async () => {
+
+        $page.url.searchParams.set('kw', searchQuery);
+        $page.url.searchParams.set('page', currentPage);
+
+        await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+        await dataLoad();
+
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    }
+
+    async function dataLoad() {
+        const queryString = window.location.search;
+
+        const res = await fetch(`http://localhost:8080/api/v1/purchase${queryString}`, {
+            credentials: 'include'
+        })
+        data = await res.json();
+
+    }
 
 </script>
 
@@ -824,10 +894,10 @@
                 </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box w200">
-                            <input type="search" placeholder="검색어 입력">
+                        <div class="search-box">
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off" on:keypress={handleKeyPress}>
                         </div>
-                        <button class="search-btn flex aic jcc">
+                        <button class="search-btn flex aic jcc" on:click={performSearch}>
                             <span class="ico-box img-box w16">
                                 <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
@@ -843,7 +913,7 @@
                 <button class:active={isApprovedActive} on:click={() => approvalPurchase(false)}>승인</button>
             </div>
             <div class="all-text c121619 f14 mt16">
-                전체 <span class="number inblock cm tm">{purchases.length}</span>개
+                전체 <span class="number inblock cm tm">{data.data.purchases.totalElements}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -863,7 +933,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each purchases as purchase}
+                        {#each data.data.purchases.content as purchase}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
@@ -904,27 +974,34 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if data.data.purchases.number > 0}
+                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.purchases.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(data.data.purchases.totalPages) as button}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li
+                                class="num"
+                                on:click={() => data.data.purchases.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                        >
+                            <a href="" class:active={data.data.purchases.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if data.data.purchases.number < data.data.purchases.totalPages - 1}
+                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.purchases.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>
