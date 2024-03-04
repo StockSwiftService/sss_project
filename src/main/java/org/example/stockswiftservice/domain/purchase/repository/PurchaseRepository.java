@@ -30,5 +30,9 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     int getCountByMonth(@Param("year") int year, @Param("month") int month);
 
     List<Purchase> findByPurchaseDate(LocalDate date);
+
+    List<Purchase> findAllByApprovalFalse();
+
+    List<Purchase> findAllByApprovalTrue();
 }
 

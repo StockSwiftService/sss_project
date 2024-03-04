@@ -78,6 +78,13 @@ public class PurchaseController {
         return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
     }
 
+    @GetMapping("/approval")
+    public RsData<PurchasesResponse> approvalPurchases() {
+        List<Purchase> purchases = this.purchaseService.getApprovalList();
+
+        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+    }
+
     @Data
     public static class purchaseRequest {
         private LocalDate purchaseDate;
@@ -94,5 +101,25 @@ public class PurchaseController {
         RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
         return rsData;
+    }
+
+    @Data
+    public static class ApprovalRequest {
+        private List<Long> ids;
+    }
+
+    @PostMapping("/approvalRequest")
+    public void approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.approval(approvalRequest.getIds());
+    }
+
+    @PostMapping("/approvalCancelRequest")
+    public void approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.approvalCancel(approvalRequest.getIds());
+    }
+
+    @PostMapping("/delete")
+    public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.delete(approvalRequest.getIds());
     }
 }
