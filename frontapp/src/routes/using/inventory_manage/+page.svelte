@@ -63,9 +63,13 @@
         purchasePriceModify: '',
         salesPriceModify: '',
     };
+
+    let purchasesByDate = {};
+
     onMount(async () => {
         await fetchClients();
         await dataLoad();
+        await recordData();
         const unsubscribe = page.subscribe(async ($page) => {
             // URL에서 검색어(kw) 쿼리 파라미터 값을 가져와 searchQuery에 할당
             searchQuery = $page.url.searchParams.get('kw') || '';
@@ -418,6 +422,7 @@
 
     }
 
+
     let allChecked = false;
 
     function toggleAll() {
@@ -498,7 +503,12 @@
             console.error('Error fetching client details:', error);
         }
     }
-
+    async function recordData() {
+        const response = await fetch('http://localhost:8080/api/v1/purchase/record');
+        if (response.ok) {
+            purchasesByDate = await response.json();
+        }
+    }
 </script>
 
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -696,52 +706,25 @@
                         <td colspan="4">기존 재고 :{formData.quantity.toLocaleString()}개</td>
                     </tr>
                     </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">2024-02-16</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김네모</td>
-                        <td>50개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cr">구매</span>
-                        </td>
-                        <td>(주)네모컴퍼니</td>
-                        <td>50개</td>
-                    </tr>
-                    </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">2024-02-18</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김철수</td>
-                        <td>3개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>박지수</td>
-                        <td>1개</td>
-                    </tr>
-                    </tbody>
+                    {#each Object.entries(purchasesByDate) as [date, purchases]}
+                        <thead>
+                        <tr>
+                            <th colspan="4">{date}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {#each purchases as purchase}
+                            <tr>
+                                <td class="w120">{purchase.purchaseDate}</td>
+                                <td class="w60">
+                                    <span class="inblock cb">판매</span>
+                                </td>
+                                <td>{purchase.client.clientName}</td>
+                                <td>{purchase.purchaseStocks[0].inputQuantity}개</td>
+                            </tr>
+                        {/each}
+                        </tbody>
+                    {/each}
                 </table>
             </div>
         </div>

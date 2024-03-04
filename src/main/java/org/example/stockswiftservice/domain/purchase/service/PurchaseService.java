@@ -10,9 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.global.rs.RsData;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
@@ -84,5 +88,12 @@ public class PurchaseService {
             Purchase purchase = optionalPurchase.get();
             purchaseRepository.delete(purchase);
         }
+    }
+
+    public Map<LocalDate, List<Purchase>> getApprovedPurchasesGroupedByDate() {
+        return purchaseRepository.findAllByApprovalTrue().stream()
+                .collect(Collectors.groupingBy(Purchase::getPurchaseDate,
+                        TreeMap::new,
+                        Collectors.toList()));
     }
 }

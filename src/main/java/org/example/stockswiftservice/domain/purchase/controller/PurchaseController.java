@@ -10,10 +10,12 @@ import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 
 import org.example.stockswiftservice.domain.client.entity.Client;
@@ -121,5 +123,11 @@ public class PurchaseController {
     @PostMapping("/delete")
     public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
         this.purchaseService.delete(approvalRequest.getIds());
+    }
+
+    @GetMapping("/record")
+    public ResponseEntity<Map<LocalDate, List<Purchase>>> getApprovedPurchasesGroupedByDate() {
+        Map<LocalDate, List<Purchase>> purchases = purchaseService.getApprovedPurchasesGroupedByDate();
+        return ResponseEntity.ok(purchases);
     }
 }
