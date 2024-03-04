@@ -60,8 +60,29 @@ public class PurchaseService {
         return getPurchaseList;
     }
 
-//    public RsData<Purchase> approval(Long id) {
-//        Purchase purchase = this.purchaseRepository.findById(id);
-//        return RsData.of("1", "판매 등록 완료", purchase);
-//    }
+    public void approval(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchase.setApproval(true);
+            this.purchaseRepository.save(purchase);
+        }
+    }
+
+    public void approvalCancel(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchase.setApproval(false);
+            this.purchaseRepository.save(purchase);
+        }
+    }
+
+    public void delete(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchaseRepository.delete(purchase);
+        }
+    }
 }

@@ -287,26 +287,25 @@
         } catch (error) {
             console.error('Error submitting form:', error);
         }
+    }  
+
+    // 전체 선택
+    let allChecked = false;
+
+    function toggleAll() {
+
+        purchases.map(purchase => {
+            if (!purchase.checked) {
+                purchase.checked = true;
+            } else {
+                purchase.checked = false;
+            }
+        })
+
+        purchases = purchases;
     }
 
-    onMount(async () => {
-
-        //판매 게시글 출력
-        const response = await fetch('http://localhost:8080/api/v1/purchase');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
-
-        //오늘 날짜로 기본 데이터 생성
-        document.getElementById('searchDateInput1').value = getTodayDate();
-        document.getElementById('searchDateInput2').value = getTodayDate();
-        purchaseDate = getTodayDate();
-
-    });
-
+    // 승인 미승인
     let isUnapprovedActive = true;
     let isApprovedActive = false;
 
@@ -337,34 +336,150 @@
         }
     }
 
-    onMount(async () => {
-        // 여기서 데이터를 불러오고, 각 항목에 대해 isChecked 필드를 추가합니다.
-        purchases = (await fetchData()).map(purchase => ({ ...purchase, isChecked: false }));
-    });
 
-    function approveSelected() {
-        if(confirm("승인 처리 하시겠습니까?")) {
-            const selectedIds = purchases.filter(purchase => purchase.isChecked).map(purchase => purchase.id);
-            // 이 부분에서 서버로 selectedIds를 보내면 됩니다. 
-            // 예시: await fetch('/api/approve', { method: 'POST', body: JSON.stringify(selectedIds) });
-            fetch("http://localhost:8080/api/v1/purchase/approvalRequest", {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ purchaseIds: checkedPurchaseIds }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 성공적으로 처리된 경우에는 서버로부터의 응답을 처리할 수 있습니다.
-                console.log("승인 처리 완료", data);
-            })
-            .catch(error => {
-                console.error("승인 처리 중 오류 발생", error);
-            });
+    // 승인 처리
+    async function approvePurchases() {
+        const selectedIds = purchases
+            .filter(purchase => purchase.checked)
+            .map(purchase => purchase.id);
+
+        if (selectedIds.length === 0) {
+            alert('승인 처리할 전표를 선택해주세요.');
+            return;
         }
 
+        const isConfirmed = confirm('해당 전표를 승인 처리 하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/purchase/approvalRequest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ids: Array.from(selectedIds)
+                }),
+            });
+
+            if (response.ok) {
+                alert('승인 처리가 완료되었습니다.');
+                window.location.reload();
+            } else {
+                alert('승인 처리 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error deleting clients:', error);
+            alert('승인 처리 중 오류가 발생했습니다.');
+        }
     }
+
+    // 승인 취소 처리
+    async function approvePurchasesCancel() {
+
+        const selectedIds = purchases
+            .filter(purchase => purchase.checked)
+            .map(purchase => purchase.id);
+
+        if (selectedIds.length === 0) {
+            alert('승인 처리 취소할 전표를 선택해주세요.');
+            return;
+        }
+
+        const isConfirmed = confirm('해당 전표를 승인 취소 처리 하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/purchase/approvalCancelRequest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ids: Array.from(selectedIds)
+                }),
+            });
+
+            if (response.ok) {
+                alert('승인 처리 취소가 완료되었습니다.');
+                window.location.reload();
+            } else {
+                alert('승인 처리 취소 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error deleting clients:', error);
+            alert('승인 처리 취소 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 승인 취소 처리
+    async function PurchasesDelete() {
+
+        const selectedIds = purchases
+            .filter(purchase => purchase.checked)
+            .map(purchase => purchase.id);
+
+        if (selectedIds.length === 0) {
+            alert('삭제 할 전표를 선택해주세요.');
+            return;
+        }
+
+        const isConfirmed = confirm('해당 전표를 삭제 하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/purchase/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ids: Array.from(selectedIds)
+                }),
+            });
+
+            if (response.ok) {
+                alert('삭제가 완료되었습니다.');
+                window.location.reload();
+            } else {
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error deleting clients:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+        }
+    }
+
+    //판매 게시글 출력
+    let purchases = [];
+    
+    onMount(async () => {
+
+        //판매 게시글 출력
+        const response = await fetch('http://localhost:8080/api/v1/purchase');
+        if (response.ok) {
+            const responseData = await response.json();
+            purchases = responseData.data.purchases;
+        } else {
+            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+        }
+
+        //오늘 날짜로 기본 데이터 생성
+        document.getElementById('searchDateInput1').value = getTodayDate();
+        document.getElementById('searchDateInput2').value = getTodayDate();
+        purchaseDate = getTodayDate();
+
+    });
+
 </script>
 
 <style>
@@ -383,6 +498,13 @@
         border-radius: 999px;
         background: #2656F6;
         color: #fff;
+    }
+
+    .situation-btn-box > button {
+        display: none;
+    }
+    .situation-btn-box > button.active {
+        display: flex;
     }
 </style>
 
@@ -716,16 +838,12 @@
         </div>
         <div class="line"></div>
         <div class="middle-area">
-            <!-- <div class="approval-btn-box flex aic g8">
-                <button class="active">미승인</button>
-                <button>승인</button>
-            </div> -->
             <div class="approval-btn-box flex aic g8">
                 <button class:active={isUnapprovedActive} on:click={() => unApprovalPurchase(true)}>미승인</button>
                 <button class:active={isApprovedActive} on:click={() => approvalPurchase(false)}>승인</button>
             </div>
             <div class="all-text c121619 f14 mt16">
-                전체 <span class="number inblock cm tm">0</span>개
+                전체 <span class="number inblock cm tm">{purchases.length}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -733,8 +851,7 @@
                         <tr>
                             <th class="wsn" style="width: 44px;">
                                 <div class="check-type-1">
-                                    <!-- <input type="checkbox" id="purchaseAll" bind:checked={purchaseAllSelected} on:click={purchaseAllSelection}> -->
-                                    <input type="checkbox" id="purchaseAll">
+                                    <input type="checkbox" id="purchaseAll" checked={allChecked} on:change={toggleAll}>
                                     <label for="purchaseAll"></label>
                                 </div> 
                             </th>
@@ -750,7 +867,7 @@
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
-                                    <input type="checkbox" bind:checked={purchase.isChecked} id={purchase.id}>
+                                    <input type="checkbox" id={purchase.id} bind:checked={purchase.checked}>
                                     <label for={purchase.id}></label>
                                 </div> 
                             </td>
@@ -776,10 +893,10 @@
                 </table>
             </div>
             <div class="flex aic jcsb mt8">
-                <div class="flex aic g4">
-                    <!-- <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm">승인</button> -->
-                    <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approveSelected}>승인</button>
-                    <button class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0">삭제</button>
+                <div class="situation-btn-box flex aic g4">
+                    <button class:active={isUnapprovedActive} class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approvePurchases}>승인</button>
+                    <button class:active={isApprovedActive} class="w70 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approvePurchasesCancel}>승인 취소</button>
+                    <button class:active={isUnapprovedActive} class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={PurchasesDelete}>삭제</button>
                 </div>
                 <div class="flex aic g4">
                     <button class="w50 h30 btn-type-1 bm bdr4 f12 cfff" on:click="{activateModalAdd}">등록</button>

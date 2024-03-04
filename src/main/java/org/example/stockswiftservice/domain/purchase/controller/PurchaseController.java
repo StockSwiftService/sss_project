@@ -105,13 +105,21 @@ public class PurchaseController {
 
     @Data
     public static class ApprovalRequest {
-        private Long id;
+        private List<Long> ids;
     }
 
-//    @PostMapping("/purchase/approvalRequest")
-//    public RsData<Purchase> approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
-////        RsData<Purchase> rsData = this.purchaseService.approval(approvalRequest.getId());
-//
-//        return rsData;
-//    }
+    @PostMapping("/approvalRequest")
+    public void approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.approval(approvalRequest.getIds());
+    }
+
+    @PostMapping("/approvalCancelRequest")
+    public void approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.approvalCancel(approvalRequest.getIds());
+    }
+
+    @PostMapping("/delete")
+    public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.delete(approvalRequest.getIds());
+    }
 }
