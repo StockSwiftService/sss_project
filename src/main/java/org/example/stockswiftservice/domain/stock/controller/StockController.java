@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ public class StockController {
         private Long purchasePrice;
         private Long salesPrice;
         private String clientName;
+        private LocalDateTime createDate;
 
         public StockDto(Stock stock) {
             this.id = stock.getId();
@@ -50,6 +52,7 @@ public class StockController {
             this.purchasePrice = stock.getPurchasePrice();
             this.salesPrice = stock.getSalesPrice();
             this.clientName = stock.getClient().getClientName();
+            this.createDate = stock.getCreateDate();
         }
     }
 
