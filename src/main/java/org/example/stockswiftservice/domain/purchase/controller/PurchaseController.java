@@ -13,6 +13,7 @@ import org.example.stockswiftservice.domain.salemanagement.controller.SalesManag
 import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.example.stockswiftservice.global.rs.RsData;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -38,17 +39,23 @@ public class PurchaseController {
         private final Purchase purchase;
     }
 
-    @AllArgsConstructor
     @Getter
+    @AllArgsConstructor
+    public static class PurchasesSearchResponse {
+        private final Page<Purchase> purchases;
+    }
+
+    @Getter
+    @AllArgsConstructor
     public static class PurchasesResponse {
         private final List<Purchase> purchases;
     }
 
     @GetMapping(value = "")
-    public RsData<PurchasesResponse> purchases() {
-        List<Purchase> purchases = this.purchaseService.getList();
+    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether) {
+        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether);
 
-        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+        return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases));
     }
 
     @Data
@@ -70,13 +77,6 @@ public class PurchaseController {
         return RsData.of("R-1", "성공", new PurchaseList(purchases));
     }
 
-    @GetMapping(value = "/approval")
-    public RsData<PurchasesResponse> approvalPurchases() {
-        List<Purchase> purchases = this.purchaseService.getApprovalList();
-
-        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
-    }
-
     @Data
     public static class purchaseRequest {
         private LocalDate purchaseDate;
@@ -88,7 +88,7 @@ public class PurchaseController {
     }
 
     @PostMapping(value = "/create")
-    public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
+    public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
         RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
@@ -114,12 +114,16 @@ public class PurchaseController {
     }
 
     @PostMapping(value = "/approvalCancelRequest")
-    public void approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        this.purchaseService.approvalCancel(approvalRequest.getIds());
+    public RsData<PurchasesResponse> approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        List<Purchase> purchases = this.purchaseService.approvalCancel(approvalRequest.getIds());
+
+        return RsData.of("S-3", "승인 취소 성공", new PurchasesResponse(purchases));
     }
 
     @PostMapping(value = "/delete")
-    public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        this.purchaseService.delete(approvalRequest.getIds());
+    public RsData<PurchasesResponse> delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        List<Purchase> purchases = this.purchaseService.delete(approvalRequest.getIds());
+
+        return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
     }
 }

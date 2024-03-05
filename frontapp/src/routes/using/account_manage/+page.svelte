@@ -717,8 +717,7 @@
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
                         <div class="search-box">
-                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off"
-                                   on:keypress={handleKeyPress}>
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off" on:keypress={handleKeyPress}>
                         </div>
                         <button class="search-btn flex aic jcc" on:click={performSearch}>
                             <span class="ico-box img-box w16">
