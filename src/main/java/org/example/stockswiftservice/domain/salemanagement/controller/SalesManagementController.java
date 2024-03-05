@@ -25,7 +25,6 @@ public class SalesManagementController {
 
     @Data
     public static class CreateSalesManagement {
-//        private Purchase purchase;
         private Long purchaseId;
     }
 
@@ -38,6 +37,7 @@ public class SalesManagementController {
     // 승인 요청을 받았을 경우
     @PostMapping(value = "/sales", consumes = MediaType.APPLICATION_JSON_VALUE)
     public RsData<CreateSM> CreateSalesM(@RequestBody CreateSalesManagement createSalesManagement){
+
         List<SalesManagement> salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchaseId());
         return RsData.of("R-1", "성공", new CreateSM(salesManagement));
     }

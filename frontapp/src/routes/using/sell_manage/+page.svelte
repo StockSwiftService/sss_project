@@ -59,7 +59,7 @@
     //거래처명 입력 후 검색
     let clients = [];
     let selectedClient = { clientName: '', phoneNumber: '', address: '' };
-    let clientSerachInput ='';
+    let clientSerachInput ="";
 
     async function searchAccountNameAll() {
         isActive2 = true;
@@ -68,7 +68,8 @@
         const response = await fetch('http://localhost:8080/api/v1/clients');
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData.data.clients;
+            clients = responseData.data.clients.content;
+            console.log(clients);
         } else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
@@ -81,12 +82,13 @@
         });
         if (response.ok) {
             const responseData = await response.json();
-            clients = responseData;
+            clients = responseData.data.clients.content;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
     }
+
     function searchClientNameEnter(event) {
         if (event.key === 'Enter') {
             searchClientNameKeyUp();
