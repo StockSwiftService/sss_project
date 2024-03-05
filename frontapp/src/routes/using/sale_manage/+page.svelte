@@ -189,6 +189,8 @@
                         body: JSON.stringify({purchaseId: purchaseId})
                     });
 
+                    console.log(response)
+
                     if (response.ok) {
                         let salesData = await response.json();
                         // 캘린더에 기존 이벤트가 있다면 제거

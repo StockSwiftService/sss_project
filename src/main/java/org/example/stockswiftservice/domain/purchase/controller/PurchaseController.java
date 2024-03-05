@@ -13,17 +13,14 @@ import org.example.stockswiftservice.domain.salemanagement.controller.SalesManag
 import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 @RestController
-@RequestMapping(value = "/api/v1/purchase", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/purchase")
 @RequiredArgsConstructor
 public class PurchaseController {
     private final PurchaseService purchaseService;
@@ -41,6 +38,19 @@ public class PurchaseController {
         private final Purchase purchase;
     }
 
+    @AllArgsConstructor
+    @Getter
+    public static class PurchasesResponse {
+        private final List<Purchase> purchases;
+    }
+
+    @GetMapping(value = "")
+    public RsData<PurchasesResponse> purchases() {
+        List<Purchase> purchases = this.purchaseService.getList();
+
+        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
+    }
+
     @Data
     public static class GetPurchaseDate {
         private String date;
@@ -52,20 +62,15 @@ public class PurchaseController {
         private final List<Purchase> purchase;
     }
 
-    @AllArgsConstructor
-    @Getter
-    public static class PurchasesResponse {
-        private final List<Purchase> purchases;
+    @PostMapping(value = "/list")
+    public RsData<PurchaseList> getList(@RequestBody GetPurchaseDate getPurchaseDate){
+
+        List<Purchase> purchases = purchaseService.getPurchaseList(getPurchaseDate.getDate());
+
+        return RsData.of("R-1", "성공", new PurchaseList(purchases));
     }
 
-    @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RsData<PurchasesResponse> purchases() {
-        List<Purchase> purchases = this.purchaseService.getList();
-
-        return RsData.of("S-1", "성공", new PurchasesResponse(purchases));
-    }
-
-    @GetMapping(value = "/approval", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/approval")
     public RsData<PurchasesResponse> approvalPurchases() {
         List<Purchase> purchases = this.purchaseService.getApprovalList();
 
@@ -82,7 +87,7 @@ public class PurchaseController {
         private Long allPrice;
     }
 
-    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/create")
     public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
         RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
@@ -95,24 +100,25 @@ public class PurchaseController {
         private List<Long> ids;
     }
 
-    @PostMapping(value = "/approvalRequest", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/approvalRequest")
     public RsData<SalesManagementController.CreateSM> approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        this.purchaseService.approval(approvalRequest.getIds());
+
         List<SalesManagement> salesManagementList = new ArrayList<>();
         for (Long num : approvalRequest.getIds()) {
             List<SalesManagement> salesManagement = salesManagementService.printTotalSales(num);
             salesManagementList.addAll(salesManagement);
         }
-        this.purchaseService.approval(approvalRequest.getIds());
 
         return RsData.of("R-1", "성공", new SalesManagementController.CreateSM(salesManagementList));
     }
 
-    @PostMapping(value = "/approvalCancelRequest", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/approvalCancelRequest")
     public void approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
         this.purchaseService.approvalCancel(approvalRequest.getIds());
     }
 
-    @PostMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/delete")
     public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
         this.purchaseService.delete(approvalRequest.getIds());
     }
