@@ -13,6 +13,8 @@
     // 해당 날짜
     let currentdate = '';
 
+    let totalPrice = [];
+
     let formdata = [];
 
     async function getList(date) {
@@ -27,7 +29,7 @@
                 currentdate = date;
                 formdata = data.data.purchase;
 
-                console.log(formdata)
+                console.log(totalPrice)
             }
         } catch (error) {
             console.error('또 오류루:', error);
@@ -59,11 +61,6 @@
             calendar.addEvent({title: userInput, start: info.startStr, end: info.endStr});
         }
     }
-
-    let globalSalesData = {
-        monthlyData: {},
-        weekly: {}
-    };
 
     onMount(async () => {
         // console.log(globalSalesData)
@@ -189,8 +186,6 @@
                         body: JSON.stringify({purchaseId: purchaseId})
                     });
 
-                    console.log(response)
-
                     if (response.ok) {
                         let salesData = await response.json();
                         // 캘린더에 기존 이벤트가 있다면 제거
@@ -228,7 +223,13 @@
                                 color: 'white',
                                 textColor: 'black',
                             });
+                            if (!totalPrice[saleKey]) {
+                                totalPrice[saleKey] = sale.dailyTotalSales;
+                            } else {
+                                totalPrice[saleKey] += sale.dailyTotalSales;
+                            }
 
+                            console.log(saleKey, totalPrice[saleKey]);
                             // 주별 매출
                             if (!maxWeeklyData[sale.weekDate]) {
                                 maxWeeklyData[sale.weekDate] = {
@@ -281,8 +282,6 @@
             });
         }
     });
-
-
 </script>
 <style>
     #calendar > * {
@@ -338,7 +337,7 @@
                 <table>
                     <thead>
                     <tr>
-                        <th colspan="4">구매 리스트</th>
+                        <th colspan="4">판매 리스트</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -346,23 +345,33 @@
                         <tr>
                             <td class="w120">{currentdate}</td>
                             <td class="w60">
-                                <span class="inblock cb">구매</span>
+                                <span class="inblock cb">판매</span>
                             </td>
-                            <td>{purchaseList.purchaseTotal}</td>
-                            <td>{purchaseList.id}</td>
+                            <td class="wsn tal">
+                                {purchaseList.purchaseStocks[0].itemName}
+                                {#if purchaseList.purchaseStocks.length > 1}
+                                    외 {purchaseList.purchaseStocks.length - 1}건
+                                {/if}
+                            </td>
+                            <td>{purchaseList.allPrice}</td>
                         </tr>
                     {/each}
                     </tbody>
+                    <tbody>
+                    <tr>
+                        <td colspan="4"><span class="tb">총 금액 {totalPrice}</span></td>
+                    </tr>
+                    </tbody>
                     <thead>
                     <tr>
-                        <th colspan="4">판매 리스트</th>
+                        <th colspan="4">구매 리스트</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td class="w120">{currentdate}</td>
                         <td class="w60">
-                            <span class="inblock cb">판매</span>
+                            <span class="inblock cb">구매</span>
                         </td>
                         <td>김철수</td>
                         <td>3개</td>

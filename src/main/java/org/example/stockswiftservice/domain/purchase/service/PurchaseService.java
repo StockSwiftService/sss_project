@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.example.stockswiftservice.global.rs.RsData;
 
 @Service
 @RequiredArgsConstructor
@@ -152,7 +151,6 @@ public class PurchaseService {
 
     public List<Purchase> getPurchaseList(String dateString){
         LocalDate date = LocalDate.parse(dateString);
-
         List<Purchase> getPurchaseList = purchaseRepository.findByPurchaseDate(date);
 
         return getPurchaseList;
