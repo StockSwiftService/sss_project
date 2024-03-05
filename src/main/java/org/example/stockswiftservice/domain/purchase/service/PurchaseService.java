@@ -27,31 +27,39 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final PurchaseStockRepository purchaseStockRepository;
     public List<Purchase> getList() {
-        return this.purchaseRepository.findAllByApprovalFalse();
+        return this.purchaseRepository.findAll();
     }
 
-    public Page<Purchase> getSearchList(String kw, int page) {
+    public Page<Purchase> getSearchList(String kw, int page, boolean whether) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
-        Specification<Purchase> spec = search(kw);
-        return this.purchaseRepository.findAllByApprovalFalse(spec, pageable);
+        Specification<Purchase> spec = search(kw, whether);
+        return this.purchaseRepository.findAll(spec, pageable);
     }
 
-    private Specification<Purchase> search(String kw) {
+    private Specification<Purchase> search(String kw, boolean whether) {
         return new Specification<>() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Predicate toPredicate(Root<Purchase> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<Purchase> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 query.distinct(true);
-                Join<Purchase, PurchaseStock> purchaseStockJoin = a.join("purchaseStocks", JoinType.LEFT);
+                Join<Purchase, PurchaseStock> purchaseStockJoin = root.join("purchaseStocks", JoinType.LEFT);
                 Path<String> itemNamePath = purchaseStockJoin.get("itemName");
-                return cb.or(
-                        cb.like(a.get("significant"), "%" + kw + "%"),
-                        cb.like(a.join("client").get("clientName"), "%" + kw + "%"),
+
+                // 기존 검색 조건
+                Predicate searchPredicate = cb.or(
+                        cb.like(root.get("significant"), "%" + kw + "%"),
+                        cb.like(root.join("client").get("clientName"), "%" + kw + "%"),
                         cb.like(itemNamePath, "%" + kw + "%")
                 );
+
+                // approval 필드가 whether 값과 일치하는 조건
+                Predicate approvalPredicate = cb.equal(root.get("approval"), whether);
+
+                // 최종 조건: 검색 조건과 approval 조건을 AND 연산으로 결합
+                return cb.and(searchPredicate, approvalPredicate);
             }
         };
     }

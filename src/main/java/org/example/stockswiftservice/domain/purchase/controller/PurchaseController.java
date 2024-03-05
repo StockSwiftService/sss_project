@@ -70,7 +70,6 @@ public class PurchaseController {
     @AllArgsConstructor
     public static class PurchasesSearchResponse {
         private final Page<Purchase> purchases;
-        private final List<Purchase> purchaseList;
     }
 
 
@@ -81,11 +80,10 @@ public class PurchaseController {
 //    }
 
     @GetMapping("")
-    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page);
-        List<Purchase> purchaseList = this.purchaseService.getList();
+    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether) {
+        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether);
 
-        return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases, purchaseList));
+        return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases));
     }
 
 //    @GetMapping("/approval")

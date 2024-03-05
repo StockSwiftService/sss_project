@@ -39,6 +39,9 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     List<Purchase> findAllByApprovalTrue();
 
+
+    Page<Purchase> findAll(Specification<Purchase> spec, Pageable pageable);
+
     Page<Purchase> findAllByApprovalFalse(Specification<Purchase> spec, Pageable pageable);
 }
 

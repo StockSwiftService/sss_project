@@ -42,6 +42,10 @@
         isActiveStockSearch = false;
     }
 
+    function windowRefresh() {
+        window.location.href = 'http://localhost:5173/using/sell_manage';
+    }
+
     //오늘 날짜로 기본 데이터 생성
     function getTodayDate() {
         const now = new Date();
@@ -65,39 +69,29 @@
     let selectedClient = { clientName: '', phoneNumber: '', address: '' };
     let clientSerachInput ="";
 
-    async function searchAccountNameAll() {
-        isActive2 = true;
-        isActiveAccountSearch = true;
-
-        const response = await fetch('http://localhost:8080/api/v1/clients');
+    async function fetchClients(keyword = '') {
+        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${keyword}`);
         if (response.ok) {
-            const responseData = await response.json();
-            clients = responseData.data.clients.content;
-            console.log(clients);
+            clients = await response.json();
         } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+            console.error('거래처 목록을 불러오는데 실패했습니다.');
         }
     }
 
-    async function searchClientNameKeyUp() {
-        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
-        if (response.ok) {
-            const responseData = await response.json();
-            clients = responseData.data.clients.content;
-        }
-        else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+    async function searchClients() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
+        await fetchClients(clientSerachInput);
     }
 
     function searchClientNameEnter(event) {
         if (event.key === 'Enter') {
-            searchClientNameKeyUp();
+            fetchClients(clientSerachInput);
         }
     }
 
     function searchClientNameClick() {
-        searchClientNameKeyUp();
+        fetchClients(clientSerachInput);
     }
 
     //재고 영역 품목명 입력 후 검색
@@ -282,11 +276,9 @@
 
             if (response.ok) {
                 alert("판매 등록이 완료되었습니다.");
-                window.location.reload();
-                console.log(data);
+                windowRefresh();
             } else {
                 console.log("전표생성 실패");
-                console.log(data);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -298,7 +290,7 @@
 
     function toggleAll() {
 
-        purchases.map(purchase => {
+        data.data.purchases.content.map(purchase => {
             if (!purchase.checked) {
                 purchase.checked = true;
             } else {
@@ -306,7 +298,7 @@
             }
         })
 
-        purchases = purchases;
+        data = data;
     }
 
     // 승인 미승인
@@ -320,30 +312,19 @@
 
     const unApprovalPurchase = async (unapprovedActive) => {
         setActiveButtons(unapprovedActive);
-        const response = await fetch('http://localhost:8080/api/v1/purchase');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+        whetherVal = false;
+        notApprovedAndApproved();
     }
 
     const approvalPurchase = async (unapprovedActive) => {
         setActiveButtons(unapprovedActive);
-        const response = await fetch('http://localhost:8080/api/v1/purchase/approval');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+        whetherVal = true;
+        notApprovedAndApproved();
     }
-
 
     // 승인 처리
     async function approvePurchases() {
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -371,7 +352,7 @@
 
             if (response.ok) {
                 alert('승인 처리가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('승인 처리 중 오류가 발생했습니다.');
             }
@@ -384,7 +365,7 @@
     // 승인 취소 처리
     async function approvePurchasesCancel() {
 
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -412,7 +393,7 @@
 
             if (response.ok) {
                 alert('승인 처리 취소가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('승인 처리 취소 중 오류가 발생했습니다.');
             }
@@ -422,10 +403,10 @@
         }
     }
 
-    // 승인 취소 처리
+    // 삭제 처리
     async function PurchasesDelete() {
 
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -453,7 +434,7 @@
 
             if (response.ok) {
                 alert('삭제가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('삭제 중 오류가 발생했습니다.');
             }
@@ -464,18 +445,8 @@
     }
 
     //판매 게시글 출력
-    // let purchases = [];
     
     onMount(async () => {
-
-        //판매 게시글 출력
-        // const response = await fetch('http://localhost:8080/api/v1/purchase');
-        // if (response.ok) {
-        //     const responseData = await response.json();
-        //     purchases = responseData.data.purchases;
-        // } else {
-        //     console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        // }
 
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
@@ -507,12 +478,14 @@
 
     let searchQuery = '';
     let currentPage = 0;
+    let whetherVal = false;
 
     async function changePage(searchQuery, currentPage) {
         try {
 
             $page.url.searchParams.get('kw', searchQuery);
             $page.url.searchParams.set('page', currentPage);
+            $page.url.searchParams.get('whether', whetherVal);
 
             await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
             await dataLoad();
@@ -527,6 +500,20 @@
 
         $page.url.searchParams.set('kw', searchQuery);
         $page.url.searchParams.set('page', currentPage);
+        $page.url.searchParams.get('whether', whetherVal);
+
+        await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+        await dataLoad();
+
+    }
+
+    //미승인 승인
+    const notApprovedAndApproved = async () => {
+
+        $page.url.searchParams.get('kw', searchQuery);
+        $page.url.searchParams.set('page', currentPage);
+        $page.url.searchParams.set('whether', whetherVal);
 
         await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
 
@@ -604,7 +591,7 @@
                                 <div class="input-type-2 f14 w100per">
                                     <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
                                 </div>
-                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchAccountNameAll}>찾기</button>
+                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchClients}>찾기</button>
                             </div>
                         </li>
                         <li class="flex aic g12">
