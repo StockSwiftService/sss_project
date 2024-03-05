@@ -24,7 +24,6 @@
 			if (response.ok) {
 				const data = await response.json();
                 loggedInUserId = data.data.member.id;
-                fetchDataAndRenderCalendar(loggedInUserId);
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
 				if (!response.ok && response.status != 401) {
@@ -35,6 +34,7 @@
 			console.error('오류 발생:', error);
 			alert('다시 시도 해주세요.');
 		}
+        fetchDataAndRenderCalendar(loggedInUserId);
 	});
 
     async function fetchDataAndRenderCalendar(loggedInUserId) {
@@ -49,7 +49,7 @@
                 content: event.content,
                 start: new Date(event.startDate),
                 end: new Date(event.endDate),
-                color: event.member.id === loggedInUserId ? '#8fdf82' : '#3788d8',
+                color: event.member.id === loggedInUserId ? '#8fdf82' : '#42cef5',
             }));
 
             renderCalendar();
@@ -102,33 +102,47 @@
 
         calendar.render();
     }
-    function handleEventDidMount(info) {
-        const startDate = new Date(info.event.start);
-        const endDate = new Date(info.event.end);
-
-        // start와 end를 원하는 형식으로 포맷팅
-        const formattedStartDate = new Intl.DateTimeFormat('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        }).format(startDate);
-
-        const formattedEndDate = new Intl.DateTimeFormat('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        }).format(endDate);
-
-        if(formattedEndDate == '01/01') {
-            tippy(info.el, {
-            content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
-            theme: 'light',
-            });
+    
+    async function handleEventDidMount(info) {
+        if(isDeleteEnabled || isModifyEnabled) {
+            const authorization = await checkMemberAuthorization(info);
+            if(!authorization) {
+                tippy(info.el, {
+                content: '수정/삭제 불가능',
+                theme: 'light',
+                });
+            } else {
+                tippy(info.el, {
+                content: '수정/삭제 가능',
+                theme: 'light',
+                });
+            }
         } else {
-            tippy(info.el, {
-            content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
-            theme: 'light',
-            });
-        }
+            const startDate = new Date(info.event.start);
+            const endDate = new Date(info.event.end);
 
+            const formattedStartDate = new Intl.DateTimeFormat('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            }).format(startDate);
+
+            const formattedEndDate = new Intl.DateTimeFormat('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            }).format(endDate);
+
+            if(formattedEndDate == '01/01') {
+                tippy(info.el, {
+                content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+                theme: 'light',
+                });
+            } else {
+                tippy(info.el, {
+                content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+                theme: 'light',
+                });
+            }
+        }
         
     }
 
@@ -139,11 +153,13 @@
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
     function handleEnableDelete() {
+        fetchDataAndRenderCalendar(loggedInUserId);
         calendar.setOption('selectable', false);
         isDeleteEnabled = true;
         window.alert('삭제할 일정을 클릭해주세요');
     }
     function handleEnableModify() {
+        fetchDataAndRenderCalendar(loggedInUserId);
         calendar.setOption('selectable', false);
         isModifyEnabled = true;
         window.alert('수정할 일정을 클릭해주세요');
@@ -194,7 +210,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    fetchDataAndRenderCalendar(loggedInUserId);
                     console.log('Event saved:', data);
                     window.alert('일정이 등록되었습니다');
                 })
@@ -210,13 +225,13 @@
     }
 
     async function handleEventClick(info) {
+        console.log('아이디:' + info.event.extendedProps.eventId);
 
     if (isDeleteEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
 
         const confirmation = window.confirm(`이벤트 "${eventTitle}"를 삭제하시겠습니까?`);
-        isDeleteEnabled = false;
 
         try {
             console.log('로그인아이디:' + loggedInUserId);
@@ -239,19 +254,20 @@
             .catch(error => {
                 console.error('Error deleting event:', error);
             });
-
             info.event.remove();
-        }} catch (error) {
+        } else {
+            window.alert('일정 삭제를 취소하였습니다');
+        }
+    } catch (error) {
             console.error('Error handling event click:', error);
         }
-        
+        isDeleteEnabled = false;
+        fetchDataAndRenderCalendar(loggedInUserId);
     } else if (isModifyEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
 
         const confirmation = window.confirm(`이벤트 "${eventTitle}"를 수정하시겠습니까?`);
-        isModifyEnabled = false;
-        console.log(info);
 
         try {
             const authorization = await checkMemberAuthorization(info);
@@ -298,7 +314,6 @@
             const startDate = new Date(startDateString);
             const endDate = new Date(endDateString);
 
-            // 각 날짜에 1일씩 추가
             startDate.setDate(startDate.getDate());
             endDate.setDate(endDate.getDate());
 
@@ -328,11 +343,15 @@
                 info.event.setExtendedProp('content', newContent);
                 info.event.setStart(startDate);
                 info.event.setEnd(endDate);
+            } else {
+                window.alert('수정을 취소하였습니다');
             }
         }
             } catch (error) {
                 console.error('Error handling event click:', error);
             }
+            isModifyEnabled = false;
+            fetchDataAndRenderCalendar(loggedInUserId);
     }
 }
     function formatDate(date) {
@@ -368,14 +387,7 @@
         width: 100%;
         margin-top: 20px;
         font-size: 16px;
-        /* overflow: hidden; */
     }
-    /* :global(.fc) {
-        border: 1px solid #ffffff;
-        border-radius: 8px;
-        font-size: 16px;
-        background-color: #fff;
-    } */
 
     :global(.fc-event) {
         border-radius: 5px;
