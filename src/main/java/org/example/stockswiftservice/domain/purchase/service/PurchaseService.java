@@ -86,7 +86,8 @@ public class PurchaseService {
         return RsData.of("1", "판매 등록 완료", purchase);
     }
 
-    public void approval(List<Long> ids) {
+    public List<Purchase> approval(List<Long> ids) {
+        List<Purchase> purchases = new ArrayList<>();
         for (Long id : ids) {
             Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
             Purchase purchase = optionalPurchase.get();
@@ -101,10 +102,15 @@ public class PurchaseService {
             }
 
             this.purchaseRepository.save(purchase);
+
+            purchases.add(purchase);
         }
+
+        return purchases;
     }
 
-    public void approvalCancel(List<Long> ids) {
+    public List<Purchase> approvalCancel(List<Long> ids) {
+        List<Purchase> purchases = new ArrayList<>();
         for (Long id : ids) {
             Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
             Purchase purchase = optionalPurchase.get();
@@ -119,15 +125,23 @@ public class PurchaseService {
             }
 
             this.purchaseRepository.save(purchase);
+
+            purchases.add(purchase);
         }
+
+        return purchases;
     }
 
-    public void delete(List<Long> ids) {
+    public List<Purchase> delete(List<Long> ids) {
+        List<Purchase> purchases = new ArrayList<>();
         for (Long id : ids) {
             Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
             Purchase purchase = optionalPurchase.get();
             purchaseRepository.delete(purchase);
+            purchases.add(purchase);
         }
+
+        return purchases;
     }
 
     public Purchase getPurchase(Long id){

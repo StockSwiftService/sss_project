@@ -72,6 +72,12 @@ public class PurchaseController {
         private final Page<Purchase> purchases;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class PurchasesResponse {
+        private final List<Purchase> purchases;
+    }
+
 
 //    @AllArgsConstructor
 //    @Getter
@@ -104,7 +110,7 @@ public class PurchaseController {
     }
 
     @PostMapping("/create")
-    public RsData<Purchase> signup(@Valid @RequestBody purchaseRequest purchaseRequest) {
+    public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
         RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
@@ -117,17 +123,23 @@ public class PurchaseController {
     }
 
     @PostMapping("/approvalRequest")
-    public void approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        this.purchaseService.approval(approvalRequest.getIds());
+    public RsData<PurchasesResponse> approval(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        List<Purchase> purchases = this.purchaseService.approval(approvalRequest.getIds());
+
+        return RsData.of("S-2", "승인 성공", new PurchasesResponse(purchases));
     }
 
     @PostMapping("/approvalCancelRequest")
-    public void approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        this.purchaseService.approvalCancel(approvalRequest.getIds());
+    public RsData<PurchasesResponse> approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        List<Purchase> purchases = this.purchaseService.approvalCancel(approvalRequest.getIds());
+
+        return RsData.of("S-3", "승인 취소 성공", new PurchasesResponse(purchases));
     }
 
     @PostMapping("/delete")
-    public void delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        this.purchaseService.delete(approvalRequest.getIds());
+    public RsData<PurchasesResponse> delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        List<Purchase> purchases = this.purchaseService.delete(approvalRequest.getIds());
+
+        return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
     }
 }

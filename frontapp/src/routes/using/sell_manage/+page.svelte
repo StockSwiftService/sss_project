@@ -697,70 +697,133 @@
         </div>
     </div>
 
-    <!-- 재고 수정 모달 -->
-    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveModifi}">
+    <!-- 판매 수정 모달 -->
+    <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveModifi}">
         <div class="top-box rel">
-            <h3 class="tb c121619 f18">재고 수정</h3>
+            <h3 class="tb c121619 f18">판매 수정</h3>
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
         </div>
         <div class="middle-box scr-type-1">
-            <div class="flex fdc g36">
-                <div>
-                    <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="select-type-3 w100per f14 rel">
-                        <select name="account">
-                            <option value="">모든 거래처</option>
-                            <option value="">거래처1</option>
-                            <option value="">거래처2</option>
-                            <option value="">거래처3</option>
-                        </select>
-                        <span class="arrow img-box abs y-middle">
-                            <img src="/img/arrow_bottom_A2A9B0.svg" alt="" />
-                        </span>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 선택 항목입니다.</span>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">품목명<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="flex g8">
-                        <div class="input-type-1 f14 w100per">
-                            <input type="text" placeholder="품목명">
+            <form>
+                <div class="chit-box flex fdc g12">
+                    <ul class="w100per flex aic g20">
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">일자</span>
+                            <div class="input-box input-type-2 f14 w140">
+                                <input type="date" placeholder="일자" bind:value={purchaseDate}>
+                            </div>
+                        </li>
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">거래처</span>
+                            <div class="input-box flex aic g8 w200">
+                                <div class="input-type-2 f14 w100per">
+                                    <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
+                                </div>
+                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchClients}>찾기</button>
+                            </div>
+                        </li>
+                        <li class="flex aic g12">
+                            <span class="title-text f14 c333">연락처</span>
+                            <div class="input-box input-type-2 f14">
+                                <input type="text" placeholder="연락처" readonly disabled value={selectedClient.phoneNumber}>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="w100per flex aic g20">
+                        <li class="flex aic g12" style="width:67%">
+                            <span class="title-text f14 c333">주소</span>
+                            <div class="input-box input-type-2 f14 w100per">
+                                <input type="text" placeholder="주소" readonly disabled value={selectedClient.address}>
+                            </div>
+                        </li>
+                        <li class="flex aic g12" style="width:calc(33% - 20px)">
+                            <span class="title-text f14 c333">출고 여부</span>
+                            <div class="check-type-1">
+                                <input type="checkbox" id="w1" bind:checked={deliveryStatus}>
+                                <label for="w1"></label>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="w100per">
+                        <div class="flex aic g12">
+                            <span class="title-text f14 c333">특이사항</span>
+                            <div class="input-box textarea-type-1 f14 w100per h60">
+                                <textarea placeholder="특이사항" bind:value={significant}></textarea>
+                            </div>
                         </div>
-                        <button class="btn-type-1 w80 f14 bdr4 b333 cfff">확인</button>
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">중복된 품목명입니다.</span>
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                        <span class="f13 mt8 cg">사용할 수 있는 품목명입니다.</span>
                     </div>
                 </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">구매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="구매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
+                <div class="table-type-3 scr-type-2 rel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="wsn" style="width: 44px; min-width:44px;">
+                                    <div class="check-type-1">
+                                        <input type="checkbox" id="itemAll" bind:checked={itemAllSelected} on:click={toggleAllSelection}>
+                                        <label for="itemAll"></label>
+                                    </div> 
+                                </th>
+                                <th class="wsn">품목명</th>
+                                <th class="wsn" style="width: 100px; min-width:100px;">수량</th>
+                                <th class="wsn" style="width: 140px; min-width:140px;">단가</th>
+                                <th class="wsn" style="width: 160px; min-width:160px;">금액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each items as item, index (item.id)}
+                            <tr>
+                                <td class="wsn">
+                                    <div class="check-type-1">
+                                        <input type="checkbox" id={`v${index}`} bind:checked={item.selected} on:click={() => toggleSelection(item)}>
+                                        <label for={`v${index}`}></label>
+                                    </div> 
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="수량" bind:value={item.inputQuantity} on:input={() => quantityChange(item)}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="단가" readonly bind:value={item.salesPrice}>
+                                    </div>
+                                </td>
+                                <td class="wsn">
+                                    <div class="input-type-2 f14">
+                                        <input type="number" placeholder="금액" readonly bind:value={item.sumPrice}>
+                                    </div>
+                                </td>
+                            </tr>
+                            {/each}
+                        </tbody>
+                        <tbody>
+                            <tr class="last">
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn"></td>
+                                <td class="wsn">{formatAllPrice}원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
+                        <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" type="button" on:click={addRow}>추가</button>
+                        <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" type="button" on:click={deleteSelectedItems}>삭제</button>
                     </div>
                 </div>
-                <div>
-                    <h2 class="c333 f15 tm mb8">판매 단가<span class="cr f16 tm inblock">*</span></h2>
-                    <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="판매 단가">
-                    </div>
-                    <div class="error-text-box">
-                        <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
-                    </div>
+                <div class="btn-area flex aic jcc g8 mt40">
+                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitSignupForm}>등록</button>
+                    <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
                 </div>
-            </div>
-            <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
-                <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
-            </div>
+            </form>
         </div>
     </div>
 
