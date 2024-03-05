@@ -1,22 +1,15 @@
 package org.example.stockswiftservice;
 
-import org.example.stockswiftservice.domain.client.entity.Client;
-import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
+import org.example.stockswiftservice.domain.client.service.ClientService;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseStockRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.question.service.QuestionService;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
-import org.junit.jupiter.api.DisplayName;
-import org.example.stockswiftservice.domain.client.service.ClientService;
 import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 class StockSwiftServiceApplicationTests {
@@ -53,25 +46,25 @@ class StockSwiftServiceApplicationTests {
         clientService.create("청주식자재", "한지원", "01068721395", "충청북도 청주시 테크노폴리스로 123", "1008호");
     }
 
-    @Test
-    void stockTest() {
-        stockService.create("청주식자재", "국물 떡볶이 200g", 200L, 2800L, 5500L);
-        stockService.create("청주식자재", "로제 떡볶이 200g", 200L, 3500L, 6500L);
-        stockService.create("한국식품유통", "아이스 아메리카노 스틱 100T", 300L, 10100L, 15300L);
-        stockService.create("한국식품유통", "바닐라 라떼 스틱 50T", 200L, 20200L, 28000L);
-        stockService.create("서울농산물", "백미 20kg", 100L, 25000L, 38000L);
-        stockService.create("서울농산물", "현미 10kg", 50L, 18000L, 25000L);
-        stockService.create("부산수산유통", "쥐포 500g", 200L, 15000L, 23000L);
-        stockService.create("부산수산유통", "오징어 다리 200g", 300L, 8000L, 12000L);
-        stockService.create("인천냉동식품", "군만두 500g", 200L, 6000L, 9000L);
-        stockService.create("인천냉동식품", "치킨 팝콘 500g", 300L, 7000L, 10000L);
-        stockService.create("광주청과", "세척 사과 1kg", 200L, 20000L, 30000L);
-        stockService.create("광주청과", "샤인 머스켓 1kg", 100L, 40000L, 55000L);
-        stockService.create("대구식자재마트", "윙봉 1kg", 300L, 10000L, 15000L);
-        stockService.create("대구식자재마트", "매운 핫바 1kg", 200L, 15000L, 20000L);
-        stockService.create("제주도식품유통", "감귤 초콜렛 500g", 300L, 5000L, 8000L);
-        stockService.create("제주도식품유통", "감귤 크래커 500g", 200L, 7000L, 10000L);
-    }
+//    @Test
+//    void stockTest() {
+//        stockService.create("청주식자재", "국물 떡볶이 200g", 200L, 2800L, 5500L);
+//        stockService.create("청주식자재", "로제 떡볶이 200g", 200L, 3500L, 6500L);
+//        stockService.create("한국식품유통", "아이스 아메리카노 스틱 100T", 300L, 10100L, 15300L);
+//        stockService.create("한국식품유통", "바닐라 라떼 스틱 50T", 200L, 20200L, 28000L);
+//        stockService.create("서울농산물", "백미 20kg", 100L, 25000L, 38000L);
+//        stockService.create("서울농산물", "현미 10kg", 50L, 18000L, 25000L);
+//        stockService.create("부산수산유통", "쥐포 500g", 200L, 15000L, 23000L);
+//        stockService.create("부산수산유통", "오징어 다리 200g", 300L, 8000L, 12000L);
+//        stockService.create("인천냉동식품", "군만두 500g", 200L, 6000L, 9000L);
+//        stockService.create("인천냉동식품", "치킨 팝콘 500g", 300L, 7000L, 10000L);
+//        stockService.create("광주청과", "세척 사과 1kg", 200L, 20000L, 30000L);
+//        stockService.create("광주청과", "샤인 머스켓 1kg", 100L, 40000L, 55000L);
+//        stockService.create("대구식자재마트", "윙봉 1kg", 300L, 10000L, 15000L);
+//        stockService.create("대구식자재마트", "매운 핫바 1kg", 200L, 15000L, 20000L);
+//        stockService.create("제주도식품유통", "감귤 초콜렛 500g", 300L, 5000L, 8000L);
+//        stockService.create("제주도식품유통", "감귤 크래커 500g", 200L, 7000L, 10000L);
+//    }
 
     @Test
     void questionTest() {

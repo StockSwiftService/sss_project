@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,12 +47,13 @@ public class StockService {
         return optionalStock.get();
     }
 
-    public RsData<Stock> create(String clientName, String itemName, Long quantity, Long purchasePrice, Long salesPrice){
+    public RsData<Stock> create(String clientName, String itemName, Long defaultQuantity, Long quantity, Long purchasePrice, Long salesPrice){
         Client client = clientRepository.findByClientName(clientName)
                 .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
         Stock stock = new Stock();
                 stock.setClient(client);
                 stock.setItemName(itemName);
+                stock.setDefaultQuantity(defaultQuantity);
                 stock.setQuantity(quantity);
                 stock.setPurchasePrice(purchasePrice);
                 stock.setSalesPrice(salesPrice);

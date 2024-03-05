@@ -3,20 +3,11 @@ package org.example.stockswiftservice.domain.purchase.service;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
-import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseStockRepository;
-import org.example.stockswiftservice.global.rs.RsData;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.repository.StockRepository;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
@@ -24,7 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import java.util.ArrayList;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

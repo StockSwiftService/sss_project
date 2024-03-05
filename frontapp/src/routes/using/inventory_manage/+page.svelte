@@ -52,6 +52,7 @@
     let formData = {
         clientName: '',
         itemName: '',
+        defaultQuantity: '',
         quantity: '',
         purchasePrice: '',
         salesPrice: '',
@@ -487,6 +488,7 @@
                 const stockData = await response.json();
                 formData.clientName = stockData.data.stockDto.clientName;
                 formData.itemName = stockData.data.stockDto.itemName;
+                formData.defaultQuantity = stockData.data.stockDto.defaultQuantity;
                 formData.quantity = stockData.data.stockDto.quantity;
                 formData.createDate = stockData.data.stockDto.createDate;
                 if (formData.createDate) {
@@ -508,6 +510,13 @@
         if (response.ok) {
             purchasesByDate = await response.json();
         }
+    }
+
+    function updateQuantities(event) {
+        // 입력된 값으로 defaultQuantity와 quantity 업데이트
+        const value = event.target.value;
+        formData.defaultQuantity = value;
+        formData.quantity = value;
     }
 </script>
 
@@ -559,7 +568,7 @@
                     <div>
                         <h2 class="c333 f15 tm mb8">수량<span class="cr f16 tm inblock">*</span></h2>
                         <div class="input-type-1 f14 w100per">
-                            <input bind:value={formData.quantity} type="text" name="quantity" placeholder="수량">
+                            <input on:input={updateQuantities} type="text" name="quantity" placeholder="수량">
                         </div>
                         <div class="error-text-box" data-field="quantity">
                             <span class="error-text f13 mt8 cr"></span>
@@ -703,7 +712,7 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td colspan="4">기존 재고 :{formData.quantity.toLocaleString()}개</td>
+                        <td colspan="4">기존 재고 :{formData.defaultQuantity.toLocaleString()}개</td>
                     </tr>
                     </tbody>
                     {#each Object.entries(purchasesByDate) as [date, purchases]}
