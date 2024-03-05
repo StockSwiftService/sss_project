@@ -482,8 +482,7 @@
                         <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input bind:value={formData.clientName} type="text" name="clientName"
-                                       placeholder="거래처명">
+                                <input bind:value={formData.clientName} type="text" name="clientName" placeholder="거래처명" readonly>
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기
                             </button>

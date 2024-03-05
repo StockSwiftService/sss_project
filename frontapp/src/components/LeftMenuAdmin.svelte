@@ -3,7 +3,17 @@
 
     function setActive(index) {
         activeIndex = index;
+        localStorage.setItem('activeMenuIndex', index.toString());
     }
+
+    import {onMount} from 'svelte';
+
+    onMount(async () => {
+        const savedIndex = localStorage.getItem('activeMenuIndex');
+        if (savedIndex !== null) {
+            activeIndex = parseInt(savedIndex, 10);
+        }
+    });
 </script>
 
 <style>
