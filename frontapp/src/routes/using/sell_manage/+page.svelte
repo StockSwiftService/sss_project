@@ -285,13 +285,22 @@
         }
     }  
 
-    async function modiifyForm(purchaseId) {
+    let modifyPurchase;
+
+    async function modifyForm(purchaseId) {
         activateModalModifi();
         const response = await fetch(`http://localhost:8080/api/v1/purchase/${purchaseId}`);
         if (response.ok) {
             const responseData = await response.json();
-            // stocks = responseData.data.stocks;
-            console.log(responseData);
+            modifyPurchase = responseData.data.purchases;
+            purchaseDate = modifyPurchase.purchaseDate;
+            selectedClient.clientName = modifyPurchase.client.clientName;
+            selectedClient.phoneNumber = modifyPurchase.client.phoneNumber;
+            selectedClient.address = modifyPurchase.client.address;
+            deliveryStatus = modifyPurchase.deliveryStatus;
+            significant = modifyPurchase.significant;
+            formatAllPrice = modifyPurchase.allPrice;
+            items = modifyPurchase.purchaseStocks;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -1005,7 +1014,7 @@
                                 </div> 
                             </td>
                             <td class="wsn">
-                                <button class="c162b60 tdu inblock" on:click="{() => modiifyForm(purchase.id)}">{purchase.purchaseDate}</button>
+                                <button class="c162b60 tdu inblock" on:click="{() => modifyForm(purchase.id)}">{purchase.purchaseDate}</button>
                             </td>
                             <td class="wsn">{purchase.client.clientName}</td>
                             <td class="wsn tal">

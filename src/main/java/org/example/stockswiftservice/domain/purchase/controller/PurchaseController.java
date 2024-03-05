@@ -77,6 +77,12 @@ public class PurchaseController {
         private final List<Purchase> purchases;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class PurchaseResponse {
+        private final Purchase purchases;
+    }
+
     @GetMapping(value = "")
     public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether) {
         Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether);
@@ -153,6 +159,10 @@ public class PurchaseController {
         return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
     }
 
-//    @GetMapping("/{id}")
-//    public RsData<>
+    @GetMapping("/{id}")
+    public RsData<PurchaseResponse> purchase(@PathVariable("id") Long id) {
+        Purchase purchase = this.purchaseService.getPurchase(id);
+
+        return RsData.of("S-5", "단건 조회 성공", new PurchaseResponse(purchase));
+    }
 }

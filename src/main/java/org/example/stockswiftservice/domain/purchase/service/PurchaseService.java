@@ -74,6 +74,7 @@ public class PurchaseService {
                 .deliveryStatus(deliveryStatus)
                 .significant(significant)
                 .allPrice(allPrice)
+                .approval(false)
                 .build();
 
         purchaseRepository.save(purchase);
