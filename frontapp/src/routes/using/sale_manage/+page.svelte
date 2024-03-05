@@ -223,13 +223,13 @@
                                 color: 'white',
                                 textColor: 'black',
                             });
-                            if (!totalPrice[saleKey]) {
-                                totalPrice[saleKey] = sale.dailyTotalSales;
+                            if (!totalPrice[sale.salesDate]) {
+                                totalPrice[sale.salesDate] = sale.dailyTotalSales;
                             } else {
-                                totalPrice[saleKey] += sale.dailyTotalSales;
+                                totalPrice[sale.salesDate] += sale.dailyTotalSales;
                             }
 
-                            console.log(saleKey, totalPrice[saleKey]);
+                            console.log(sale.salesDate, totalPrice[sale.salesDate]);
                             // 주별 매출
                             if (!maxWeeklyData[sale.weekDate]) {
                                 maxWeeklyData[sale.weekDate] = {
@@ -359,7 +359,7 @@
                     </tbody>
                     <tbody>
                     <tr>
-                        <td colspan="4"><span class="tb">총 금액 {totalPrice}</span></td>
+                        <td colspan="4"><span class="tb">총 금액 {totalPrice[currentdate]}</span></td>
                     </tr>
                     </tbody>
                     <thead>

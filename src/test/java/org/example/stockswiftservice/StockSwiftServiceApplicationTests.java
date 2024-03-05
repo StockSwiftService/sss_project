@@ -5,6 +5,7 @@ import org.example.stockswiftservice.domain.purchase.repository.PurchaseReposito
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseStockRepository;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.question.service.QuestionService;
+import org.example.stockswiftservice.domain.sale.service.SaleService;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,12 @@ class StockSwiftServiceApplicationTests {
     private PurchaseStockRepository purchaseStockRepository;
 
     @Autowired
+    private SaleService saleRepository;
+
+    @Autowired
+    private SaleService saleService;
+
+    @Autowired
     private ClientService clientService;
 
     @Autowired
@@ -31,6 +38,13 @@ class StockSwiftServiceApplicationTests {
 
     @Autowired
     private QuestionService questionService;
+
+    @Test
+    void saleDate(){
+        saleService.create("2024-03-05", 243202L);
+        saleService.create("2024-03-13", 24302L);
+        saleService.create("2024-03-10", 24322L);
+    }
 
     @Test
     void clientTest() {
