@@ -3,6 +3,7 @@
 
     function setActive(index) {
         activeIndex = index;
+        localStorage.setItem('activeMenuIndex', index.toString());
     }
 
     import {onMount} from 'svelte';
@@ -29,6 +30,11 @@
         } catch (error) {
             console.error('오류 발생:', error);
             alert('다시 시도 해주세요.');
+        }
+
+        const savedIndex = localStorage.getItem('activeMenuIndex');
+        if (savedIndex !== null) {
+            activeIndex = parseInt(savedIndex, 10);
         }
     });
 </script>

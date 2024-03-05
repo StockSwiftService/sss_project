@@ -1,5 +1,9 @@
 <script>    
+    import {page} from "$app/stores";
+    import {goto, replaceState} from "$app/navigation";
     import { onMount } from 'svelte';
+
+    export let data;
 
     let isActive = false;
     let isActive2 = false;
@@ -38,6 +42,10 @@
         isActiveStockSearch = false;
     }
 
+    function windowRefresh() {
+        window.location.href = 'http://localhost:5173/using/sell_manage';
+    }
+
     //오늘 날짜로 기본 데이터 생성
     function getTodayDate() {
         const now = new Date();
@@ -61,39 +69,29 @@
     let selectedClient = { clientName: '', phoneNumber: '', address: '' };
     let clientSerachInput ="";
 
-    async function searchAccountNameAll() {
-        isActive2 = true;
-        isActiveAccountSearch = true;
-
-        const response = await fetch('http://localhost:8080/api/v1/clients');
+    async function fetchClients(keyword = '') {
+        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${keyword}`);
         if (response.ok) {
-            const responseData = await response.json();
-            clients = responseData.data.clients.content;
-            console.log(clients);
+            clients = await response.json();
         } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
+            console.error('거래처 목록을 불러오는데 실패했습니다.');
         }
     }
 
-    async function searchClientNameKeyUp() {
-        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${clientSerachInput}`);
-        if (response.ok) {
-            const responseData = await response.json();
-            clients = responseData.data.clients.content;
-        }
-        else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+    async function searchClients() {
+        isActive2 = true;
+        isActiveAccountSearch = true;
+        await fetchClients(clientSerachInput);
     }
 
     function searchClientNameEnter(event) {
         if (event.key === 'Enter') {
-            searchClientNameKeyUp();
+            fetchClients(clientSerachInput);
         }
     }
 
     function searchClientNameClick() {
-        searchClientNameKeyUp();
+        fetchClients(clientSerachInput);
     }
 
     //재고 영역 품목명 입력 후 검색
@@ -278,11 +276,9 @@
 
             if (response.ok) {
                 alert("판매 등록이 완료되었습니다.");
-                window.location.reload();
-                console.log(data);
+                windowRefresh();
             } else {
                 console.log("전표생성 실패");
-                console.log(data);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -294,7 +290,7 @@
 
     function toggleAll() {
 
-        purchases.map(purchase => {
+        data.data.purchases.content.map(purchase => {
             if (!purchase.checked) {
                 purchase.checked = true;
             } else {
@@ -302,7 +298,7 @@
             }
         })
 
-        purchases = purchases;
+        data = data;
     }
 
     // 승인 미승인
@@ -316,30 +312,19 @@
 
     const unApprovalPurchase = async (unapprovedActive) => {
         setActiveButtons(unapprovedActive);
-        const response = await fetch('http://localhost:8080/api/v1/purchase');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+        whetherVal = false;
+        notApprovedAndApproved();
     }
 
     const approvalPurchase = async (unapprovedActive) => {
         setActiveButtons(unapprovedActive);
-        const response = await fetch('http://localhost:8080/api/v1/purchase/approval');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
+        whetherVal = true;
+        notApprovedAndApproved();
     }
-
 
     // 승인 처리
     async function approvePurchases() {
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -367,7 +352,7 @@
 
             if (response.ok) {
                 alert('승인 처리가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('승인 처리 중 오류가 발생했습니다.');
             }
@@ -380,7 +365,7 @@
     // 승인 취소 처리
     async function approvePurchasesCancel() {
 
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -408,7 +393,7 @@
 
             if (response.ok) {
                 alert('승인 처리 취소가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('승인 처리 취소 중 오류가 발생했습니다.');
             }
@@ -418,10 +403,10 @@
         }
     }
 
-    // 승인 취소 처리
+    // 삭제 처리
     async function PurchasesDelete() {
 
-        const selectedIds = purchases
+        const selectedIds = data.data.purchases.content
             .filter(purchase => purchase.checked)
             .map(purchase => purchase.id);
 
@@ -449,7 +434,7 @@
 
             if (response.ok) {
                 alert('삭제가 완료되었습니다.');
-                window.location.reload();
+                windowRefresh();
             } else {
                 alert('삭제 중 오류가 발생했습니다.');
             }
@@ -460,25 +445,97 @@
     }
 
     //판매 게시글 출력
-    let purchases = [];
     
     onMount(async () => {
-
-        //판매 게시글 출력
-        const response = await fetch('http://localhost:8080/api/v1/purchase');
-        if (response.ok) {
-            const responseData = await response.json();
-            purchases = responseData.data.purchases;
-        } else {
-            console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
-        }
 
         //오늘 날짜로 기본 데이터 생성
         document.getElementById('searchDateInput1').value = getTodayDate();
         document.getElementById('searchDateInput2').value = getTodayDate();
         purchaseDate = getTodayDate();
 
+        await dataLoad();
+        const unsubscribe = page.subscribe(async ($page) => {
+            // URL에서 검색어(kw) 쿼리 파라미터 값을 가져와 searchQuery에 할당
+            searchQuery = $page.url.searchParams.get('kw') || '';
+            await dataLoad();
+        });
+
+        // 컴포넌트가 언마운트될 때 구독 해제
+        return () => {
+            unsubscribe();
+        };
+
     });
+
+    //페이징
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
+
+    let searchQuery = '';
+    let currentPage = 0;
+    let whetherVal = false;
+
+    async function changePage(searchQuery, currentPage) {
+        try {
+
+            $page.url.searchParams.get('kw', searchQuery);
+            $page.url.searchParams.set('page', currentPage);
+            $page.url.searchParams.get('whether', whetherVal);
+
+            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await dataLoad();
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    //검색
+    const performSearch = async () => {
+
+        $page.url.searchParams.set('kw', searchQuery);
+        $page.url.searchParams.set('page', currentPage);
+        $page.url.searchParams.get('whether', whetherVal);
+
+        await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+        await dataLoad();
+
+    }
+
+    //미승인 승인
+    const notApprovedAndApproved = async () => {
+
+        $page.url.searchParams.get('kw', searchQuery);
+        $page.url.searchParams.set('page', currentPage);
+        $page.url.searchParams.set('whether', whetherVal);
+
+        await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+        await dataLoad();
+
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    }
+
+    async function dataLoad() {
+        const queryString = window.location.search;
+
+        const res = await fetch(`http://localhost:8080/api/v1/purchase${queryString}`, {
+            credentials: 'include'
+        })
+        data = await res.json();
+
+    }
 
 </script>
 
@@ -534,7 +591,7 @@
                                 <div class="input-type-2 f14 w100per">
                                     <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
                                 </div>
-                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchAccountNameAll}>찾기</button>
+                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchClients}>찾기</button>
                             </div>
                         </li>
                         <li class="flex aic g12">
@@ -824,10 +881,10 @@
                 </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box w200">
-                            <input type="search" placeholder="검색어 입력">
+                        <div class="search-box">
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off" on:keypress={handleKeyPress}>
                         </div>
-                        <button class="search-btn flex aic jcc">
+                        <button class="search-btn flex aic jcc" on:click={performSearch}>
                             <span class="ico-box img-box w16">
                                 <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
@@ -843,7 +900,7 @@
                 <button class:active={isApprovedActive} on:click={() => approvalPurchase(false)}>승인</button>
             </div>
             <div class="all-text c121619 f14 mt16">
-                전체 <span class="number inblock cm tm">{purchases.length}</span>개
+                전체 <span class="number inblock cm tm">{data.data.purchases.totalElements}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
                 <table>
@@ -863,7 +920,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each purchases as purchase}
+                        {#each data.data.purchases.content as purchase}
                         <tr>
                             <td class="wsn" style="width: 44px;">   
                                 <div class="check-type-1">
@@ -904,27 +961,34 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if data.data.purchases.number > 0}
+                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.purchases.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(data.data.purchases.totalPages) as button}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li
+                                class="num"
+                                on:click={() => data.data.purchases.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                        >
+                            <a href="" class:active={data.data.purchases.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if data.data.purchases.number < data.data.purchases.totalPages - 1}
+                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.purchases.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>
