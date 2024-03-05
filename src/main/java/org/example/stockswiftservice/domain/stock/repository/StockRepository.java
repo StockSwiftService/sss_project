@@ -16,6 +16,7 @@ import java.util.List;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
+    Optional<Stock> findByItemName(@Param("itemName") String itemName);
     @Query("SELECT s FROM Stock s WHERE s.client.clientName = :clientName AND s.itemName = :itemName")
     Optional<Stock> findByItemName(@Param("clientName") String clientName, @Param("itemName") String itemName);
 

@@ -7,6 +7,8 @@ import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseStockRepository;
+import org.example.stockswiftservice.domain.stock.entity.Stock;
+import org.example.stockswiftservice.domain.stock.repository.StockRepository;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ import org.example.stockswiftservice.global.rs.RsData;
 public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final PurchaseStockRepository purchaseStockRepository;
+    private final StockRepository stockRepository;
     public List<Purchase> getList() {
         return this.purchaseRepository.findAll();
     }
@@ -64,10 +67,6 @@ public class PurchaseService {
         };
     }
 
-    public List<Purchase> getApprovalList() {
-        return this.purchaseRepository.findAllByApprovalTrue();
-    }
-
     public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> filteredItems, Long allPrice) {
         Purchase purchase = Purchase.builder()
                 .purchaseDate(purchaseDate)
@@ -87,6 +86,50 @@ public class PurchaseService {
         return RsData.of("1", "판매 등록 완료", purchase);
     }
 
+    public void approval(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchase.setApproval(true);
+
+            List<PurchaseStock> purchaseStocks = purchase.getPurchaseStocks();
+            for (PurchaseStock purchaseStock : purchaseStocks) {
+                Optional<Stock> optionalStock = this.stockRepository.findByItemName(purchaseStock.getItemName());
+                Stock stock = optionalStock.get();
+                stock.setQuantity(optionalStock.get().getQuantity() - purchaseStock.getInputQuantity());
+                this.stockRepository.save(stock);
+            }
+
+            this.purchaseRepository.save(purchase);
+        }
+    }
+
+    public void approvalCancel(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchase.setApproval(false);
+
+            List<PurchaseStock> purchaseStocks = purchase.getPurchaseStocks();
+            for (PurchaseStock purchaseStock : purchaseStocks) {
+                Optional<Stock> optionalStock = this.stockRepository.findByItemName(purchaseStock.getItemName());
+                Stock stock = optionalStock.get();
+                stock.setQuantity(optionalStock.get().getQuantity() + purchaseStock.getInputQuantity());
+                this.stockRepository.save(stock);
+            }
+
+            this.purchaseRepository.save(purchase);
+        }
+    }
+
+    public void delete(List<Long> ids) {
+        for (Long id : ids) {
+            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
+            Purchase purchase = optionalPurchase.get();
+            purchaseRepository.delete(purchase);
+        }
+    }
+
     public Purchase getPurchase(Long id){
        Optional<Purchase> purchase = purchaseRepository.findById(id);
 
@@ -99,31 +142,5 @@ public class PurchaseService {
         List<Purchase> getPurchaseList = purchaseRepository.findByPurchaseDate(date);
 
         return getPurchaseList;
-    }
-
-    public void approval(List<Long> ids) {
-        for (Long id : ids) {
-            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
-            Purchase purchase = optionalPurchase.get();
-            purchase.setApproval(true);
-            this.purchaseRepository.save(purchase);
-        }
-    }
-
-    public void approvalCancel(List<Long> ids) {
-        for (Long id : ids) {
-            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
-            Purchase purchase = optionalPurchase.get();
-            purchase.setApproval(false);
-            this.purchaseRepository.save(purchase);
-        }
-    }
-
-    public void delete(List<Long> ids) {
-        for (Long id : ids) {
-            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
-            Purchase purchase = optionalPurchase.get();
-            purchaseRepository.delete(purchase);
-        }
     }
 }
