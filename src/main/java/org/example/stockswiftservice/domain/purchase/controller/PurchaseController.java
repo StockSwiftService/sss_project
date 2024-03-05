@@ -1,5 +1,10 @@
 package org.example.stockswiftservice.domain.purchase.controller;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +31,27 @@ import java.util.List;
 public class PurchaseController {
     private final PurchaseService purchaseService;
     private final SalesManagementService salesManagementService;
+
+    @Data
+    public class PurchaseDto {
+        private LocalDate purchaseDate;
+        private Client client;
+        private Boolean deliveryStatus;
+        private String significant;
+        private Long allPrice;
+        private Boolean approval;
+        private List<PurchaseStock> purchaseStocks;
+
+        public  PurchaseDto(Purchase purchase) {
+            this.purchaseDate = purchase.getPurchaseDate();
+            this.client = purchase.getClient();
+            this.deliveryStatus = purchase.getDeliveryStatus();
+            this.significant = purchase.getSignificant();
+            this.allPrice = purchase.getAllPrice();
+            this.approval = purchase.getApproval();
+            this.purchaseStocks = purchase.getPurchaseStocks();
+        }
+    }
 
     @Data
     public static class ApprovalPurchase {
@@ -126,4 +152,7 @@ public class PurchaseController {
 
         return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
     }
+
+//    @GetMapping("/{id}")
+//    public RsData<>
 }
