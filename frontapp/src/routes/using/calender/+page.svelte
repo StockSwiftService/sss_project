@@ -105,46 +105,30 @@
     }
     
     async function handleEventDidMount(info) {
-        if(isDeleteEnabled || isModifyEnabled) {
-            const authorization = await checkMemberAuthorization(info);
-            if(!authorization) {
-                tippy(info.el, {
-                content: '수정/삭제 불가능',
-                theme: 'light',
-                });
-            } else {
-                tippy(info.el, {
-                content: '수정/삭제 가능',
-                theme: 'light',
-                });
-            }
+        const startDate = new Date(info.event.start);
+        const endDate = new Date(info.event.end);
+
+        const formattedStartDate = new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        }).format(startDate);
+
+        const formattedEndDate = new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        }).format(endDate);
+
+        if(formattedEndDate == '01/01') {
+            tippy(info.el, {
+            content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+            theme: 'light',
+            });
         } else {
-            const startDate = new Date(info.event.start);
-            const endDate = new Date(info.event.end);
-
-            const formattedStartDate = new Intl.DateTimeFormat('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            }).format(startDate);
-
-            const formattedEndDate = new Intl.DateTimeFormat('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            }).format(endDate);
-
-            if(formattedEndDate == '01/01') {
-                tippy(info.el, {
-                content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
-                theme: 'light',
-                });
-            } else {
-                tippy(info.el, {
-                content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
-                theme: 'light',
-                });
-            }
+            tippy(info.el, {
+            content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+            theme: 'light',
+            });
         }
-        
     }
 
 
@@ -261,6 +245,8 @@
             fetchDataAndRenderCalendar(loggedInUserId);
             window.alert('일정 삭제를 취소하였습니다');
         }
+        
+        isDeleteEnabled = false;
     } catch (error) {
             console.error('Error handling event click:', error);
         }
@@ -345,13 +331,13 @@
                 info.event.setStart(startDate);
                 info.event.setEnd(endDate);
 
-                isModifyEnabled = false;
-                fetchDataAndRenderCalendar(loggedInUserId);
             } else {
                 window.alert('수정을 취소하였습니다');
                 isModifyEnabled = false;
                 fetchDataAndRenderCalendar(loggedInUserId);
             }
+            isModifyEnabled = false;
+            fetchDataAndRenderCalendar(loggedInUserId);
         }
             } catch (error) {
                 console.error('Error handling event click:', error);
