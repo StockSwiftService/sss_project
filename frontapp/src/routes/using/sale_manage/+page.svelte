@@ -310,26 +310,26 @@
         </div>
         <div class="middle-box scr-type-1">
             <div class="flex aic jcsb">
-                <div class="select-type-4 w100 f14 rel">
-                    <select name="account">
-                        <option value="">전체</option>
-                        <option value="">판매</option>
-                        <option value="">구매</option>
-                    </select>
-                    <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>
-                    </span>
-                </div>
-                <div class="flex aic g8">
-                    <div class="input-type-2 f14 w200">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <span class="f14">~</span>
-                    <div class="input-type-2 f14 w200">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
-                </div>
+<!--                <div class="select-type-4 w100 f14 rel">-->
+<!--                    <select name="account">-->
+<!--                        <option value="">전체</option>-->
+<!--                        <option value="">판매</option>-->
+<!--                        <option value="">구매</option>-->
+<!--                    </select>-->
+<!--                    <span class="arrow img-box abs y-middle">-->
+<!--                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--                <div class="flex aic g8">-->
+<!--                    <div class="input-type-2 f14 w200">-->
+<!--                        <input type="date" placeholder="조회">-->
+<!--                    </div>-->
+<!--                    <span class="f14">~</span>-->
+<!--                    <div class="input-type-2 f14 w200">-->
+<!--                        <input type="date" placeholder="조회">-->
+<!--                    </div>-->
+<!--                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>-->
+<!--                </div>-->
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
             <h1 class="f14 c777 tm">{currentdate}</h1>
@@ -360,21 +360,6 @@
                     <tbody>
                     <tr>
                         <td colspan="4"><span class="tb">총 금액 {totalPrice[currentdate]}</span></td>
-                    </tr>
-                    </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">구매 리스트</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">{currentdate}</td>
-                        <td class="w60">
-                            <span class="inblock cb">구매</span>
-                        </td>
-                        <td>김철수</td>
-                        <td>3개</td>
                     </tr>
                     </tbody>
                 </table>
