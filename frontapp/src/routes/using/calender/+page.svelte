@@ -242,7 +242,6 @@
             info.event.remove();
         } else {
             isDeleteEnabled = false;
-            fetchDataAndRenderCalendar(loggedInUserId);
             window.alert('일정 삭제를 취소하였습니다');
         }
         
@@ -320,6 +319,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    fetchDataAndRenderCalendar(loggedInUserId);
                     console.log('Event updated:', data);
                 })
                 .catch(error => {
@@ -334,10 +334,8 @@
             } else {
                 window.alert('수정을 취소하였습니다');
                 isModifyEnabled = false;
-                fetchDataAndRenderCalendar(loggedInUserId);
             }
             isModifyEnabled = false;
-            fetchDataAndRenderCalendar(loggedInUserId);
         }
             } catch (error) {
                 console.error('Error handling event click:', error);
