@@ -36,8 +36,6 @@ public class ClientController {
 
         return RsData.of("S-1", "성공", new ClientsSearchResponse(clients,clientList));
     }
-
-
     @Getter
     @AllArgsConstructor
     public static class ClientResponse {

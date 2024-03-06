@@ -19,6 +19,7 @@ import static java.util.Locale.KOREA;
 public class SalesManagementService {
     private final SalesManagementRepository saleManagementRepository;
     private final PurchaseRepository purchaseRepository;
+
     public SalesManagement getSalesManagement(Long purchaseId){
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
@@ -51,6 +52,7 @@ public class SalesManagementService {
 
         SalesManagement salesManagement = getSalesManagement(purchaseId);
         LocalDate date = purchase.getPurchaseDate();
+
         calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
         int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
         int dateYear = calendar.get(Calendar.YEAR);
@@ -101,4 +103,5 @@ public class SalesManagementService {
         Long monthlySales = purchaseRepository.getSalesByMonth(year, month);
         return monthlySales;
     }
+
 }

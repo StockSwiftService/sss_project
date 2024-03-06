@@ -13,6 +13,8 @@
     // 해당 날짜
     let currentdate = '';
 
+    let totalPrice = [];
+
     let formdata = [];
 
     async function getList(date) {
@@ -27,7 +29,7 @@
                 currentdate = date;
                 formdata = data.data.purchase;
 
-                console.log(formdata)
+                console.log(totalPrice)
             }
         } catch (error) {
             console.error('또 오류루:', error);
@@ -59,11 +61,6 @@
             calendar.addEvent({title: userInput, start: info.startStr, end: info.endStr});
         }
     }
-
-    let globalSalesData = {
-        monthlyData: {},
-        weekly: {}
-    };
 
     onMount(async () => {
         // console.log(globalSalesData)
@@ -189,8 +186,6 @@
                         body: JSON.stringify({purchaseId: purchaseId})
                     });
 
-                    console.log(response)
-
                     if (response.ok) {
                         let salesData = await response.json();
                         // 캘린더에 기존 이벤트가 있다면 제거
@@ -228,7 +223,13 @@
                                 color: 'white',
                                 textColor: 'black',
                             });
+                            if (!totalPrice[sale.salesDate]) {
+                                totalPrice[sale.salesDate] = sale.dailyTotalSales;
+                            } else {
+                                totalPrice[sale.salesDate] += sale.dailyTotalSales;
+                            }
 
+                            console.log(sale.salesDate, totalPrice[sale.salesDate]);
                             // 주별 매출
                             if (!maxWeeklyData[sale.weekDate]) {
                                 maxWeeklyData[sale.weekDate] = {
@@ -281,8 +282,6 @@
             });
         }
     });
-
-
 </script>
 <style>
     #calendar > * {
@@ -311,26 +310,26 @@
         </div>
         <div class="middle-box scr-type-1">
             <div class="flex aic jcsb">
-                <div class="select-type-4 w100 f14 rel">
-                    <select name="account">
-                        <option value="">전체</option>
-                        <option value="">판매</option>
-                        <option value="">구매</option>
-                    </select>
-                    <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>
-                    </span>
-                </div>
-                <div class="flex aic g8">
-                    <div class="input-type-2 f14 w200">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <span class="f14">~</span>
-                    <div class="input-type-2 f14 w200">
-                        <input type="date" placeholder="조회">
-                    </div>
-                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
-                </div>
+<!--                <div class="select-type-4 w100 f14 rel">-->
+<!--                    <select name="account">-->
+<!--                        <option value="">전체</option>-->
+<!--                        <option value="">판매</option>-->
+<!--                        <option value="">구매</option>-->
+<!--                    </select>-->
+<!--                    <span class="arrow img-box abs y-middle">-->
+<!--                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--                <div class="flex aic g8">-->
+<!--                    <div class="input-type-2 f14 w200">-->
+<!--                        <input type="date" placeholder="조회">-->
+<!--                    </div>-->
+<!--                    <span class="f14">~</span>-->
+<!--                    <div class="input-type-2 f14 w200">-->
+<!--                        <input type="date" placeholder="조회">-->
+<!--                    </div>-->
+<!--                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>-->
+<!--                </div>-->
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
             <h1 class="f14 c777 tm">{currentdate}</h1>
@@ -338,7 +337,7 @@
                 <table>
                     <thead>
                     <tr>
-                        <th colspan="4">구매 리스트</th>
+                        <th colspan="4">판매 리스트</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -346,26 +345,21 @@
                         <tr>
                             <td class="w120">{currentdate}</td>
                             <td class="w60">
-                                <span class="inblock cb">구매</span>
+                                <span class="inblock cb">판매</span>
                             </td>
-                            <td>{purchaseList.purchaseTotal}</td>
-                            <td>{purchaseList.id}</td>
+                            <td class="wsn tal">
+                                {purchaseList.purchaseStocks[0].itemName}
+                                {#if purchaseList.purchaseStocks.length > 1}
+                                    외 {purchaseList.purchaseStocks.length - 1}건
+                                {/if}
+                            </td>
+                            <td>{purchaseList.allPrice}</td>
                         </tr>
                     {/each}
                     </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">판매 리스트</th>
-                    </tr>
-                    </thead>
                     <tbody>
                     <tr>
-                        <td class="w120">{currentdate}</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김철수</td>
-                        <td>3개</td>
+                        <td colspan="4"><span class="tb">총 금액 {totalPrice[currentdate]}</span></td>
                     </tr>
                     </tbody>
                 </table>

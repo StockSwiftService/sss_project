@@ -34,11 +34,17 @@ public class SalesManagementController {
         private final List<SalesManagement> salesManagement;
     }
 
-    // 승인 요청을 받았을 경우
+    // 판매 승인 요청을 받았을 경우
     @PostMapping(value = "/sales", consumes = MediaType.APPLICATION_JSON_VALUE)
     public RsData<CreateSM> CreateSalesM(@RequestBody CreateSalesManagement createSalesManagement){
 
         List<SalesManagement> salesManagement = saleManagementService.printTotalSales(createSalesManagement.getPurchaseId());
         return RsData.of("R-1", "성공", new CreateSM(salesManagement));
     }
+
+    // 구매 승인 요청을 받았을 경우
+//    @PostMapping(value = "/purchase", consumes = APPLICATION_JSON_VALUE)
+//    public RsData<CreateSM> CreatePurchaseM(@RequestBody CreateSalesManagement createSalesManagement){
+//
+//    }
 }
