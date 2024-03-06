@@ -19,11 +19,6 @@
         resetForm();
     }
 
-    function activateModalRecord() {
-        isActive = true;
-        isActiveRecord = true;
-    }
-
     function activateModalAccountSearch() {
         isActive2 = true;
         isActiveAccountSearch = true;
@@ -36,6 +31,8 @@
         isActiveRecord = false;
         confirmNameErrorMessage = '';
         confirmNameSuccessMessage = '';
+        startDate = '';
+        endDate = '';
     }
 
     function deactivateAccountSearchModal() {
@@ -57,9 +54,11 @@
     let formData = {
         clientName: '',
         itemName: '',
+        defaultQuantity: '',
         quantity: '',
         purchasePrice: '',
-        salesPrice: ''
+        salesPrice: '',
+        createDate:''
     };
     let formDataModify = {
         clientNameModify: '',
@@ -67,9 +66,13 @@
         purchasePriceModify: '',
         salesPriceModify: '',
     };
+
+    let purchasesByDate = {};
+
     onMount(async () => {
         await fetchClients();
         await dataLoad();
+        await recordData();
         const unsubscribe = page.subscribe(async ($page) => {
             // URL에서 검색어(kw) 쿼리 파라미터 값을 가져와 searchQuery에 할당
             searchQuery = $page.url.searchParams.get('kw') || '';
@@ -422,15 +425,16 @@
 
     }
 
+
     let allChecked = false;
 
     function toggleAll() {
 
-        data.data.stocks.content.map(client => {
-            if (!client.checked) {
-                client.checked = true;
+        data.data.stocks.content.map(stock => {
+            if (!stock.checked) {
+                stock.checked = true;
             } else {
-                client.checked = false;
+                stock.checked = false;
             }
         })
 
@@ -438,6 +442,13 @@
     }
 
     async function downloadExcel() {
+
+        const isConfirmed = confirm('Excel 파일로 다운로드 하시겠습니까?');
+
+        if (!isConfirmed) {
+            return;
+        }
+
         try {
             const response = await fetch('http://localhost:8080/api/v1/stocks/excel');
             const blob = await response.blob();
@@ -463,6 +474,68 @@
         return phoneNumber;
     }
 
+    //이력
+    async function activateModalRecord(clientId) {
+        // 모달 활성화 및 상태 초기화
+        isActive = true;
+        isActiveRecord = true;
+        currentClientId = clientId;
+        resetForm();
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/stocks/${currentClientId}`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const stockData = await response.json();
+                formData.clientName = stockData.data.stockDto.clientName;
+                formData.itemName = stockData.data.stockDto.itemName;
+                formData.defaultQuantity = stockData.data.stockDto.defaultQuantity;
+                formData.quantity = stockData.data.stockDto.quantity;
+                formData.createDate = stockData.data.stockDto.createDate;
+                if (formData.createDate) {
+                    const date = new Date(formData.createDate);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    formData.createDate = formattedDate;
+                }
+                formData = {...formData};
+                await recordData(stockData.data.stockDto.itemName);
+            } else {
+
+                console.error("Failed to fetch client details");
+            }
+        } catch (error) {
+            console.error('Error fetching client details:', error);
+        }
+    }
+    async function recordData(itemName = '') {
+        const url = `http://localhost:8080/api/v1/purchase/record?itemName=${encodeURIComponent(itemName)}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            purchasesByDate = data;
+            filteredPurchases = data;
+        }
+    }
+    let startDate = '';
+    let endDate = '';
+    let filteredPurchases = {};
+
+    function filterPurchases() {
+        filteredPurchases = Object.keys(purchasesByDate).reduce((acc, date) => {
+            if (date >= startDate && date <= endDate) {
+                acc[date] = purchasesByDate[date];
+            }
+            return acc;
+        }, {});
+    }
+
+    function updateQuantities(event) {
+        // 입력된 값으로 defaultQuantity와 quantity 업데이트
+        const value = event.target.value;
+        formData.defaultQuantity = value;
+        formData.quantity = value;
+    }
 </script>
 
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
@@ -482,7 +555,8 @@
                         <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
                         <div class="flex g8">
                             <div class="input-type-1 f14 w100per">
-                                <input bind:value={formData.clientName} type="text" name="clientName" placeholder="거래처명" readonly>
+                                <input bind:value={formData.clientName} type="text" name="clientName"
+                                       placeholder="거래처명" readonly>
                             </div>
                             <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기
                             </button>
@@ -512,7 +586,7 @@
                     <div>
                         <h2 class="c333 f15 tm mb8">수량<span class="cr f16 tm inblock">*</span></h2>
                         <div class="input-type-1 f14 w100per">
-                            <input bind:value={formData.quantity} type="text" name="quantity" placeholder="수량">
+                            <input on:input={updateQuantities} type="text" name="quantity" placeholder="수량">
                         </div>
                         <div class="error-text-box" data-field="quantity">
                             <span class="error-text f13 mt8 cr"></span>
@@ -560,7 +634,7 @@
                     <h2 class="c333 f15 tm mb8">거래처명<span class="cr f16 tm inblock">*</span></h2>
                     <div class="flex g8">
                         <div class="input-type-1 f14 w100per">
-                            <input type="text" bind:value={formDataModify.clientNameModify} name="clientNameModify" placeholder="거래처명">
+                            <input type="text" bind:value={formDataModify.clientNameModify} name="clientNameModify" placeholder="거래처명" readonly>
                         </div>
                         <button type="button" class="btn-type-1 w80 f14 bdr4 b333 cfff" on:click={activateModalAccountSearch}>찾기
                         </button>
@@ -624,87 +698,50 @@
         </div>
         <div class="middle-box scr-type-1">
             <div class="flex aic jcsb">
-                <div class="select-type-4 w100 f14 rel">
-                    <select name="account">
-                        <option value="">전체</option>
-                        <option value="">판매</option>
-                        <option value="">구매</option>
-                    </select>
-                    <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>
-                    </span>
-                </div>
                 <div class="flex aic g8">
                     <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
+                        <input type="date" bind:value="{startDate}" placeholder="조회">
                     </div>
                     <span class="f14">~</span>
                     <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
+                        <input type="date" bind:value="{endDate}" placeholder="조회">
                     </div>
-                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
+                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" on:click="{filterPurchases}">조회</button>
                 </div>
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
-            <h1 class="f14 c777 tm">거래처명 : (주)네모컴퍼니 | 품목명 : 네모네모 스넥 100g</h1>
+            <h1 class="f14 c777 tm">거래처명 : {formData.clientName} | 품목명 : {formData.itemName}</h1>
             <div class="table-type-2 mt12">
                 <table>
                     <thead>
                     <tr>
-                        <th colspan="4">2024-02-10</th>
+                        <th colspan="4">{formData.createDate}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td colspan="4">기존 재고 : 50개</td>
+                        <td colspan="4">기존 재고 :{formData.defaultQuantity.toLocaleString()}개</td>
                     </tr>
                     </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">2024-02-16</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김네모</td>
-                        <td>50개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cr">구매</span>
-                        </td>
-                        <td>(주)네모컴퍼니</td>
-                        <td>50개</td>
-                    </tr>
-                    </tbody>
-                    <thead>
-                    <tr>
-                        <th colspan="4">2024-02-18</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td class="w60">
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>김철수</td>
-                        <td>3개</td>
-                    </tr>
-                    <tr>
-                        <td class="w120">2024-02-16</td>
-                        <td>
-                            <span class="inblock cb">판매</span>
-                        </td>
-                        <td>박지수</td>
-                        <td>1개</td>
-                    </tr>
-                    </tbody>
+                    {#each Object.entries(startDate && endDate ? filteredPurchases : purchasesByDate) as [date, purchases]}
+                        <thead>
+                        <tr>
+                            <th colspan="4">{date}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {#each purchases as purchase}
+                            <tr>
+                                <td class="w120">{purchase.purchaseDate}</td>
+                                <td class="w60">
+                                    <span class="inblock cb">판매</span>
+                                </td>
+                                <td>{purchase.client.clientName}</td>
+                                <td>{purchase.purchaseStocks[0].inputQuantity}개</td>
+                            </tr>
+                        {/each}
+                        </tbody>
+                    {/each}
                 </table>
             </div>
         </div>
@@ -757,7 +794,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="store-management-area cnt-area w100per">
@@ -785,7 +821,6 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14">
-<!--                전체 <span class="number inblock cm tm">{hasSearchQuery ? searchResultCount : totalClients}</span>개-->
                 전체 <span class="number inblock cm tm">{data.data.stocks.totalElements}</span>개
             </div>
             <div class="table-box-1 table-type-1 scr-type-2 mt12">
@@ -822,7 +857,7 @@
                         <td class="wsn">{stock.purchasePrice.toLocaleString()}</td>
                         <td class="wsn">{stock.salesPrice.toLocaleString()}</td>
                         <td class="wsn tac">
-                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={activateModalRecord}>이력
+                            <button class="w40 h24 btn-type-2 bdr4 bdbbb cbbb f13" on:click={() => activateModalRecord(stock.id)}>이력
                             </button>
                         </td>
                         <td class="wsn tac">

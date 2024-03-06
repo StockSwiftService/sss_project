@@ -21,6 +21,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -141,6 +143,15 @@ public class PurchaseService {
         }
 
         return purchases;
+    }
+
+    public Map<LocalDate, List<Purchase>> getApprovedPurchasesByItemNameGroupedByDate(String itemName) {
+        return purchaseRepository.findAllByApprovalTrue().stream()
+                .filter(purchase -> purchase.getPurchaseStocks().stream()
+                        .anyMatch(stock -> stock.getItemName().equals(itemName)))
+                .collect(Collectors.groupingBy(Purchase::getPurchaseDate,
+                        TreeMap::new,
+                        Collectors.toList()));
     }
 
     public Purchase getPurchase(Long id){

@@ -14,11 +14,14 @@ import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagemen
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/purchase")
@@ -125,5 +128,11 @@ public class PurchaseController {
         List<Purchase> purchases = this.purchaseService.delete(approvalRequest.getIds());
 
         return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
+    }
+
+    @GetMapping("/record")
+    public ResponseEntity<Map<LocalDate, List<Purchase>>> getApprovedPurchasesByItemNameGroupedByDate(@RequestParam(value = "itemName") String itemName) {
+        Map<LocalDate, List<Purchase>> purchases = purchaseService.getApprovedPurchasesByItemNameGroupedByDate(itemName);
+        return ResponseEntity.ok(purchases);
     }
 }

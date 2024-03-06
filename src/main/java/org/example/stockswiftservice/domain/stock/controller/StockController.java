@@ -15,10 +15,10 @@ import org.example.stockswiftservice.domain.stock.service.StockService;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,18 +45,22 @@ public class StockController {
     public class StockDto {
         private Long id;
         private String itemName;
+        private Long defaultQuantity;
         private Long quantity;
         private Long purchasePrice;
         private Long salesPrice;
         private String clientName;
+        private LocalDateTime createDate;
 
         public StockDto(Stock stock) {
             this.id = stock.getId();
             this.itemName = stock.getItemName();
+            this.defaultQuantity = stock.getDefaultQuantity();
             this.quantity = stock.getQuantity();
             this.purchasePrice = stock.getPurchasePrice();
             this.salesPrice = stock.getSalesPrice();
             this.clientName = stock.getClient().getClientName();
+            this.createDate = stock.getCreateDate();
         }
     }
 
@@ -96,6 +100,8 @@ public class StockController {
         @NotBlank
         private String itemName;
         @NotNull
+        private Long defaultQuantity;
+        @NotNull
         private Long quantity;
         @NotNull
         private Long purchasePrice;
@@ -111,7 +117,7 @@ public class StockController {
 
     @PostMapping("")
     public RsData<CreateResponse> create(@Valid @RequestBody CreateRequest createRequest) {
-        RsData<Stock> stock = stockService.create(createRequest.getClientName(), createRequest.getItemName(),
+        RsData<Stock> stock = stockService.create(createRequest.getClientName(), createRequest.getItemName(), createRequest.getDefaultQuantity(),
                   createRequest.getQuantity(), createRequest.getPurchasePrice(), createRequest.getSalesPrice());
 
         if (stock.isFail()) return (RsData) stock;
