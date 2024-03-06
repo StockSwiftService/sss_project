@@ -44,6 +44,7 @@ class StockSwiftServiceApplicationTests {
         saleService.create("2024-03-05", 243202L);
         saleService.create("2024-03-13", 24302L);
         saleService.create("2024-03-10", 24322L);
+        saleService.create("2024-03-14", 224322L);
     }
 
     @Test

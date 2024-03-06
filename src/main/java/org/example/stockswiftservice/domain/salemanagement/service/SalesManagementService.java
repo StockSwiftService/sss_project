@@ -3,6 +3,7 @@ package org.example.stockswiftservice.domain.salemanagement.service;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
+import org.example.stockswiftservice.domain.sale.repository.SaleRepository;
 import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.repository.SalesManagementRepository;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import static java.util.Locale.KOREA;
 public class SalesManagementService {
     private final SalesManagementRepository saleManagementRepository;
     private final PurchaseRepository purchaseRepository;
+    private final SaleRepository saleRepository;
+
     public SalesManagement getSalesManagement(Long purchaseId){
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid purchase Id:" + purchaseId));
@@ -51,6 +54,7 @@ public class SalesManagementService {
 
         SalesManagement salesManagement = getSalesManagement(purchaseId);
         LocalDate date = purchase.getPurchaseDate();
+
         calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
         int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
         int dateYear = calendar.get(Calendar.YEAR);
@@ -101,4 +105,5 @@ public class SalesManagementService {
         Long monthlySales = purchaseRepository.getSalesByMonth(year, month);
         return monthlySales;
     }
+
 }
