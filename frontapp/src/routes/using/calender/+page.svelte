@@ -1,4 +1,5 @@
 <script>
+    import './Calendar.css';
     import { onMount, afterUpdate } from 'svelte';
     import { Calendar } from '@fullcalendar/core';
     import interactionPlugin from '@fullcalendar/interaction';
@@ -256,13 +257,13 @@
             });
             info.event.remove();
         } else {
+            isDeleteEnabled = false;
+            fetchDataAndRenderCalendar(loggedInUserId);
             window.alert('일정 삭제를 취소하였습니다');
         }
     } catch (error) {
             console.error('Error handling event click:', error);
         }
-        isDeleteEnabled = false;
-        fetchDataAndRenderCalendar(loggedInUserId);
     } else if (isModifyEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
@@ -343,15 +344,18 @@
                 info.event.setExtendedProp('content', newContent);
                 info.event.setStart(startDate);
                 info.event.setEnd(endDate);
+
+                isModifyEnabled = false;
+                fetchDataAndRenderCalendar(loggedInUserId);
             } else {
                 window.alert('수정을 취소하였습니다');
+                isModifyEnabled = false;
+                fetchDataAndRenderCalendar(loggedInUserId);
             }
         }
             } catch (error) {
                 console.error('Error handling event click:', error);
             }
-            isModifyEnabled = false;
-            fetchDataAndRenderCalendar(loggedInUserId);
     }
 }
     function formatDate(date) {
@@ -382,7 +386,7 @@
     }
 </script>
 
-<style>
+<!-- <style>
     #calendar {
         width: 100%;
         margin-top: 20px;
@@ -402,19 +406,11 @@
     }
 
 
-    :global(.fc-day) {
-        background-color: #fdfafa;
+    :global(.fc-day, .fc-today) {
+        background-color: #fff;
     }
 
-    :global(.fc .fc-daygrid-day-frame) {
-        height: 16vh;
-    }
-
-    :global(.fc-day-today) {
-        background-color: #f5f8ff !important;
-        border-radius: 8px !important;
-    }
-</style>
+</style> -->
 
 
 
