@@ -174,9 +174,9 @@
 
                 if(updateStartDate.getDate() === updateEndDate.getDate()){
                     event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, 
-                        backgroundColor: 'inherit', textColor: 'black' , borderColor: 'black' };
+                        backgroundColor: 'inherit', textColor: 'black' , borderColor: 'white' };
                 } else {
-                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#8fdf82' };
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#8fdf82', borderColor: '#8fdf82' };
                 }
                 calendar.addEvent(event);
 
