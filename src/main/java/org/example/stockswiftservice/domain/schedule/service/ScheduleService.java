@@ -1,6 +1,7 @@
 package org.example.stockswiftservice.domain.schedule.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.schedule.entity.Schedule;
 import org.example.stockswiftservice.domain.schedule.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,9 @@ public class ScheduleService {
     public Schedule getListById(Long id) {
         return this.scheduleRepository.findById(id).orElseThrow();
     }
-    public Schedule create(String subject, String content, LocalDate startDate, LocalDate endDate) {
+    public Schedule create(Member member , String subject, String content, LocalDate startDate, LocalDate endDate) {
         Schedule schedule = Schedule.builder()
+                .member(member)
                 .subject(subject)
                 .content(content)
                 .startDate(startDate)
@@ -31,15 +33,23 @@ public class ScheduleService {
 
         return this.scheduleRepository.save(schedule);
     }
-    public Schedule modify(Schedule schedule, String subject, String content, LocalDate startDate, LocalDate endDate) {
-        schedule.setSubject(subject);
-        schedule.setContent(content);
-        schedule.setStartDate(startDate);
-        schedule.setEndDate(endDate);
-        return this.scheduleRepository.save(schedule);
+    public Schedule modify(Member member, Schedule schedule, String subject, String content, LocalDate startDate, LocalDate endDate) {
+        if (member.getId().equals(schedule.getMember().getId())) {
+            schedule.setSubject(subject);
+            schedule.setContent(content);
+            schedule.setStartDate(startDate);
+            schedule.setEndDate(endDate);
+            return this.scheduleRepository.save(schedule);
+        } else {
+            throw new RuntimeException("회원 정보가 일치하지 않습니다");
+        }
     }
-    public void delete(Schedule schedule) {
-        this.scheduleRepository.delete(schedule);
+    public void delete(Member member, Schedule schedule) {
+        if (member.getId().equals(schedule.getMember().getId())) {
+            this.scheduleRepository.delete(schedule);
+        } else {
+            throw new RuntimeException("회원 정보가 일치하지 않습니다");
+        }
     }
 
 }

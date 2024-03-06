@@ -1,25 +1,55 @@
 <script>
-    import './Calendar.css';
     import { onMount, afterUpdate } from 'svelte';
     import { Calendar } from '@fullcalendar/core';
     import interactionPlugin from '@fullcalendar/interaction';
     import dayGridPlugin from '@fullcalendar/daygrid';
+    import tippy from 'tippy.js';
+    import 'tippy.js/dist/tippy.css';
 
     let calendar;
     let isDeleteEnabled = false;
     let isModifyEnabled = false;
     let events = [];
+    let loggedInUserId = null;
+    
+    onMount(async() => {
+		try {
+			const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				credentials: 'include'
+			});
+			if (response.ok) {
+				const data = await response.json();
+                loggedInUserId = data.data.member.id;
+			} else {
+				console.error('서버 응답 오류:', response.statusText);
+				if (!response.ok && response.status != 401) {
+					alert('다시 시도 해주세요.');
+				}
+			}
+		} catch (error) {
+			console.error('오류 발생:', error);
+			alert('다시 시도 해주세요.');
+		}
+        fetchDataAndRenderCalendar(loggedInUserId);
+	});
 
-    async function fetchDataAndRenderCalendar() {
+    async function fetchDataAndRenderCalendar(loggedInUserId) {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/schedules');
+            const response = await fetch('http://localhost:8080/api/v1/schedules', {
+                credentials: 'include'
+            });
             const data = await response.json();
             events = data.data.schedules.map(event => ({
                 eventId: event.id,
                 title: event.subject,
                 content: event.content,
                 start: new Date(event.startDate),
-                end: new Date(event.endDate)
+                end: new Date(event.endDate),
+                color: event.member.id === loggedInUserId ? '#8fdf82' : '#42cef5',
             }));
 
             renderCalendar();
@@ -37,6 +67,7 @@
             selectable: false,
             events: events,
             dayMaxEventRows: true,
+            eventDidMount: handleEventDidMount,
             views: {
                 dayGrid: {
                 dayMaxEventRows: 4
@@ -71,6 +102,50 @@
 
         calendar.render();
     }
+    
+    async function handleEventDidMount(info) {
+        if(isDeleteEnabled || isModifyEnabled) {
+            const authorization = await checkMemberAuthorization(info);
+            if(!authorization) {
+                tippy(info.el, {
+                content: '수정/삭제 불가능',
+                theme: 'light',
+                });
+            } else {
+                tippy(info.el, {
+                content: '수정/삭제 가능',
+                theme: 'light',
+                });
+            }
+        } else {
+            const startDate = new Date(info.event.start);
+            const endDate = new Date(info.event.end);
+
+            const formattedStartDate = new Intl.DateTimeFormat('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            }).format(startDate);
+
+            const formattedEndDate = new Intl.DateTimeFormat('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            }).format(endDate);
+
+            if(formattedEndDate == '01/01') {
+                tippy(info.el, {
+                content: '[' + formattedStartDate + ' ~ ' + formattedStartDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+                theme: 'light',
+                });
+            } else {
+                tippy(info.el, {
+                content: '[' + formattedStartDate + ' ~ ' + formattedEndDate + '] ' + info.event.title + ' - ' + info.event.extendedProps.content,
+                theme: 'light',
+                });
+            }
+        }
+        
+    }
+
 
     function handleEnableDateSelect() {
         calendar.setOption('selectable', true);
@@ -78,11 +153,13 @@
         window.alert('등록할 일정의 기간을 드래그하여 선택하세요');
     }
     function handleEnableDelete() {
+        fetchDataAndRenderCalendar(loggedInUserId);
         calendar.setOption('selectable', false);
         isDeleteEnabled = true;
         window.alert('삭제할 일정을 클릭해주세요');
     }
     function handleEnableModify() {
+        fetchDataAndRenderCalendar(loggedInUserId);
         calendar.setOption('selectable', false);
         isModifyEnabled = true;
         window.alert('수정할 일정을 클릭해주세요');
@@ -102,9 +179,7 @@
             }
 
             if (title && content) {
-                const event = { title, content, start: info.startStr, end: info.endStr };
-
-                calendar.addEvent(event);
+                let event = [];
 
                 const updateStartDate = new Date(info.startStr);
                 const updateEndDate = new Date(info.endStr);
@@ -112,12 +187,20 @@
                 updateStartDate.setDate(updateStartDate.getDate());
                 updateEndDate.setDate(updateEndDate.getDate() - 1);
 
+                if(updateStartDate.getDate() === updateEndDate.getDate()){
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, 
+                        backgroundColor: 'inherit', textColor: 'black' , borderColor: 'black' };
+                } else {
+                    event = { title, content, start: info.startStr, end: info.endStr, memberId: loggedInUserId, backgroundColor: '#8fdf82' };
+                }
+                calendar.addEvent(event);
 
                 fetch('http://localhost:8080/api/v1/schedules', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         subject: title,
                         content,
@@ -127,14 +210,12 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    fetchDataAndRenderCalendar();
                     console.log('Event saved:', data);
                     window.alert('일정이 등록되었습니다');
                 })
                 .catch(error => {
                     console.error('Error saving event:', error);
                 });
-
                 calendar.setOption('selectable', false);
             } else {
                 window.alert("일정 등록을 취소하였습니다");
@@ -143,23 +224,27 @@
         }
     }
 
-    onMount(() => {
-        fetchDataAndRenderCalendar();
-    });
+    async function handleEventClick(info) {
+        console.log('아이디:' + info.event.extendedProps.eventId);
 
-    afterUpdate(() => {
-        fetchDataAndRenderCalendar();
-    });
-    function handleEventClick(info) {
     if (isDeleteEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
 
         const confirmation = window.confirm(`이벤트 "${eventTitle}"를 삭제하시겠습니까?`);
-        isDeleteEnabled = false;
 
-        if (confirmation) {
+        try {
+            console.log('로그인아이디:' + loggedInUserId);
+            const authorization = await checkMemberAuthorization(info);
+
+            console.log("정보:" + authorization);
+            if (!authorization) {
+                window.alert('회원 정보가 일치하지 않아 삭제할 수 없습니다.');
+                return;
+            }
+            if (confirmation) {
             fetch(`http://localhost:8080/api/v1/schedules/${eventId}`, {
+                credentials: 'include',
                 method: 'DELETE',
             })
             .then(response => response.json())
@@ -169,19 +254,32 @@
             .catch(error => {
                 console.error('Error deleting event:', error);
             });
-
             info.event.remove();
+        } else {
+            window.alert('일정 삭제를 취소하였습니다');
         }
+    } catch (error) {
+            console.error('Error handling event click:', error);
+        }
+        isDeleteEnabled = false;
+        fetchDataAndRenderCalendar(loggedInUserId);
     } else if (isModifyEnabled) {
         const eventTitle = info.event.title;
         const eventId = info.event.extendedProps.eventId;
 
         const confirmation = window.confirm(`이벤트 "${eventTitle}"를 수정하시겠습니까?`);
-        isModifyEnabled = false;
-        console.log(info);
 
-        if (confirmation) {
-            console.log(info.event.end);
+        try {
+            const authorization = await checkMemberAuthorization(info);
+
+            console.log("정보:" + authorization);
+            if (!authorization) {
+                window.alert('회원 정보가 일치하지 않아 수정할 수 없습니다.');
+                return;
+            }
+
+            if (confirmation) {
+                console.log('event:' + info.event); 
             const formattedStartDate = formatDate(info.event.start);
             let formattedEndDate = null;
 
@@ -216,7 +314,6 @@
             const startDate = new Date(startDateString);
             const endDate = new Date(endDateString);
 
-            // 각 날짜에 1일씩 추가
             startDate.setDate(startDate.getDate());
             endDate.setDate(endDate.getDate());
 
@@ -226,6 +323,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         subject: newTitle,
                         content: newContent,
@@ -240,13 +338,20 @@
                 .catch(error => {
                     console.error('Error updating event:', error);
                 });
-
+                
                 info.event.setProp('title', newTitle);
                 info.event.setExtendedProp('content', newContent);
                 info.event.setStart(startDate);
                 info.event.setEnd(endDate);
+            } else {
+                window.alert('수정을 취소하였습니다');
             }
         }
+            } catch (error) {
+                console.error('Error handling event click:', error);
+            }
+            isModifyEnabled = false;
+            fetchDataAndRenderCalendar(loggedInUserId);
     }
 }
     function formatDate(date) {
@@ -256,44 +361,62 @@
 
         return `${year}-${month}-${day}`;
     }
+    function checkMemberAuthorization(info) {
+    const eventId = info.event.extendedProps.eventId;
+
+    return fetch(`http://localhost:8080/api/v1/schedules/check/${eventId}`, {
+        credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.data.isConfirm);
+            if (data.data.isConfirm) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+        .catch(error => {
+            console.error('Error checking member authorization:', error);
+        });
+    }
 </script>
 
-<!--<style>-->
-<!--    #calendar {-->
-<!--        width: 100%;-->
-<!--        margin-top: 20px;-->
-<!--        font-size: 16px;-->
-<!--        overflow: hidden;-->
-<!--    }-->
-<!--    /* :global(.fc) {-->
-<!--        border: 1px solid #ffffff;-->
-<!--        border-radius: 8px;-->
-<!--        font-size: 16px;-->
-<!--        background-color: #fff;-->
-<!--    } */-->
+<style>
+    #calendar {
+        width: 100%;
+        margin-top: 20px;
+        font-size: 16px;
+    }
 
-<!--    :global(.fc-event) {-->
-<!--        border-radius: 5px;-->
-<!--        margin: 2px;-->
-<!--        padding-left: 10px;-->
-<!--        padding-top: 3px;-->
-<!--        padding-bottom: 3px;-->
-<!--        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);-->
-<!--    }-->
-<!--    :global(.fc-day) {-->
-<!--        background-color: #ffffff;-->
-<!--    }-->
-<!--    :global(.fc .fc-daygrid-day-frame) {-->
-<!--        /*height: 16vh;*/-->
-<!--    }-->
-<!--    :global(.fc-day-today) {-->
-<!--        background-color: #f5f8ff !important;-->
-<!--        border-radius: 8px !important;-->
-<!--    }-->
-<!--    #calendar > * {-->
-<!--        font-family: "Pretendard-Regular";-->
-<!--    }-->
-<!--</style>-->
+    :global(.fc-event) {
+        border-radius: 5px;
+        margin: 2px;
+        padding-left: 10px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+    }
+
+
+    :global(.fc-day) {
+        background-color: #fdfafa;
+    }
+
+    :global(.fc .fc-daygrid-day-frame) {
+        height: 16vh;
+    }
+
+    :global(.fc-day-today) {
+        background-color: #f5f8ff !important;
+        border-radius: 8px !important;
+    }
+</style>
+
+
 
 <div class="store-management-area cnt-area w100per">
     <div class="title-box flex aic jcsb">

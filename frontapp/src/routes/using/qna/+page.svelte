@@ -112,6 +112,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify(createData)
         })
         .then(result => {
@@ -253,7 +254,7 @@
                         </p>
                     </div>
                 </li>
-            {/each}
+                {/each}
             </ul>
             <div class="flex aic jce mt8">
                 <div class="flex aic g4">
