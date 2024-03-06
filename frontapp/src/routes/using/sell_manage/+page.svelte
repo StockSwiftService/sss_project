@@ -32,7 +32,6 @@
         itemSerachInput = "";
         itemAllSelected = false;
         allPrice = 0;
-        formatAllPrice = 0;
         purchaseDate = getTodayDate();
         selectedClient.clientName = "";
         selectedClient.phoneNumber = "";
@@ -133,7 +132,6 @@
     let itemSerachInput = "";
     let itemAllSelected = false;
     let allPrice = 0;
-    let formatAllPrice = 0;
 
     function addRow() {
         const newItem = {
@@ -216,7 +214,6 @@
         for (let i = 0; i < items.length; i++) {
             allPrice += items[i].sumPrice;
         }
-        formatAllPrice = formatNumber(allPrice);
     }
 
     function selectStock(stock) {
@@ -263,7 +260,7 @@
             alert("거래처를 선택해 주세요.");
             return true;
         }
-        if (formatAllPrice == 0) {
+        if (allPrice == 0) {
             alert("최소 1개 이상 품목을 등록해 주세요.");
             return true;
         }
@@ -311,6 +308,7 @@
     }  
 
     let modifyPurchase;
+    let readonly = false;
 
     async function modifyForm(purchaseId) {
         activateModalModifi();
@@ -324,8 +322,10 @@
             selectedClient.address = modifyPurchase.client.address;
             deliveryStatus = modifyPurchase.deliveryStatus;
             significant = modifyPurchase.significant;
-            formatAllPrice = modifyPurchase.allPrice;
+            allPrice = modifyPurchase.allPrice;
             items = modifyPurchase.purchaseStocks;
+            if (modifyPurchase.approval) readonly = true;
+            else readonly = false;
         }
         else {
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
@@ -351,7 +351,7 @@
                 deliveryStatus: deliveryStatus,
                 significant: significant,
                 filteredItems: filteredItems,
-                allPrice: formatAllPrice
+                allPrice: allPrice
             };
 
             const response = await fetch(`http://localhost:8080/api/v1/purchase/${modifyPurchase.id}`, {
@@ -362,11 +362,9 @@
                 body: JSON.stringify(data),
             });
 
-            console.log(data);
-
             if (response.ok) {
                 alert("판매 수정이 완료되었습니다.");
-                // windowRefresh();
+                windowRefresh();
             } else {
                 console.log("전표생성 실패");
             }
@@ -727,7 +725,7 @@
                                 <td class="wsn"></td>
                                 <td class="wsn"></td>
                                 <td class="wsn"></td>
-                                <td class="wsn">{formatAllPrice}원</td>
+                                <td class="wsn">{allPrice}원</td>
                             </tr>
                         </tbody>
                     </table>
@@ -744,6 +742,7 @@
         </div>
     </div>
 
+
     <!-- 판매 수정 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveModifi}">
         <div class="top-box rel">
@@ -759,16 +758,17 @@
                         <li class="flex aic g12">
                             <span class="title-text f14 c333">일자</span>
                             <div class="input-box input-type-2 f14 w140">
-                                <input type="date" placeholder="일자" bind:value={purchaseDate}>
+                                <!-- <input type="date" placeholder="일자" bind:value={purchaseDate} readonly={modifyPurchase.approval}> -->
+                                <input type="date" placeholder="일자" bind:value={purchaseDate} disabled={readonly}>
                             </div>
                         </li>
                         <li class="flex aic g12">
                             <span class="title-text f14 c333">거래처</span>
                             <div class="input-box flex aic g8 w200">
                                 <div class="input-type-2 f14 w100per">
-                                    <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName}>
+                                    <input type="text" placeholder="거래처명" readonly value={selectedClient.clientName} disabled={readonly}>
                                 </div>
-                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchClients}>찾기</button>
+                                <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" type="button" style="min-width: 60px;" on:click={searchClients} class:none={readonly}>찾기</button>
                             </div>
                         </li>
                         <li class="flex aic g12">
@@ -788,7 +788,7 @@
                         <li class="flex aic g12" style="width:calc(33% - 20px)">
                             <span class="title-text f14 c333">출고 여부</span>
                             <div class="check-type-1">
-                                <input type="checkbox" id="w1" bind:checked={deliveryStatus}>
+                                <input type="checkbox" id="w1" bind:checked={deliveryStatus} disabled={readonly}>
                                 <label for="w1"></label>
                             </div>
                         </li>
@@ -797,7 +797,7 @@
                         <div class="flex aic g12">
                             <span class="title-text f14 c333">특이사항</span>
                             <div class="input-box textarea-type-1 f14 w100per h60">
-                                <textarea placeholder="특이사항" bind:value={significant}></textarea>
+                                <textarea placeholder="특이사항" bind:value={significant} disabled={readonly}></textarea>
                             </div>
                         </div>
                     </div>
@@ -830,12 +830,12 @@
                                 </td>
                                 <td class="wsn">
                                     <div class="input-type-2 f14">
-                                        <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)}>
+                                        <input type="text" placeholder="품목명" bind:value={item.itemName} on:keydown={(event) => itemNameKeyUp(event, item)} readonly={readonly}>
                                     </div>
                                 </td>
                                 <td class="wsn">
                                     <div class="input-type-2 f14">
-                                        <input type="number" placeholder="수량" bind:value={item.inputQuantity} on:input={() => quantityChange(item)}>
+                                        <input type="number" placeholder="수량" bind:value={item.inputQuantity} on:input={() => quantityChange(item)} readonly={readonly}>
                                     </div>
                                 </td>
                                 <td class="wsn">
@@ -857,16 +857,16 @@
                                 <td class="wsn"></td>
                                 <td class="wsn"></td>
                                 <td class="wsn"></td>
-                                <td class="wsn">{formatAllPrice}원</td>
+                                <td class="wsn">{allPrice}원</td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="flex aic g4 abs" style="left: 0; bottom: 0;">
+                    <div class="flex aic g4 abs" style="left: 0; bottom: 0;" class:none={readonly}>
                         <button class="w50 h30 btn-type-1 bdm bdr4 f12 cm" type="button" on:click={addRow}>추가</button>
                         <button class="w50 h30 btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" type="button" on:click={deleteSelectedItems}>삭제</button>
                     </div>
                 </div>
-                <div class="btn-area flex aic jcc g8 mt40">
+                <div class="btn-area flex aic jcc g8 mt40" class:none={readonly}>
                     <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitmodifyForm}>저장</button>
                     <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
                 </div>
@@ -1016,7 +1016,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="wsn" style="width: 44px;">
+                            <th class="wsn" style="width: 44px;" class:none={isApprovedActive}>
                                 <div class="check-type-1">
                                     <input type="checkbox" id="purchaseAll" checked={allChecked} on:change={toggleAll}>
                                     <label for="purchaseAll"></label>
@@ -1032,7 +1032,7 @@
                     <tbody>
                         {#each data.data.purchases.content as purchase}
                         <tr>
-                            <td class="wsn" style="width: 44px;">   
+                            <td class="wsn" style="width: 44px;" class:none={isApprovedActive}>   
                                 <div class="check-type-1">
                                     <input type="checkbox" id={purchase.id} bind:checked={purchase.checked}>
                                     <label for={purchase.id}></label>

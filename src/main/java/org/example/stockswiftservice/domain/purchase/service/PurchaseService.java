@@ -142,9 +142,9 @@ public class PurchaseService {
         Client client = clientRepository.findByClientName(selectedClient.getClientName())
                 .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
 
-        List<PurchaseStock> purchaseStocks = this.purchaseStockRepository.findByPurchaseId(purchase.getId());
+            List<PurchaseStock> purchaseStocks = this.purchaseStockRepository.findByPurchaseId(purchase.getId());
 
-        purchaseStockRepository.deleteAll(purchaseStocks);
+            purchaseStockRepository.deleteAll(purchaseStocks);
 
         purchase.setPurchaseDate(purchaseDate);
         purchase.setClient(client);

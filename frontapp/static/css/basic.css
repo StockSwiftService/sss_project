@@ -65,7 +65,7 @@ body.active {overflow: hidden;}
 .k-cell::after {content:""; display:block; clear:both;}
 .cell {float:left; box-sizing:border-box;}
 .cell-right {float:right;  box-sizing:border-box;}
-.none {display:none;}
+.none {display:none !important;}
 .block {display:block;}
 .inblock {display:inline-block;}
 .inline {display:inline;}
