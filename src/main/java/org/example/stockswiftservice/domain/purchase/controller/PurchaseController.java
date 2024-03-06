@@ -131,8 +131,8 @@ public class PurchaseController {
     }
 
     @GetMapping("/record")
-    public ResponseEntity<Map<LocalDate, List<Purchase>>> getApprovedPurchasesGroupedByDate() {
-        Map<LocalDate, List<Purchase>> purchases = purchaseService.getApprovedPurchasesGroupedByDate();
+    public ResponseEntity<Map<LocalDate, List<Purchase>>> getApprovedPurchasesByItemNameGroupedByDate(@RequestParam(value = "itemName") String itemName) {
+        Map<LocalDate, List<Purchase>> purchases = purchaseService.getApprovedPurchasesByItemNameGroupedByDate(itemName);
         return ResponseEntity.ok(purchases);
     }
 }

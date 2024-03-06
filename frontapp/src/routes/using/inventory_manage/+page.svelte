@@ -31,6 +31,8 @@
         isActiveRecord = false;
         confirmNameErrorMessage = '';
         confirmNameSuccessMessage = '';
+        startDate = '';
+        endDate = '';
     }
 
     function deactivateAccountSearchModal() {
@@ -497,6 +499,7 @@
                     formData.createDate = formattedDate;
                 }
                 formData = {...formData};
+                await recordData(stockData.data.stockDto.itemName);
             } else {
 
                 console.error("Failed to fetch client details");
@@ -505,11 +508,26 @@
             console.error('Error fetching client details:', error);
         }
     }
-    async function recordData() {
-        const response = await fetch('http://localhost:8080/api/v1/purchase/record');
+    async function recordData(itemName = '') {
+        const url = `http://localhost:8080/api/v1/purchase/record?itemName=${encodeURIComponent(itemName)}`;
+        const response = await fetch(url);
         if (response.ok) {
-            purchasesByDate = await response.json();
+            const data = await response.json();
+            purchasesByDate = data;
+            filteredPurchases = data;
         }
+    }
+    let startDate = '';
+    let endDate = '';
+    let filteredPurchases = {};
+
+    function filterPurchases() {
+        filteredPurchases = Object.keys(purchasesByDate).reduce((acc, date) => {
+            if (date >= startDate && date <= endDate) {
+                acc[date] = purchasesByDate[date];
+            }
+            return acc;
+        }, {});
     }
 
     function updateQuantities(event) {
@@ -680,25 +698,15 @@
         </div>
         <div class="middle-box scr-type-1">
             <div class="flex aic jcsb">
-                <div class="select-type-4 w100 f14 rel">
-                    <select name="account">
-                        <option value="">전체</option>
-                        <option value="">판매</option>
-                        <option value="">구매</option>
-                    </select>
-                    <span class="arrow img-box abs y-middle">
-                        <img src="/img/arrow_bottom_A2A9B0.svg" alt=""/>
-                    </span>
-                </div>
                 <div class="flex aic g8">
                     <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
+                        <input type="date" bind:value="{startDate}" placeholder="조회">
                     </div>
                     <span class="f14">~</span>
                     <div class="input-type-2 f14 w140">
-                        <input type="date" placeholder="조회">
+                        <input type="date" bind:value="{endDate}" placeholder="조회">
                     </div>
-                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
+                    <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff" on:click="{filterPurchases}">조회</button>
                 </div>
             </div>
             <div class="line w100per h1 bf2f2f2 mt20 mb20"></div>
@@ -715,7 +723,7 @@
                         <td colspan="4">기존 재고 :{formData.defaultQuantity.toLocaleString()}개</td>
                     </tr>
                     </tbody>
-                    {#each Object.entries(purchasesByDate) as [date, purchases]}
+                    {#each Object.entries(startDate && endDate ? filteredPurchases : purchasesByDate) as [date, purchases]}
                         <thead>
                         <tr>
                             <th colspan="4">{date}</th>

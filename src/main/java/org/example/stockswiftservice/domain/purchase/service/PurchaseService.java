@@ -128,8 +128,10 @@ public class PurchaseService {
         }
     }
 
-    public Map<LocalDate, List<Purchase>> getApprovedPurchasesGroupedByDate() {
+    public Map<LocalDate, List<Purchase>> getApprovedPurchasesByItemNameGroupedByDate(String itemName) {
         return purchaseRepository.findAllByApprovalTrue().stream()
+                .filter(purchase -> purchase.getPurchaseStocks().stream()
+                        .anyMatch(stock -> stock.getItemName().equals(itemName)))
                 .collect(Collectors.groupingBy(Purchase::getPurchaseDate,
                         TreeMap::new,
                         Collectors.toList()));
