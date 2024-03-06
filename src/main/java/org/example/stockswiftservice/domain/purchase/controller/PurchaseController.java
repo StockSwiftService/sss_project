@@ -119,6 +119,16 @@ public class PurchaseController {
         private Long allPrice;
     }
 
+    @Data
+    public static class PurchaseModifyRequest {
+        private LocalDate purchaseDate;
+        private Client selectedClient;
+        private Boolean deliveryStatus;
+        private String significant;
+        private List<PurchaseStock> filteredItems;
+        private Long allPrice;
+    }
+
     @PostMapping(value = "/create")
     public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
@@ -145,13 +155,6 @@ public class PurchaseController {
         return RsData.of("R-1", "성공", new SalesManagementController.CreateSM(salesManagementList));
     }
 
-    @PostMapping(value = "/approvalCancelRequest")
-    public RsData<PurchasesResponse> approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        List<Purchase> purchases = this.purchaseService.approvalCancel(approvalRequest.getIds());
-
-        return RsData.of("S-3", "승인 취소 성공", new PurchasesResponse(purchases));
-    }
-
     @PostMapping(value = "/delete")
     public RsData<PurchasesResponse> delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
         List<Purchase> purchases = this.purchaseService.delete(approvalRequest.getIds());
@@ -164,5 +167,14 @@ public class PurchaseController {
         Purchase purchase = this.purchaseService.getPurchase(id);
 
         return RsData.of("S-5", "단건 조회 성공", new PurchaseResponse(purchase));
+    }
+
+    @PatchMapping("/{id}")
+    public RsData<Purchase> modify(@Valid @RequestBody PurchaseModifyRequest purchaseModifyRequest, @PathVariable("id") Long id) {
+        Purchase purchase = this.purchaseService.getPurchase(id);
+
+        RsData<Purchase> rsData = this.purchaseService.modify(purchase, purchaseModifyRequest.getPurchaseDate(), purchaseModifyRequest.getSelectedClient(), purchaseModifyRequest.getDeliveryStatus(), purchaseModifyRequest.getSignificant(), purchaseModifyRequest.getFilteredItems(), purchaseModifyRequest.getAllPrice());
+
+        return rsData;
     }
 }

@@ -27,7 +27,7 @@ public class Purchase extends BaseEntity {
     private String significant;
     private Long allPrice;
     private Boolean approval;
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<PurchaseStock> purchaseStocks;
 }

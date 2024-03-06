@@ -12,6 +12,6 @@ import java.util.List;
 
 @Repository
 public interface PurchaseStockRepository extends JpaRepository<PurchaseStock, Long> {
-
+    List<PurchaseStock> findByPurchaseId(Long id);
 }
 

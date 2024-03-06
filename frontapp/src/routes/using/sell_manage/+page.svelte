@@ -16,6 +16,29 @@
     function activateModalAdd() {
         isActive = true;
         isActiveAdd = true;
+
+        items = [
+            {
+                id: 1,
+                itemName: "",
+                inputQuantity: 0,
+                salesPrice: 0,
+                sumPrice: 0,
+                selected: false
+            }
+        ];
+        selectItem = "";
+        stocks = [];
+        itemSerachInput = "";
+        itemAllSelected = false;
+        allPrice = 0;
+        formatAllPrice = 0;
+        purchaseDate = getTodayDate();
+        selectedClient.clientName = "";
+        selectedClient.phoneNumber = "";
+        selectedClient.address =  "";
+        deliveryStatus = false;
+        significant = "";
     }
 
     function activateModalModifi() {
@@ -254,7 +277,9 @@
         try {
             const filteredItems = items.map(item => ({
                 itemName: item.itemName,
-                inputQuantity: item.inputQuantity
+                inputQuantity: item.inputQuantity,
+                salesPrice: item.salesPrice,
+                sumPrice: item.sumPrice
             }));
 
             const data = {
@@ -306,6 +331,49 @@
             console.error('서버로부터 데이터를 받아오는 데 실패했습니다.');
         }
     }
+
+    async function submitmodifyForm() {
+        if(purchaseCreate()) {
+            return;
+        }
+        
+        try {
+            const filteredItems = items.map(item => ({
+                itemName: item.itemName,
+                inputQuantity: item.inputQuantity,
+                salesPrice: item.salesPrice,
+                sumPrice: item.sumPrice
+            }));
+
+            const data = {
+                purchaseDate: purchaseDate,
+                selectedClient: selectedClient,
+                deliveryStatus: deliveryStatus,
+                significant: significant,
+                filteredItems: filteredItems,
+                allPrice: formatAllPrice
+            };
+
+            const response = await fetch(`http://localhost:8080/api/v1/purchase/${modifyPurchase.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            console.log(data);
+
+            if (response.ok) {
+                alert("판매 수정이 완료되었습니다.");
+                // windowRefresh();
+            } else {
+                console.log("전표생성 실패");
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    }  
 
     // 전체 선택
     let allChecked = false;
@@ -384,47 +452,6 @@
         }
     }
 
-    // 승인 취소 처리
-    async function approvePurchasesCancel() {
-
-        const selectedIds = data.data.purchases.content
-            .filter(purchase => purchase.checked)
-            .map(purchase => purchase.id);
-
-        if (selectedIds.length === 0) {
-            alert('승인 처리 취소할 전표를 선택해주세요.');
-            return;
-        }
-
-        const isConfirmed = confirm('해당 전표를 승인 취소 처리 하시겠습니까?');
-
-        if (!isConfirmed) {
-            return;
-        }
-
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/purchase/approvalCancelRequest', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ids: Array.from(selectedIds)
-                }),
-            });
-
-            if (response.ok) {
-                alert('승인 처리 취소가 완료되었습니다.');
-                windowRefresh();
-            } else {
-                alert('승인 처리 취소 중 오류가 발생했습니다.');
-            }
-        } catch (error) {
-            console.error('Error deleting clients:', error);
-            alert('승인 처리 취소 중 오류가 발생했습니다.');
-        }
-    }
-
     // 삭제 처리
     async function PurchasesDelete() {
 
@@ -466,8 +493,6 @@
         }
     }
 
-    //판매 게시글 출력
-    
     onMount(async () => {
 
         //오늘 날짜로 기본 데이터 생성
@@ -842,7 +867,7 @@
                     </div>
                 </div>
                 <div class="btn-area flex aic jcc g8 mt40">
-                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitSignupForm}>등록</button>
+                    <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" type="button" on:click={submitmodifyForm}>저장</button>
                     <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" type="button" on:click="{deactivateModal}">취소</button>
                 </div>
             </form>
@@ -1037,7 +1062,6 @@
             <div class="flex aic jcsb mt8">
                 <div class="situation-btn-box flex aic g4">
                     <button class:active={isUnapprovedActive} class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approvePurchases}>승인</button>
-                    <button class:active={isApprovedActive} class="w70 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approvePurchasesCancel}>승인 취소</button>
                     <button class:active={isUnapprovedActive} class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={PurchasesDelete}>삭제</button>
                 </div>
                 <div class="flex aic g4">
