@@ -38,8 +38,8 @@ public class PurchaseService {
     }
 
     public Page<Purchase> getSearchList(String kw, int page, boolean whether, String companyCode) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.desc("createDate"));
+        List<Sort.Order> sorts = new ArrayList<>();;
+        sorts.add(Sort.Order.asc("purchaseDate"));
         Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
         Specification<Purchase> spec = search(kw, whether, companyCode);
         return this.purchaseRepository.findAll(spec, pageable);

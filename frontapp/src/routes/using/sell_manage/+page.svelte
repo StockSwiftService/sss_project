@@ -2,8 +2,7 @@
     import {page} from "$app/stores";
     import {goto, replaceState} from "$app/navigation";
     import { onMount } from 'svelte';
-
-    // console.log(loginUser.company.companyCode);
+    import { loginUser } from '../../../stores.js';
 
     export let data;
 
@@ -739,7 +738,6 @@
         </div>
     </div>
 
-
     <!-- 판매 수정 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w800" class:active="{isActiveModifi}">
         <div class="top-box rel">
@@ -975,7 +973,7 @@
         <div class="top-area">
             <div class="space-area-2 flex aic jcsb">
                 <div class="left-box flex aic">
-                    <div class="flex aic g8">
+                    <!-- <div class="flex aic g8">
                         <div class="input-type-2 f14 w140">
                             <input type="date" placeholder="조회" id="searchDateInput1">
                         </div>
@@ -984,7 +982,7 @@
                             <input type="date" placeholder="조회" id="searchDateInput2">
                         </div>
                         <button class="btn-type-1 w60 h36 f14 bdr4 b333 cfff">조회</button>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
@@ -1058,8 +1056,10 @@
             </div>
             <div class="flex aic jcsb mt8">
                 <div class="situation-btn-box flex aic g4">
+                    {#if $loginUser.authority != 4}
                     <button class:active={isUnapprovedActive} class="w50 h30 btn-type-1 bdm bdr4 f12 cm" on:click={approvePurchases}>승인</button>
                     <button class:active={isUnapprovedActive} class="w50 h30  btn-type-1 bdA2A9B0 bdr4 f12 cA2A9B0" on:click={PurchasesDelete}>삭제</button>
+                    {/if}
                 </div>
                 <div class="flex aic g4">
                     <button class="w50 h30 btn-type-1 bm bdr4 f12 cfff" on:click="{activateModalAdd}">등록</button>
