@@ -103,7 +103,13 @@ public class PurchaseController {
     public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether, HttpServletRequest request) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
-        String companyCode = this.companyService.findById(userId).getCompanyCode();
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        System.out.println("토큰" + token);
+        System.out.println("유저Id" + userId);
+        System.out.println("회사코드" + companyCode);
+
         Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether, companyCode);
 
         return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases));
@@ -152,7 +158,8 @@ public class PurchaseController {
     public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest, HttpServletRequest request) {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
-        String companyCode = this.companyService.findById(userId).getCompanyCode();
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
 
         RsData<Purchase> rsData = this.purchaseService.create(companyCode, purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
