@@ -71,7 +71,7 @@
 						deleteCookie('userId');
 					}
 					window.location.href = '/using/user_manage';
-				} else if(data.resultCode === 'S-1-4' || data.resultCode === 'S-0'){
+				} else if(data.resultCode === 'S-1-4'){
 					if (rememberCompany) {
 						const remComCode = encryptData(formData.companyCode, secret_key);
 						setCookies('companyCode', remComCode, 365);
@@ -86,6 +86,20 @@
 					}
 					window.location.href = '/using/account_manage';
 
+				}else if( data.resultCode === 'S-0'){
+					if (rememberCompany) {
+						const remComCode = encryptData(formData.companyCode, secret_key);
+						setCookies('companyCode', remComCode, 365);
+					} else {
+						deleteCookie('companyCode');
+					}
+					if (rememberID) {
+						const remUserId = encryptData(formData.username, secret_key);
+						setCookies('userId', remUserId, 365);
+					} else {
+						deleteCookie('userId');
+					}
+					window.location.href = '/admin/using/company';
 				}
 				else {
 					// 로그인이 실패한 경우
