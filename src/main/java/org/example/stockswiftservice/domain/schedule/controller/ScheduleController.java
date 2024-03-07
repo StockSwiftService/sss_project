@@ -37,8 +37,13 @@ public class ScheduleController {
     }
 
     @GetMapping("")
-    public RsData<SchedulesResponse> scheduleList() {
-        List<Schedule> schedules = this.scheduleService.getList();
+    public RsData<SchedulesResponse> scheduleList(HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Member member = this.memberService.findbyId(userId).orElse(null);
+
+        List<Schedule> schedules = this.scheduleService.getList(member.getCompany().getCompanyCode());
+
         return RsData.of("S-1", "스케줄 목록 불러오기 성공", new SchedulesResponse(schedules));
     }
 
@@ -68,7 +73,7 @@ public class ScheduleController {
         String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
         Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
         Member member = this.memberService.findbyId(userId).orElse(null);
-        Schedule schedule = this.scheduleService.create(member, scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
+        Schedule schedule = this.scheduleService.create(member, member.getCompany().getCompanyCode(), scheduleRequest.getSubject(), scheduleRequest.getContent(), scheduleRequest.getStartDate(), scheduleRequest.getEndDate());
         return RsData.of("S-3", "스케쥴 생성 성공", new ScheduleResponse(schedule));
     }
     @PatchMapping("/{id}")

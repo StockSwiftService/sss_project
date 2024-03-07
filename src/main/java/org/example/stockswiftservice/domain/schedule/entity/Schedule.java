@@ -21,6 +21,7 @@ public class Schedule extends BaseEntity {
     private String content;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String companyCode;
     @ManyToOne
     private Member member;
 }
