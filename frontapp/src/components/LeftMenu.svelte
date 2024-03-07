@@ -92,16 +92,6 @@
         </a>
     </li>
     <li>
-        <a href="/using/purchase_manage" class="flex aic" on:click="{(event) => setActive(4, event)}"
-           class:active="{activeIndex === 4}">
-            <span class="ico-box img-box">
-                <img src="/img/menu_ico_13.svg" alt="메뉴 아이콘">
-                <img src="/img/menu_ico_13_active.svg" alt="메뉴 액티브 아이콘" class="on">
-            </span>
-            <span class="text tm">구매 관리</span>
-        </a>
-    </li>
-    <li>
         <a href="/using/sale_manage" class="flex aic" on:click="{(event) => setActive(5, event)}"
            class:active="{activeIndex === 5}">
             <span class="ico-box img-box">

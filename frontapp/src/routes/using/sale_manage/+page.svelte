@@ -295,7 +295,7 @@
     </div>
     <div class="cnt-box bsb pt20 pr28 pb20 pl28 bfff bdr12">
         <div class="calender-box">
-            <div id="calendar"></div>
+            <div id="calendar" class="calendar-custom"></div>
         </div>
     </div>
 </div>
