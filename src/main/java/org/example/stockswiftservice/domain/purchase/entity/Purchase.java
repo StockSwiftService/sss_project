@@ -1,9 +1,11 @@
 package org.example.stockswiftservice.domain.purchase.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
+import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
 import org.springframework.boot.autoconfigure.security.oauth2.server.servlet.OAuth2AuthorizationServerProperties;
@@ -30,4 +32,5 @@ public class Purchase extends BaseEntity {
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<PurchaseStock> purchaseStocks;
+    private String companyCode;
 }

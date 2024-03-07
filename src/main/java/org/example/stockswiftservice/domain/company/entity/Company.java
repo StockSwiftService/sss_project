@@ -1,5 +1,7 @@
 package org.example.stockswiftservice.domain.company.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -9,8 +11,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.stockswiftservice.domain.member.entity.Member;
+import org.example.stockswiftservice.domain.purchase.entity.Purchase;
+import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.global.baseentity.BaseEntity;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -54,5 +59,4 @@ public class Company extends BaseEntity {
     //사원
     @OneToMany
     private Set<Member> EmployeeList;
-
 }

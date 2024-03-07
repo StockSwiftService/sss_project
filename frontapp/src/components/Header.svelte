@@ -14,6 +14,7 @@
 			if (response.ok) {
 				const data = await response.json();
                 loginUser =data.data.member
+				console.log(loginUser.company.companyCode);
 			} else {
 				console.error('서버 응답 오류:', response.statusText);
 				if (!response.ok && response.status != 401) {

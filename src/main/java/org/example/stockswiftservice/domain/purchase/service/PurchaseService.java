@@ -4,6 +4,7 @@ import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.client.repository.ClientRepository;
+import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
@@ -36,42 +37,41 @@ public class PurchaseService {
         return this.purchaseRepository.findAll();
     }
 
-    public Page<Purchase> getSearchList(String kw, int page, boolean whether) {
+    public Page<Purchase> getSearchList(String kw, int page, boolean whether, String companyCode) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
-        Specification<Purchase> spec = search(kw, whether);
+        Specification<Purchase> spec = search(kw, whether, companyCode);
         return this.purchaseRepository.findAll(spec, pageable);
     }
 
-    private Specification<Purchase> search(String kw, boolean whether) {
-        return new Specification<>() {
-            private static final long serialVersionUID = 1L;
+    private Specification<Purchase> search(String kw, boolean whether, String companyCode) {
+        return (root, query, cb) -> {
+            query.distinct(true);
+            Join<Purchase, PurchaseStock> purchaseStockJoin = root.join("purchaseStocks", JoinType.LEFT);
+            Path<String> itemNamePath = purchaseStockJoin.get("itemName");
 
-            @Override
-            public Predicate toPredicate(Root<Purchase> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                query.distinct(true);
-                Join<Purchase, PurchaseStock> purchaseStockJoin = root.join("purchaseStocks", JoinType.LEFT);
-                Path<String> itemNamePath = purchaseStockJoin.get("itemName");
+            // 기존 검색 조건
+            Predicate searchPredicate = cb.or(
+                    cb.like(root.get("significant"), "%" + kw + "%"),
+                    cb.like(root.join("client").get("clientName"), "%" + kw + "%"),
+                    cb.like(itemNamePath, "%" + kw + "%")
+            );
 
-                // 기존 검색 조건
-                Predicate searchPredicate = cb.or(
-                        cb.like(root.get("significant"), "%" + kw + "%"),
-                        cb.like(root.join("client").get("clientName"), "%" + kw + "%"),
-                        cb.like(itemNamePath, "%" + kw + "%")
-                );
+            // approval 필드가 whether 값과 일치하는 조건
+            Predicate approvalPredicate = cb.equal(root.get("approval"), whether);
 
-                // approval 필드가 whether 값과 일치하는 조건
-                Predicate approvalPredicate = cb.equal(root.get("approval"), whether);
+            // companyCode가 파라미터로 받은 companyCode와 일치하는 조건
+            Predicate companyCodePredicate = cb.equal(root.get("companyCode"), companyCode);
 
-                // 최종 조건: 검색 조건과 approval 조건을 AND 연산으로 결합
-                return cb.and(searchPredicate, approvalPredicate);
-            }
+            // 최종 조건: 검색 조건, approval 조건, 그리고 companyCode 조건을 AND 연산으로 결합
+            return cb.and(searchPredicate, approvalPredicate, companyCodePredicate);
         };
     }
 
-    public RsData<Purchase> create(LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> filteredItems, Long allPrice) {
+    public RsData<Purchase> create(String companyCode, LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> filteredItems, Long allPrice) {
         Purchase purchase = Purchase.builder()
+                .companyCode(companyCode)
                 .purchaseDate(purchaseDate)
                 .client(selectedClient)
                 .deliveryStatus(deliveryStatus)

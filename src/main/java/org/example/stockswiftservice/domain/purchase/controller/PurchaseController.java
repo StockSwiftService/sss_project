@@ -5,18 +5,25 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
+import org.example.stockswiftservice.domain.company.entity.Company;
+import org.example.stockswiftservice.domain.company.service.CompanyService;
+import org.example.stockswiftservice.domain.member.controller.MemberController;
+import org.example.stockswiftservice.domain.member.entity.Member;
+import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.service.PurchaseService;
 import org.example.stockswiftservice.domain.salemanagement.controller.SalesManagementController;
 import org.example.stockswiftservice.domain.salemanagement.entity.SalesManagement;
 import org.example.stockswiftservice.domain.salemanagement.service.SalesManagementService;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +35,18 @@ import java.util.List;
 
 import java.util.Map;
 
+import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping(value = "/api/v1/purchase")
 @RequiredArgsConstructor
 public class PurchaseController {
     private final PurchaseService purchaseService;
     private final SalesManagementService salesManagementService;
+    private final MemberService memberService;
+    private final JwtProvider jwtProvider;
+    private final CompanyService companyService;
 
     @Data
     public class PurchaseDto {
@@ -87,8 +100,11 @@ public class PurchaseController {
     }
 
     @GetMapping(value = "")
-    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether) {
-        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether);
+    public RsData<PurchasesSearchResponse> purchases(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "whether", defaultValue = "false") boolean whether, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        String companyCode = this.companyService.findById(userId).getCompanyCode();
+        Page<Purchase> purchases = this.purchaseService.getSearchList(kw, page, whether, companyCode);
 
         return RsData.of("S-1", "성공", new PurchasesSearchResponse(purchases));
     }
@@ -133,9 +149,12 @@ public class PurchaseController {
     }
 
     @PostMapping(value = "/create")
-    public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest) {
+    public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        String companyCode = this.companyService.findById(userId).getCompanyCode();
 
-        RsData<Purchase> rsData = this.purchaseService.create(purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
+        RsData<Purchase> rsData = this.purchaseService.create(companyCode, purchaseRequest.getPurchaseDate(), purchaseRequest.getSelectedClient(), purchaseRequest.getDeliveryStatus(), purchaseRequest.getSignificant(), purchaseRequest.getFilteredItems(), purchaseRequest.getAllPrice());
 
         return rsData;
     }

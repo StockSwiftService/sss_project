@@ -3,6 +3,8 @@
     import {goto, replaceState} from "$app/navigation";
     import { onMount } from 'svelte';
 
+    // console.log(loginUser.company.companyCode);
+
     export let data;
 
     let isActive = false;
@@ -80,11 +82,6 @@
     let purchaseDate;
     let deliveryStatus = false;
     let significant = "";
-
-    // 숫자 세자리 포멧팅
-    function formatNumber(value) {
-        return value.toLocaleString('ko-KR');
-    }
 
     //거래처명 입력 후 검색
     let clients = [];
@@ -351,7 +348,7 @@
                 deliveryStatus: deliveryStatus,
                 significant: significant,
                 filteredItems: filteredItems,
-                allPrice: allPrice
+                allPrice: allPrice,
             };
 
             const response = await fetch(`http://localhost:8080/api/v1/purchase/${modifyPurchase.id}`, {
