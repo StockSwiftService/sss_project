@@ -15,15 +15,16 @@ import java.util.List;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
 
-    public List<Schedule> getList() {
-        return this.scheduleRepository.findAll();
+    public List<Schedule> getList(String companyCode) {
+        return this.scheduleRepository.findAllByCompanyCode(companyCode);
     }
     public Schedule getListById(Long id) {
         return this.scheduleRepository.findById(id).orElseThrow();
     }
-    public Schedule create(Member member , String subject, String content, LocalDate startDate, LocalDate endDate) {
+    public Schedule create(Member member , String companyCode, String subject, String content, LocalDate startDate, LocalDate endDate) {
         Schedule schedule = Schedule.builder()
                 .member(member)
+                .companyCode(companyCode)
                 .subject(subject)
                 .content(content)
                 .startDate(startDate)
