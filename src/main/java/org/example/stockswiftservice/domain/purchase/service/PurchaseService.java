@@ -3,6 +3,7 @@ package org.example.stockswiftservice.domain.purchase.service;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
+import org.example.stockswiftservice.domain.client.repository.ClientRepository;
 import org.example.stockswiftservice.domain.purchase.entity.Purchase;
 import org.example.stockswiftservice.domain.purchase.entity.PurchaseStock;
 import org.example.stockswiftservice.domain.purchase.repository.PurchaseRepository;
@@ -30,6 +31,7 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final PurchaseStockRepository purchaseStockRepository;
     private final StockRepository stockRepository;
+    private final ClientRepository clientRepository;
     public List<Purchase> getList() {
         return this.purchaseRepository.findAll();
     }
@@ -75,6 +77,7 @@ public class PurchaseService {
                 .deliveryStatus(deliveryStatus)
                 .significant(significant)
                 .allPrice(allPrice)
+                .approval(false)
                 .build();
 
         purchaseRepository.save(purchase);
@@ -99,29 +102,6 @@ public class PurchaseService {
                 Optional<Stock> optionalStock = this.stockRepository.findByItemName(purchaseStock.getItemName());
                 Stock stock = optionalStock.get();
                 stock.setQuantity(optionalStock.get().getQuantity() - purchaseStock.getInputQuantity());
-                this.stockRepository.save(stock);
-            }
-
-            this.purchaseRepository.save(purchase);
-
-            purchases.add(purchase);
-        }
-
-        return purchases;
-    }
-
-    public List<Purchase> approvalCancel(List<Long> ids) {
-        List<Purchase> purchases = new ArrayList<>();
-        for (Long id : ids) {
-            Optional<Purchase> optionalPurchase = this.purchaseRepository.findById(id);
-            Purchase purchase = optionalPurchase.get();
-            purchase.setApproval(false);
-
-            List<PurchaseStock> purchaseStocks = purchase.getPurchaseStocks();
-            for (PurchaseStock purchaseStock : purchaseStocks) {
-                Optional<Stock> optionalStock = this.stockRepository.findByItemName(purchaseStock.getItemName());
-                Stock stock = optionalStock.get();
-                stock.setQuantity(optionalStock.get().getQuantity() + purchaseStock.getInputQuantity());
                 this.stockRepository.save(stock);
             }
 
@@ -165,5 +145,29 @@ public class PurchaseService {
         List<Purchase> getPurchaseList = purchaseRepository.findByPurchaseDate(date);
 
         return getPurchaseList;
+    }
+
+    public RsData<Purchase> modify(Purchase purchase, LocalDate purchaseDate, Client selectedClient, Boolean deliveryStatus, String significant, List<PurchaseStock> filteredItems, Long allPrice) {
+        Client client = clientRepository.findByClientName(selectedClient.getClientName())
+                .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
+
+            List<PurchaseStock> purchaseStocks = this.purchaseStockRepository.findByPurchaseId(purchase.getId());
+
+            purchaseStockRepository.deleteAll(purchaseStocks);
+
+        purchase.setPurchaseDate(purchaseDate);
+        purchase.setClient(client);
+        purchase.setDeliveryStatus(deliveryStatus);
+        purchase.setSignificant(significant);
+        purchase.setAllPrice(allPrice);
+
+        purchaseRepository.save(purchase);
+
+        for (PurchaseStock item : filteredItems) {
+            item.setPurchase(purchase);
+            purchaseStockRepository.save(item);
+        }
+
+        return RsData.of("1", "판매 수정 완료", purchase);
     }
 }

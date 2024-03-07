@@ -1,10 +1,7 @@
 package org.example.stockswiftservice.domain.purchase.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
@@ -22,6 +19,8 @@ import java.util.List;
 public class PurchaseStock extends BaseEntity {
     private String itemName;
     private Long inputQuantity;
+    private Long salesPrice;
+    private Long sumPrice;
     @ManyToOne
     @JoinColumn(name = "purchase_id")
     @JsonBackReference

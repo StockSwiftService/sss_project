@@ -1,5 +1,10 @@
 package org.example.stockswiftservice.domain.purchase.controller;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +36,27 @@ public class PurchaseController {
     private final SalesManagementService salesManagementService;
 
     @Data
+    public class PurchaseDto {
+        private LocalDate purchaseDate;
+        private Client client;
+        private Boolean deliveryStatus;
+        private String significant;
+        private Long allPrice;
+        private Boolean approval;
+        private List<PurchaseStock> purchaseStocks;
+
+        public  PurchaseDto(Purchase purchase) {
+            this.purchaseDate = purchase.getPurchaseDate();
+            this.client = purchase.getClient();
+            this.deliveryStatus = purchase.getDeliveryStatus();
+            this.significant = purchase.getSignificant();
+            this.allPrice = purchase.getAllPrice();
+            this.approval = purchase.getApproval();
+            this.purchaseStocks = purchase.getPurchaseStocks();
+        }
+    }
+
+    @Data
     public static class ApprovalPurchase {
         private Long purchaseTotal;
         private String purchaseDate;
@@ -52,6 +78,12 @@ public class PurchaseController {
     @AllArgsConstructor
     public static class PurchasesResponse {
         private final List<Purchase> purchases;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class PurchaseResponse {
+        private final Purchase purchases;
     }
 
     @GetMapping(value = "")
@@ -90,6 +122,16 @@ public class PurchaseController {
         private Long allPrice;
     }
 
+    @Data
+    public static class PurchaseModifyRequest {
+        private LocalDate purchaseDate;
+        private Client selectedClient;
+        private Boolean deliveryStatus;
+        private String significant;
+        private List<PurchaseStock> filteredItems;
+        private Long allPrice;
+    }
+
     @PostMapping(value = "/create")
     public RsData<Purchase> create(@Valid @RequestBody purchaseRequest purchaseRequest) {
 
@@ -116,18 +158,27 @@ public class PurchaseController {
         return RsData.of("R-1", "성공", new SalesManagementController.CreateSM(salesManagementList));
     }
 
-    @PostMapping(value = "/approvalCancelRequest")
-    public RsData<PurchasesResponse> approvalCancel(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        List<Purchase> purchases = this.purchaseService.approvalCancel(approvalRequest.getIds());
-
-        return RsData.of("S-3", "승인 취소 성공", new PurchasesResponse(purchases));
-    }
-
     @PostMapping(value = "/delete")
     public RsData<PurchasesResponse> delete(@Valid @RequestBody ApprovalRequest approvalRequest) {
         List<Purchase> purchases = this.purchaseService.delete(approvalRequest.getIds());
 
         return RsData.of("S-4", "삭제 성공", new PurchasesResponse(purchases));
+    }
+
+    @GetMapping("/{id}")
+    public RsData<PurchaseResponse> purchase(@PathVariable("id") Long id) {
+        Purchase purchase = this.purchaseService.getPurchase(id);
+
+        return RsData.of("S-5", "단건 조회 성공", new PurchaseResponse(purchase));
+    }
+
+    @PatchMapping("/{id}")
+    public RsData<Purchase> modify(@Valid @RequestBody PurchaseModifyRequest purchaseModifyRequest, @PathVariable("id") Long id) {
+        Purchase purchase = this.purchaseService.getPurchase(id);
+
+        RsData<Purchase> rsData = this.purchaseService.modify(purchase, purchaseModifyRequest.getPurchaseDate(), purchaseModifyRequest.getSelectedClient(), purchaseModifyRequest.getDeliveryStatus(), purchaseModifyRequest.getSignificant(), purchaseModifyRequest.getFilteredItems(), purchaseModifyRequest.getAllPrice());
+
+        return rsData;
     }
 
     @GetMapping("/record")

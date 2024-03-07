@@ -23,11 +23,11 @@ public class Purchase extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;
-    private boolean deliveryStatus;
+    private Boolean deliveryStatus;
     private String significant;
     private Long allPrice;
-    private boolean approval;
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
+    private Boolean approval;
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<PurchaseStock> purchaseStocks;
 }
