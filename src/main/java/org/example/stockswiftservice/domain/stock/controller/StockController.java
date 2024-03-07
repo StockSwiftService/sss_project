@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.stock.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -10,8 +11,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.example.stockswiftservice.domain.company.entity.Company;
+import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.domain.stock.entity.Stock;
 import org.example.stockswiftservice.domain.stock.service.StockService;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,11 +27,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
+
 @RestController
 @RequestMapping("/api/v1/stocks")
 @RequiredArgsConstructor
 public class StockController {
     private final StockService stockService;
+    private final JwtProvider jwtProvider;
+    private final MemberService memberService;
 
     @Getter
     @AllArgsConstructor
@@ -65,8 +73,13 @@ public class StockController {
     }
 
     @GetMapping("")
-    public RsData<StocksResponse> stocks(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Stock> stockPage = this.stockService.getSearchList(kw, page);
+    public RsData<StocksResponse> stocks(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        Page<Stock> stockPage = this.stockService.getSearchList(kw, page, companyCode);
         List<StockDto> stockDtoList = stockPage.getContent().stream()
                 .map(StockDto::new)
                 .collect(Collectors.toList());
@@ -116,8 +129,13 @@ public class StockController {
     }
 
     @PostMapping("")
-    public RsData<CreateResponse> create(@Valid @RequestBody CreateRequest createRequest) {
-        RsData<Stock> stock = stockService.create(createRequest.getClientName(), createRequest.getItemName(), createRequest.getDefaultQuantity(),
+    public RsData<CreateResponse> create(@Valid @RequestBody CreateRequest createRequest, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        RsData<Stock> stock = stockService.create(companyCode, createRequest.getClientName(), createRequest.getItemName(), createRequest.getDefaultQuantity(),
                   createRequest.getQuantity(), createRequest.getPurchasePrice(), createRequest.getSalesPrice());
 
         if (stock.isFail()) return (RsData) stock;

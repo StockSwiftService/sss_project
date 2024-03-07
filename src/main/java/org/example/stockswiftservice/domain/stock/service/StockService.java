@@ -28,11 +28,11 @@ public class StockService {
         return this.stockRepository.findAll();
     }
 
-    public Page<Stock> getSearchList(String kw, int page) {
+    public Page<Stock> getSearchList(String kw, int page, String companyCode) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
-        Specification<Stock> spec = search(kw);
+        Specification<Stock> spec = search(kw, companyCode);
         return this.stockRepository.findAll(spec, pageable);
     }
 
@@ -45,10 +45,11 @@ public class StockService {
         return optionalStock.get();
     }
 
-    public RsData<Stock> create(String clientName, String itemName, Long defaultQuantity, Long quantity, Long purchasePrice, Long salesPrice){
+    public RsData<Stock> create(String companyCode, String clientName, String itemName, Long defaultQuantity, Long quantity, Long purchasePrice, Long salesPrice){
         Client client = clientRepository.findByClientName(clientName)
                 .orElseThrow(() -> new RuntimeException("클라이언트를 찾을 수 없습니다."));
         Stock stock = new Stock();
+                stock.setCompanyCode(companyCode);
                 stock.setClient(client);
                 stock.setItemName(itemName);
                 stock.setDefaultQuantity(defaultQuantity);
@@ -91,18 +92,41 @@ public class StockService {
         return stockRepository.findByItemName(clientName, itemName);
     }
 
-    private Specification<Stock> search(String kw) {
-        return new Specification<Stock>() {
+//    private Specification<Stock> search(String kw) {
+//        return new Specification<Stock>() {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public Predicate toPredicate(Root<Stock> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
+//                query.distinct(true);
+//                Join<Stock, Client> clientJoin = a.join("client");
+//                return cb.or(
+//                        cb.like(clientJoin.get("clientName"), "%" + kw + "%"),
+//                        cb.like(a.get("itemName"), "%" + kw + "%")
+//                );
+//            }
+//        };
+//    }
+
+    private Specification<Stock> search(String kw, String companyCode) {
+        return new Specification<>() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public Predicate toPredicate(Root<Stock> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 query.distinct(true);
                 Join<Stock, Client> clientJoin = a.join("client");
-                return cb.or(
+                // 기존 검색 조건
+                Predicate keywordPredicate = cb.or(
                         cb.like(clientJoin.get("clientName"), "%" + kw + "%"),
                         cb.like(a.get("itemName"), "%" + kw + "%")
                 );
+
+                // companyCode가 파라미터로 받은 companyCode와 일치하는 조건
+                Predicate companyCodePredicate = cb.equal(a.get("companyCode"), companyCode);
+
+                // 최종 조건: 기존 검색 조건과 companyCode 조건을 AND 연산으로 결합
+                return cb.and(keywordPredicate, companyCodePredicate);
             }
         };
     }

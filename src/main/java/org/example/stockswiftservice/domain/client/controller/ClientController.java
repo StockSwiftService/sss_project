@@ -1,5 +1,6 @@
 package org.example.stockswiftservice.domain.client.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.client.entity.Client;
 import org.example.stockswiftservice.domain.client.service.ClientService;
+import org.example.stockswiftservice.domain.company.entity.Company;
+import org.example.stockswiftservice.domain.member.service.MemberService;
+import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +20,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizationFilter.extractAccessToken;
+
 @RestController
 @RequestMapping("/api/v1/clients")
 @RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;
+    private final JwtProvider jwtProvider;
+    private final MemberService memberService;
 
     @Getter
     @AllArgsConstructor
@@ -30,8 +38,13 @@ public class ClientController {
     }
 
     @GetMapping("")
-    public RsData<ClientsSearchResponse> clients(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Client> clients = this.clientService.getSearchList(kw, page);
+    public RsData<ClientsSearchResponse> clients(@RequestParam(value = "kw", defaultValue = "") String kw, @RequestParam(value = "page", defaultValue = "0") int page, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        Page<Client> clients = this.clientService.getSearchList(kw, page, companyCode);
         List<Client> clientList = this.clientService.getList();
 
         return RsData.of("S-1", "성공", new ClientsSearchResponse(clients,clientList));
@@ -70,8 +83,13 @@ public class ClientController {
     }
 
     @PostMapping("")
-    public RsData<CreateResponse> create (@Valid @RequestBody CreateRequest createRequest) {
-        RsData<Client> client = clientService.create(createRequest.getClientName(), createRequest.getRepName(),
+    public RsData<CreateResponse> create (@Valid @RequestBody CreateRequest createRequest, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        RsData<Client> client = clientService.create(companyCode, createRequest.getClientName(), createRequest.getRepName(),
                 createRequest.getPhoneNumber(), createRequest.getAddress(), createRequest.getDetailAddress());
         if (client.isFail()) return (RsData) client;
 

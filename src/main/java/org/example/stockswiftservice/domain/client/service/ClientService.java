@@ -29,11 +29,11 @@ public class ClientService {
         return this.clientRepository.findAll();
     }
 
-    public Page<Client> getSearchList(String kw, int page) {
+    public Page<Client> getSearchList(String kw, int page, String companyCode) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 6, Sort.by(sorts));
-        Specification<Client> spec = search(kw);
+        Specification<Client> spec = search(kw, companyCode);
         return this.clientRepository.findAll(spec, pageable);
     }
 
@@ -47,10 +47,11 @@ public class ClientService {
         return optionalClient.get();
     }
 
-    public RsData<Client> create(String clientName, String repName, String phoneNumber, String address, String detailAddress){
+    public RsData<Client> create(String companyCode, String clientName, String repName, String phoneNumber, String address, String detailAddress){
 
 
         Client client = new Client();
+                client.setCompanyCode(companyCode);
                 client.setClientName(clientName);
                 client.setRepName(repName);
                 client.setPhoneNumber(phoneNumber);
@@ -99,21 +100,29 @@ public class ClientService {
         return clientRepository.findByClientNameContaining(clientName);
     }
 
-    private Specification<Client> search(String kw) {
+    private Specification<Client> search(String kw, String companyCode) {
         return new Specification<>() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public Predicate toPredicate(Root<Client> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 query.distinct(true);
-                return cb.or(
+                // 기존 검색 조건
+                Predicate keywordPredicate = cb.or(
                         cb.like(a.get("clientName"), "%" + kw + "%"),
                         cb.like(a.get("repName"), "%" + kw + "%"),
                         cb.like(a.get("phoneNumber"), "%" + kw + "%"),
                         cb.like(a.get("address"), "%" + kw + "%"),
                         cb.like(a.get("detailAddress"), "%" + kw + "%")
                 );
+
+                // companyCode가 파라미터로 받은 companyCode와 일치하는 조건
+                Predicate companyCodePredicate = cb.equal(a.get("companyCode"), companyCode);
+
+                // 최종 조건: 기존 검색 조건과 companyCode 조건을 AND 연산으로 결합
+                return cb.and(keywordPredicate, companyCodePredicate);
             }
         };
     }
+
 }

@@ -30,4 +30,6 @@ public class Stock extends BaseEntity {
 
     @CreatedDate
     private LocalDateTime createDate;
+
+    private String companyCode;
 }
