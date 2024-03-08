@@ -220,6 +220,9 @@
 .textarea-type-1 textarea::placeholder {
     color: #A2A9B0;
 }
+.textarea-type-1 textarea:disabled {
+    background: #ededed;
+}
 
 /* ------------------------------------------------------------------------------- */
 
@@ -262,6 +265,9 @@
 }
 .input-type-2 input::placeholder {
     color: #A2A9B0;
+}
+.input-type-2 input:disabled {
+    background: #ededed;
 }
 
 /* ------------------------------------------------------------------------------- */
@@ -798,4 +804,18 @@ table tr .tar {
 .chit-box .title-text {
     width: 60px;
     min-width: 60px;
+}
+
+/* ------------------------------------------------------------------------------- */
+
+/* 캘린더 커스텀 */
+.fc .fc-daygrid-day-number {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.calendar-custom .fc-event {
+    box-shadow: inherit !important;
 }

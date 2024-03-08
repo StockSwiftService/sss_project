@@ -1,8 +1,22 @@
 <script>
+    export let data;
+    import {goto, replaceState} from "$app/navigation";
+    import {page} from "$app/stores";
+    import {onMount} from "svelte";
+
+    let email = '';
+    let subject = '';
+    let content = '';
+    let searchQuery = '';
+    let currentPage = 0;
+
     let isActive = false;
     let isActiveAdd = false;
 
     function activateModalAdd() {
+        email = '';
+        subject = '';
+        content = '';
         isActive = true;
         isActiveAdd = true;
     }
@@ -16,6 +30,105 @@
 
     function toggle(index) {
         activeStates[index] = !activeStates[index];
+    }
+
+    const performSearch = async () => {
+
+    $page.url.searchParams.set('kw', searchQuery);
+    $page.url.searchParams.set('page', currentPage);
+
+    await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+
+    await dataLoad();
+
+    }
+
+    function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+    }
+
+    onMount(async () => {
+    await dataLoad();
+    const unsubscribe = page.subscribe(async ($page) => {
+        searchQuery = $page.url.searchParams.get('kw') || '';
+            await dataLoad();
+        });
+        // 컴포넌트가 언마운트될 때 구독 해제
+        return () => {
+            unsubscribe();
+        };
+    })
+
+    async function dataLoad() {
+    const queryString = window.location.search;
+
+    const res = await fetch(`http://localhost:8080/api/v1/questions${queryString}`, {
+        credentials: 'include'
+    })
+    data = await res.json();
+    }
+
+    function generatePageButtons(totalPages) {
+        const buttons = [];
+        for (let i = 0; i < totalPages; i++) {
+            buttons.push(i + 1);
+        }
+        return buttons;
+    }
+
+    async function changePage(searchQuery,currentPage) {
+        try {
+
+            $page.url.searchParams.get('kw', searchQuery);
+            $page.url.searchParams.set('page', currentPage);
+
+            await goto(`?${$page.url.searchParams.toString()}`, {replaceState});
+            await dataLoad();
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    function submitContact() {
+        if (email.trim() === "" || subject.trim() === "" || content.trim() === "") {
+            window.alert('필수 입력 항목이 비어 있습니다.');
+            console.error("필수 입력 항목이 비어 있습니다.");
+            return;
+        }
+        if (!isValidEmail(email)) {
+            window.alert('이메일 형식이 유효하지 않습니다');
+            return;
+        }
+        const createData = {
+            email: email,
+            subject: subject,
+            content: content
+        };
+
+        fetch('http://localhost:8080/api/v1/questions/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(createData)
+        })
+        .then(result => {
+            console.log('Success:', result);
+
+            window.alert('문의가 완료되었습니다!');
+            deactivateModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.alert('문의에 실패하였습니다');
+        });
+    }
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
 </script>
@@ -60,33 +173,41 @@
                 <div>
                     <h2 class="c333 f15 tm mb8">이메일<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="email" placeholder="이메일">
+                        <input type="email" placeholder="이메일" bind:value={email}>
                     </div>
                     <div class="error-text-box">
+                        {#if email.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {:else if !isValidEmail(email)}
+                        <span class="f13 mt8 cr">올바른 이메일 형식이 아닙니다.</span>
+                        {/if}
                     </div>
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">제목<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per">
-                        <input type="text" placeholder="제목">
+                        <input type="text" placeholder="제목" bind:value={subject}>
                     </div>
                     <div class="error-text-box">
+                        {#if subject.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {/if}
                     </div>
                 </div>
                 <div>
                     <h2 class="c333 f15 tm mb8">내용<span class="cr f16 tm inblock">*</span></h2>
                     <div class="textarea-type-1 f14 w100per h160">
-                        <textarea placeholder="내용"></textarea>
+                        <textarea placeholder="내용" bind:value={content}></textarea>
                     </div>
                     <div class="error-text-box">
+                        {#if content.trim() === ""}
                         <span class="f13 mt8 cr">필수 입력 항목입니다.</span>
+                        {/if}
                     </div>
                 </div>
             </div>
             <div class="btn-area flex aic jcc g8 mt40">
-                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">전송</button>
+                <button class="w120 h40 btn-type-2 bdr4 bm cfff tm f14" on:click="{submitContact}">전송</button>
                 <button class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소</button>
             </div>
         </div>
@@ -103,10 +224,11 @@
             <div class="space-area-2 flex aic jce">
                 <div class="right-box flex aic">
                     <div class="search-type-1 flex aic">
-                        <div class="search-box w200">
-                            <input type="search" placeholder="검색어 입력">
+                        <div class="search-box">
+                            <input type="search" bind:value={searchQuery} placeholder="검색어 입력" autocomplete="off"
+                                   on:keypress={handleKeyPress}>
                         </div>
-                        <button class="search-btn flex aic jcc">
+                        <button class="search-btn flex aic jcc" on:click={performSearch}>
                             <span class="ico-box img-box w16">
                                 <img src="/img/ico_search.svg" alt="검색 아이콘">
                             </span>
@@ -118,23 +240,21 @@
         <div class="line"></div>
         <div class="middle-area">
             <div class="all-text c121619 f14 mt16">
-                전체 <span class="number inblock cm tm">0</span>개
+                전체 <span class="number inblock cm tm">{data.data.questions.totalElements}</span>개
             </div>
             <ul class="qna-box mt12">
-            {#each [1, 2, 3] as index}
+                {#each data.data.questions.content as question, index (question.id)}
                 <li>
                     <div class="q {activeStates[index] ? 'active' : ''}" on:click={() => toggle(index)}>
-                        <p class="lh140 tb">Q. 질문입니다.{index}</p>
+                        <p class="lh140 tb">Q. {question.subject}</p>
                     </div>
                     <div class="a {activeStates[index] ? 'active' : ''}">
                         <p class="lh140">
-                        답변입니다.답변입니다.답변입니다.답변입니다.<br>
-                        답변입니다.답변입니다.답변입니다.답변입니다.<br>
-                        답변입니다.답변입니다.답변입니다.답변입니다.
+                            {question.content}
                         </p>
                     </div>
                 </li>
-            {/each}
+                {/each}
             </ul>
             <div class="flex aic jce mt8">
                 <div class="flex aic g4">
@@ -143,27 +263,34 @@
             </div>
             <div class="paging-box flex jcc mt40">
                 <ul class="flex aic jcc">
-                    <li class="page-btn">
-                        <a href="">이전</a>
-                    </li>
-                    <li class="num">
-                        <a href="" class="active">1</a>
-                    </li>
-                    <li class="num">
-                        <a href="">2</a>
-                    </li>
-                    <li class="num">
-                        <a href="">3</a>
-                    </li>
-                    <li class="num">
-                        <a href="">4</a>
-                    </li>
-                    <li class="num">
-                        <a href="">5</a>
-                    </li>
-                    <li class="page-btn">
-                        <a href="">다음</a>
-                    </li>
+                    {#if data.data.questions.number > 0}
+                        <!-- 현재 페이지가 첫 페이지가 아닐 때만 이전 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.questions.number - 1)}>
+                            <a href="">이전</a>
+                        </li>
+                    {/if}
+                    {#each generatePageButtons(data.data.questions.totalPages) as button}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li
+                                class="num"
+                                on:click={() => data.data.questions.number !== button - 1 && changePage(data.searchKeyword, button - 1)}
+                        >
+                            <a href="" class:active={data.data.questions.number === button - 1}>{button}</a>
+                        </li>
+                    {/each}
+                    {#if data.data.questions.number < data.data.questions.totalPages - 1}
+                        <!-- 현재 페이지가 마지막 페이지가 아닐 때만 다음 버튼을 표시 -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="page-btn"
+                            on:click={() => changePage(data.searchKeyword, data.data.questions.number + 1)}>
+                            <a href="">다음</a>
+                        </li>
+                    {/if}
                 </ul>
             </div>
         </div>
