@@ -3,7 +3,6 @@ package org.example.stockswiftservice.domain.company.service;
 import lombok.RequiredArgsConstructor;
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
-import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,4 +85,5 @@ public class CompanyService {
         Pageable pageable = PageRequest.of(page, 10);
         return this.companyRepository.findByKeyword(pageable,keyword,isApprove);
     }
+
 }

@@ -133,7 +133,6 @@
     let passwordConfirmSuccessMessage = ''
     let isPasswordConfirm = false
 
-
     function activateModalAdd() {
         isActive = true;
         isActiveAdd = true;
@@ -433,6 +432,7 @@
             passwordConfirmSuccessMessage = '비밀번호가 일치합니다'
             passwordConfirmErrorMessage = '';
             isPasswordConfirm = true
+            passwordConfirm = true
         } else {
             passwordConfirmSuccessMessage = ''
             passwordConfirmErrorMessage = '비밀번호가 일치하지 않습니다';

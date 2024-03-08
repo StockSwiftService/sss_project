@@ -225,6 +225,7 @@
             console.log("정보:" + authorization);
             if (!authorization) {
                 window.alert('회원 정보가 일치하지 않아 삭제할 수 없습니다.');
+                isDeleteEnabled = false;
                 return;
             }
             if (confirmation) {
