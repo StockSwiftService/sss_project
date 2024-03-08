@@ -507,6 +507,7 @@
     }
 </script>
 <div class="modal-area-1 modal-area wh100per fixed zi9" class:active="{isActive}">
+
     <!-- 회원 등록 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveAdd}">
         <div class="top-box rel">
@@ -609,6 +610,7 @@
             </div>
         </form>
     </div>
+
     <!-- 회원 수정 모달 -->
     <div class="modal-type-1 modal-box abs xy-middle bfff zi9 w480" class:active="{isActiveModifi}">
         <div class="top-box rel">
@@ -704,24 +706,27 @@
             <button class="x-btn img-box abs" on:click="{deactivateModal}">
                 <img src="/img/ico_x_121619.svg" alt="닫기 아이콘">
             </button>
-            <div class="middle-box scr-type-1">
-                <div class="flex fdc g36">
-                    <div>
-                        <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
-                        <div class="input-type-1 f14 w100per">
-                            <input type="password" placeholder="비밀번호" bind:value={modifyData.password}
-                                   on:input={validateModifyPassword}>
-                        </div>
-                        {#if passwordErrorMessage}
-                            <span class="f13 mt4 cr">{passwordErrorMessage}</span>
-                        {/if}
-                        {#if passwordSuccessMessage}
-                            <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
-                        {/if}
+        </div>
+        <div class="middle-box scr-type-1">
+            <div class="flex fdc g36">
+                <div>
+                    <h2 class="c333 f15 tm mb8">비밀번호<span class="cr f16 tm inblock">*</span></h2>
+                    <div class="input-type-1 f14 w100per">
+                        <input type="password" placeholder="비밀번호" bind:value={modifyData.password}
+                                on:input={validateModifyPassword}>
                     </div>
+                    {#if passwordErrorMessage}
+                        <span class="f13 mt4 cr">{passwordErrorMessage}</span>
+                    {/if}
+                    {#if passwordSuccessMessage}
+                        <span class="f13 mt4 cg">{passwordSuccessMessage}</span>
+                    {/if}
+                </div>
+                <div>
+                    <h2 class="c333 f15 tm mb8">비밀번호 확인<span class="cr f16 tm inblock">*</span></h2>
                     <div class="input-type-1 f14 w100per mt8">
                         <input type="password" placeholder="비밀번호 확인" bind:value={modifyData.passwordConfirm}
-                               on:input={confirmValidateModifyPassword}>
+                                on:input={confirmValidateModifyPassword}>
                         {#if passwordConfirmErrorMessage}
                             <span class="f13 mt4 cr">{passwordConfirmErrorMessage}</span>
                         {/if}
@@ -730,12 +735,13 @@
                         {/if}
                     </div>
                 </div>
+                
             </div>
-            <div class="btn-area flex aic jcc g8 mt40 mb16">
-                <button type="submit" class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
-                <button type="button" class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소
-                </button>
-            </div>
+        </div>
+        <div class="btn-area flex aic jcc g8 mt40 mb16">
+            <button type="submit" class="w120 h40 btn-type-2 bdr4 bm cfff tm f14">수정</button>
+            <button type="button" class="w120 h40 btn-type-2 bdr4 bdm cm tm f14" on:click="{deactivateModal}">취소
+            </button>
         </div>
     </form>
 </div>

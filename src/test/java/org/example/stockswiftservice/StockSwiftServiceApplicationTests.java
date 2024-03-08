@@ -32,8 +32,8 @@ class StockSwiftServiceApplicationTests {
     @Autowired
     private QuestionService questionService;
 
-    String companyCode1 = "VWTRPA";
-    String companyCode2 = "MWEKSE";
+    String companyCode1 = "VNUJJI";
+    String companyCode2 = "YEQGZC";
 
     @Test
     void clientTest1() {
@@ -99,10 +99,14 @@ class StockSwiftServiceApplicationTests {
 
     @Test
     void questionTest() {
-        questionService.createQuestion("질문1", "내용1", true);
-        questionService.createQuestion("질문2", "내용2", true);
-        questionService.createQuestion("질문3", "내용3", true);
-        questionService.createQuestion("질문4", "내용4", true);
-        questionService.createQuestion("질문5", "내용5", true);
+        questionService.createQuestion("회원가입을 했는데, 언제 결과가 나오나요?", "알림에 표기했듯이 가입 신청일 기준 2-3일 정도 소요되나, 3일이 지났는데도 아무 연락이 없을 시 고객센터로 연락바랍니다.", true);
+        questionService.createQuestion("회원 정보를 수정하고 싶은데 어떻게 해야 하나요?", "회원 정보 수정은 마이페이지에서 직접 수정하실 수 있습니다. 만약 어려운 점이 있으시면 고객센터로 연락 주시면 친절하게 안내해 드리겠습니다.", true);
+        questionService.createQuestion("비밀번호를 잊어버렸어요. 어떻게 해야 하나요?", "비밀번호를 잊어버리셨을 경우, 로그인 페이지에서 '비밀번호 찾기' 기능을 이용하여 재설정할 수 있습니다. 이메일로 안내가 전송됩니다.", true);
+        questionService.createQuestion("고객센터 연락처는 어떻게 되나요?", "고객센터 연락처는 000-0000-0000 입니다. 운영 시간은 평일 오전 9시부터 오후 6시까지이며, 토요일과 일요일은 휴무입니다.", true);
+        questionService.createQuestion("재고 수량은 어떻게 확인할 수 있나요?", "재고 관리 페이지에서 실시간으로 재고 수량을 확인하실 수 있습니다. 또한, 재고 부족 시 자동으로 알림이 발송되니 주의하시기 바랍니다.", true);
+        questionService.createQuestion("상품의 입고/출고 기록은 어디에서 확인할 수 있나요?", "재고 관리 페이지의 입고/출고 기록 탭에서 각 상품의 입고 및 출고 기록을 상세하게 확인하실 수 있습니다. 이를 통해 재고 이력을 관리하실 수 있습니다.", true);
+        questionService.createQuestion("재고 품목의 추가/삭제는 어떻게 할 수 있나요?", "재고 관리 페이지에서 새로운 상품을 추가하거나 기존 상품을 삭제할 수 있습니다. 추가된 상품은 바로 재고에 반영되며, 삭제된 상품은 해당 창고 또는 매장에서 제거됩니다.", true);
+        questionService.createQuestion("재고 이력을 확인할 수 있는 방법은 무엇인가요?", "재고 관리 페이지에서 각 상품의 입고 및 출고 이력을 확인하실 수 있습니다. 이를 통해 상품의 이동 경로 및 이력을 추적하실 수 있습니다.", true);
+        questionService.createQuestion("여러 창고 또는 매장을 관리할 수 있나요?", "추후 업데이트 예정입니다.", true);
     }
 }

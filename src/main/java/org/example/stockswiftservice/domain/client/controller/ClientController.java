@@ -161,14 +161,19 @@ public class ClientController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Client>> searchClients(@RequestParam(value = "clientName") String clientName) {
+    public ResponseEntity<List<Client>> searchClients(@RequestParam(value = "clientName") String clientName, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
         List<Client> clients;
         if (clientName != null && !clientName.isEmpty()) {
             // 검색어가 있을 경우, 해당 검색어를 포함하는 거래처 목록을 조회
             clients = clientService.findByClientNameContaining(clientName);
         } else {
             // 검색어가 없을 경우, 모든 거래처 목록을 조회
-            clients = clientService.getList();
+            clients = clientService.getCompanyCodeList(companyCode);
         }
         return ResponseEntity.ok(clients);
     }

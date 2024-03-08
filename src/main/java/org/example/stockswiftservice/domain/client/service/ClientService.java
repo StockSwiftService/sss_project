@@ -125,4 +125,7 @@ public class ClientService {
         };
     }
 
+    public List<Client> getCompanyCodeList(String companyCode) {
+        return this.clientRepository.findByCompanyCode(companyCode);
+    }
 }

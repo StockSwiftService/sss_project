@@ -131,7 +131,7 @@ public class StockService {
         };
     }
 
-    public List<Stock> searchByName(String searchText) {
-        return this.stockRepository.findByItemNameOrClientNameContaining(searchText);
+    public List<Stock> searchByName(String searchText, String companyCode) {
+        return this.stockRepository.findByItemNameContainingAndCompanyCode(searchText, companyCode);
     }
 }

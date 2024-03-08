@@ -1043,7 +1043,7 @@
                                 외 {purchase.purchaseStocks.length - 1}건
                                 {/if}
                             </td>
-                            <td class="wsn tal">{purchase.allPrice}원</td>
+                            <td class="wsn tal">{purchase.allPrice.toLocaleString()}원</td>
                             <td class="wsn">
                                 {#if purchase.deliveryStatus}완료
                                 {:else}

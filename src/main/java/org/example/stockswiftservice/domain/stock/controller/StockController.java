@@ -267,8 +267,13 @@ public class StockController {
     }
 
     @GetMapping("/search")
-    public RsData<StocksResponse2> searchStocks(@RequestParam("itemName") String searchText) {
-        List<StockDto> stocks = stockService.searchByName(searchText).stream()
+    public RsData<StocksResponse2> searchStocks(@RequestParam("itemName") String searchText, HttpServletRequest request) {
+        String token = extractAccessToken(request); //헤더에 담긴 쿠키에서 토큰 요청
+        Long userId = ((Integer) jwtProvider.getClaims(token).get("id")).longValue(); //유저의 아이디 값
+        Company company = this.memberService.findbyId(userId).get().getCompany();
+        String companyCode = company.getCompanyCode();
+
+        List<StockDto> stocks = stockService.searchByName(searchText, companyCode).stream()
                 .map(StockDto::new)
                 .collect(Collectors.toList());
         return RsData.of("S-1", "검색 성공", new StocksResponse2(stocks));

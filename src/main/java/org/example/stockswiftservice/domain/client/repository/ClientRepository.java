@@ -21,6 +21,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     List<Client> findByClientNameContaining(String clientName);
     @Query(value = "SELECT * FROM client WHERE client_name LIKE %?1% OR rep_name LIKE %?1% OR phone_number LIKE %?1%", nativeQuery = true)
     List<Client> findByClientNameOrRepNameOrPhoneNumberContaining(String searchText);
+
+    List<Client> findByCompanyCode(String companyCode);
 }
 
 

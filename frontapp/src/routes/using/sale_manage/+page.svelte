@@ -217,7 +217,7 @@
                             let weekTotal = sale.weekSalesNumber;
                             // 이벤트 추가 로직
                             calendar.addEvent({
-                                title: sale.dailyTotalSales + '원',
+                                title: sale.dailyTotalSales.toLocaleString() + '원',
                                 description: sale.dailySalesNumber + '건',
                                 start: sale.salesDate,
                                 color: 'white',
@@ -353,7 +353,7 @@
                                     외 {purchaseList.purchaseStocks.length - 1}건
                                 {/if}
                             </td>
-                            <td>{purchaseList.allPrice}</td>
+                            <td>{purchaseList.allPrice.toLocaleString()}</td>
                         </tr>
                     {/each}
                     </tbody>
