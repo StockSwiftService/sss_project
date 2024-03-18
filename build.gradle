@@ -42,8 +42,13 @@ dependencies {
 
     //email
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    //배포 db
+    runtimeOnly 'org.postgresql:postgresql'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+jar {
+    enabled = false
 }
