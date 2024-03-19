@@ -12,10 +12,11 @@
     let isModifyEnabled = false;
     let events = [];
     let loggedInUserId = null;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     
     onMount(async() => {
 		try {
-			const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+			const response = await fetch(`${backendUrl}/api/v1/member/loginUser`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'
@@ -40,7 +41,7 @@
 
     async function fetchDataAndRenderCalendar(loggedInUserId) {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/schedules', {
+            const response = await fetch(`${backendUrl}/api/v1/schedules`, {
                 credentials: 'include'
             });
             const data = await response.json();
@@ -180,7 +181,7 @@
                 }
                 calendar.addEvent(event);
 
-                fetch('http://localhost:8080/api/v1/schedules', {
+                fetch(`${backendUrl}/api/v1/schedules`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -228,7 +229,7 @@
                 return;
             }
             if (confirmation) {
-            fetch(`http://localhost:8080/api/v1/schedules/${eventId}`, {
+            fetch(`${backendUrl}/api/v1/schedules/${eventId}`, {
                 credentials: 'include',
                 method: 'DELETE',
             })
@@ -304,7 +305,7 @@
             endDate.setDate(endDate.getDate());
 
             if (newTitle !== null && newContent !== null) {
-                fetch(`http://localhost:8080/api/v1/schedules/${eventId}`, {
+                fetch(`${backendUrl}/api/v1/schedules/${eventId}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -352,7 +353,7 @@
     function checkMemberAuthorization(info) {
     const eventId = info.event.extendedProps.eventId;
 
-    return fetch(`http://localhost:8080/api/v1/schedules/check/${eventId}`, {
+    return fetch(`${backendUrl}/api/v1/schedules/check/${eventId}`, {
         credentials: 'include'
         })
         .then(response => response.json())

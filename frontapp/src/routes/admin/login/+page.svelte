@@ -4,6 +4,7 @@
 	import CryptoJS from 'crypto-js';
 
 	const { setCookie, getCookie } = pkg;
+	const backendUrl = import.meta.env.VITE_BACKEND_URL;
 	//
 	// 데이터 암호화 함수
 	function encryptData(data, key) {
@@ -48,7 +49,7 @@
 			formData.companyCode.toUpperCase() ===  'AAAAAA'
 		) {
 			try {
-				const response = await fetch('http://localhost:8080/api/v1/member/login', {
+				const response = await fetch(`${backendUrl}/api/v1/member/login`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'

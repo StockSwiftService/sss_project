@@ -7,6 +7,7 @@
     let isActive = false;
     let isActive2 = false;
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     let isActiveAdd = false;
     let isActiveModify = false;
     let isActiveRecord = false;
@@ -129,7 +130,7 @@
 
         // 서버로 데이터 전송
         try {
-            const response = await fetch('http://localhost:8080/api/v1/stocks', {
+            const response = await fetch(`${backendUrl}/api/v1/stocks`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -190,7 +191,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/${currentClientId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/stocks/${currentClientId}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
@@ -229,7 +230,7 @@
         resetForm();
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/${currentClientId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/stocks/${currentClientId}`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -267,7 +268,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/stocks/deleteMultiple', {
+            const response = await fetch(`${backendUrl}/api/v1/stocks/deleteMultiple`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -319,7 +320,7 @@
     let confirmNameSuccessMessage = '';
     const checkDuplicate = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/stocks/check', {
+            const response = await fetch(`${backendUrl}/api/v1/stocks/check`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -354,7 +355,7 @@
 
     // 거래처 목록을 불러오는 함수
     async function fetchClients(keyword = '') {
-        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${keyword}`);
+        const response = await fetch(`${backendUrl}/api/v1/clients/search?clientName=${keyword}`);
         if (response.ok) {
             clients = await response.json();
         } else {
@@ -418,7 +419,7 @@
     async function dataLoad() {
         const queryString = window.location.search;
 
-        const res = await fetch(`http://localhost:8080/api/v1/stocks${queryString}`, {
+        const res = await fetch(`${backendUrl}/api/v1/stocks${queryString}`, {
             credentials: 'include'
         })
         data = await res.json();
@@ -450,7 +451,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/stocks/excel');
+            const response = await fetch(`${backendUrl}/api/v1/stocks/excel`);
             const blob = await response.blob();
             const a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob);
@@ -483,7 +484,7 @@
         resetForm();
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/${currentClientId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/stocks/${currentClientId}`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -509,7 +510,7 @@
         }
     }
     async function recordData(itemName = '') {
-        const url = `http://localhost:8080/api/v1/purchase/record?itemName=${encodeURIComponent(itemName)}`;
+        const url = `${backendUrl}/api/v1/purchase/record?itemName=${encodeURIComponent(itemName)}`;
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();

@@ -4,6 +4,7 @@
     import {goto, replaceState} from "$app/navigation";
     import {onMount} from "svelte";
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     export let data;
     let isActive = false;
     let isActiveAdd = false;
@@ -99,7 +100,7 @@
 
         // 서버로 데이터 전송
         try {
-            const response = await fetch('http://localhost:8080/api/v1/clients', {
+            const response = await fetch(`${backendUrl}/api/v1/clients`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -165,7 +166,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/clients/${currentClientId}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
@@ -215,7 +216,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/clients/deleteMultiple', {
+            const response = await fetch(`${backendUrl}/api/v1/clients/deleteMultiple`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -247,7 +248,7 @@
         resetForm();
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/clients/${currentClientId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/clients/${currentClientId}`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -407,7 +408,7 @@
     const checkDuplicate = async () => {
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/clients/check', {
+            const response = await fetch(`${backendUrl}/api/v1/clients/check`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -496,7 +497,7 @@
     async function dataLoad() {
         const queryString = window.location.search;
 
-        const res = await fetch(`http://localhost:8080/api/v1/clients${queryString}`, {
+        const res = await fetch(`${backendUrl}/api/v1/clients${queryString}`, {
             credentials: 'include'
         })
         data = await res.json();

@@ -8,10 +8,11 @@
 
     import {onMount} from 'svelte';
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     let loginUser = [];
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+            const response = await fetch(`${backendUrl}/api/v1/member/loginUser`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

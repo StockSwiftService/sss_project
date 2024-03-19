@@ -2,9 +2,11 @@
 	import { onMount } from 'svelte';
 	import { loginUser } from '../stores.js';
 
+	const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 	const logout = async () => {
 		try {
-			const response = await fetch(`http://localhost:8080/api/v1/member/logout`, {
+			const response = await fetch(`${backendUrl}/api/v1/member/logout`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

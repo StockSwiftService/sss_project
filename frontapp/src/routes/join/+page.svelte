@@ -1,5 +1,6 @@
 <script>
     import {getFirstAndLastTokens} from "eslint-plugin-svelte/lib/rules/indent-helpers/commons.js";
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     let formData = {
         name: '',
@@ -124,7 +125,7 @@
                 confirmNameErrorMessage = '필수 항목입니다'
                 confirmNameSuccessMessage = ''
             }
-            const response = await fetch('http://localhost:8080/api/v1/company/check-name', {
+            const response = await fetch(`${backendUrl}/api/v1/company/check-name`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -159,7 +160,7 @@
                 businessNumberErrorMessage = '사업자 번호를 모두 입력하세요(10자리)';
                 businessNumberSuccessMessage = '';
             }
-            const response = await fetch('http://localhost:8080/api/v1/company/check-businessNumber', {
+            const response = await fetch(`${backendUrl}/api/v1/company/check-businessNumber`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -191,7 +192,7 @@
                 emailErrorMessage = '올바른 이메일 형식을 입력해 주세요'
                 emailSuccessMessage = ''
             }
-            const response = await fetch('http://localhost:8080/api/v1/email/send', {
+            const response = await fetch(`${backendUrl}/api/v1/email/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -287,7 +288,7 @@
         }
         else {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/company/join', {
+                const response = await fetch(`${backendUrl}/api/v1/company/join`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -10,10 +10,11 @@
     let members = [];
     let selectedMemberIds = []; //체크박스에 체크된 멤버의 아이디를 저장
     let loginUser = [];
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/member/loginUser', {
+            const response = await fetch(`${backendUrl}/api/v1/member/loginUser`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +39,7 @@
 
     const changePage = async (page) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/member/user-manages?page=${page}&keyWord=${keyword}`, {
+            const response = await fetch(`${backendUrl}/api/v1/member/user-manages?page=${page}&keyWord=${keyword}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -75,7 +76,7 @@
     //회원 리스트 불러오기
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/member/user-manages', {
+            const response = await fetch(`${backendUrl}/api/v1/member/user-manages`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -204,7 +205,7 @@
             confirmUsernameSuccessMessage = ''
         } else {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/company/check-username', {
+                const response = await fetch(`${backendUrl}/api/v1/company/check-username`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -238,7 +239,7 @@
             confirmUsernameSuccessMessage = ''
         } else {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/company/check-username', {
+                const response = await fetch(`${backendUrl}/api/v1/company/check-username`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -303,7 +304,7 @@
             alert('패스워드를 확인해 주세요.')
         } else {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/member/join', {
+                const response = await fetch(`${backendUrl}/api/v1/member/join`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -382,7 +383,7 @@
             const confirmation = confirm('선택한 회원을 정말 삭제하시겠습니까?');
 
             if (confirmation) {
-                const url = 'http://localhost:8080/api/v1/member/delete?ids=' + selectedMemberIds.join(','); // 선택된 멤버들의 아이디를 URL에 포함시킴
+                const url = `${backendUrl}/api/v1/member/delete?ids=` + selectedMemberIds.join(','); // 선택된 멤버들의 아이디를 URL에 포함시킴
                 try {
                     const response = await fetch(url, {
                         method: 'DELETE',
@@ -447,7 +448,7 @@
             return
         }
         try {
-            const response = await fetch('http://localhost:8080/api/v1/member/modify', {
+            const response = await fetch(`${backendUrl}/api/v1/member/modify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -479,7 +480,7 @@
             alert('비밀번호를 다시 확인해 주세요.')
         } else {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/member/modify-password', {
+                const response = await fetch(`${backendUrl}/api/v1/member/modify-password`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
