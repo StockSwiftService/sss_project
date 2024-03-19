@@ -31,7 +31,6 @@ import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "api/v1/company", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = "https://frontapp-oj4tpflt4-jhseos-projects.vercel.app")
 public class CompanyController {
 
     private final CompanyService companyService;

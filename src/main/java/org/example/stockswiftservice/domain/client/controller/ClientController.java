@@ -25,7 +25,6 @@ import static org.example.stockswiftservice.domain.global.filter.JwtAuthorizatio
 @RestController
 @RequestMapping("/api/v1/clients")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://frontapp-oj4tpflt4-jhseos-projects.vercel.app")
 public class ClientController {
     private final ClientService clientService;
     private final JwtProvider jwtProvider;

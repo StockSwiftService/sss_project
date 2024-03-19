@@ -29,7 +29,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/member", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = "https://frontapp-oj4tpflt4-jhseos-projects.vercel.app")
 public class MemberController {
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
