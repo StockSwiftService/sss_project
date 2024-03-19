@@ -2,10 +2,8 @@ package org.example.stockswiftservice.global.initdata;
 
 import org.example.stockswiftservice.domain.company.entity.Company;
 import org.example.stockswiftservice.domain.company.repository.CompanyRepository;
-import org.example.stockswiftservice.domain.company.service.CompanyService;
 import org.example.stockswiftservice.domain.member.entity.Member;
 import org.example.stockswiftservice.domain.member.repository.MemberRepository;
-import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 
 @Configuration
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "prod"})
 public class NotProd {
     @Bean
     CommandLineRunner initData(MemberRepository memberRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder) {
