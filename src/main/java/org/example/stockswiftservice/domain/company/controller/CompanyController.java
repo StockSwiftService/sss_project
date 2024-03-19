@@ -3,7 +3,9 @@ package org.example.stockswiftservice.domain.company.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -15,7 +17,6 @@ import org.example.stockswiftservice.domain.member.service.EmailService;
 import org.example.stockswiftservice.domain.member.service.MemberService;
 import org.example.stockswiftservice.global.jwt.JwtProvider;
 import org.example.stockswiftservice.global.rs.RsData;
-import org.hibernate.annotations.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ import static org.springframework.util.MimeTypeUtils.ALL_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "api/v1/company", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+@CrossOrigin(origins = "https://frontapp-oj4tpflt4-jhseos-projects.vercel.app")
 public class CompanyController {
 
     private final CompanyService companyService;
