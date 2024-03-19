@@ -16,7 +16,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
-                .allowedOrigins("*")  // 모든 도메인을 허용합니다.
+                .allowedOrigins("http://localhost:5173", "https://frontapp-7u2t71qre-jhseos-projects.vercel.app")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);
