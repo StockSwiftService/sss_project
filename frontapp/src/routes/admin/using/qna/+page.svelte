@@ -12,6 +12,7 @@
     let content = '';
     let allSelectCheckboxState = false;
     let questionCheckboxStates = Array(data.data.questions.content.length).fill(allSelectCheckboxState);
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     onMount(() => {
         dataLoad();
@@ -26,7 +27,7 @@
             }
             questionId = question.id;
 
-            const response = await fetch(`http://localhost:8080/api/v1/questions/admin/${questionId}`, {
+            const response = await fetch(`${backendUrl}/api/v1/questions/admin/${questionId}`, {
                 credentials: 'include'
             });
             const data = await response.json();
@@ -58,7 +59,7 @@
             };
 
             try {
-                const response = await fetch('http://localhost:8080/api/v1/questions/admin', {
+                const response = await fetch(`${backendUrl}/api/v1/questions/admin`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -99,7 +100,7 @@
             isPublic: isChecked
         };
 
-        fetch(`http://localhost:8080/api/v1/questions/admin/${questionId}`, {
+        fetch(`${backendUrl}/api/v1/questions/admin/${questionId}`, {
             method: 'PATCH',
             credentials: 'include',
             headers: {
@@ -142,7 +143,7 @@
 
 		if (confirmed) {
         try {
-        const response = await fetch('http://localhost:8080/api/v1/questions/admin/delete', {
+        const response = await fetch(`${backendUrl}/api/v1/questions/admin/delete`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -206,7 +207,7 @@
     }
     async function fetchLatestPosts() {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/questions/admin?page=${currentPage}`, {
+            const response = await fetch(`${backendUrl}/api/v1/questions/admin?page=${currentPage}`, {
                 credentials: 'include'
             }); 
             const result = await response.json();
@@ -241,7 +242,7 @@
     async function dataLoad() {
         const queryString = window.location.search;
 
-        const res = await fetch(`http://localhost:8080/api/v1/questions/admin${queryString}`, {
+        const res = await fetch(`${backendUrl}/api/v1/questions/admin${queryString}`, {
             credentials: 'include'
         });
 

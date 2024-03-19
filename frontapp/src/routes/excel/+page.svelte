@@ -1,8 +1,9 @@
 <script>
     export let data;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     async function downloadExcel() {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/stocks/excel');
+            const response = await fetch(`${backendUrl}/api/v1/stocks/excel`);
             const blob = await response.blob();
             const a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob);

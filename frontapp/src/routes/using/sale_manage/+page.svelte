@@ -9,6 +9,7 @@
     // 모달 비활성화
     let isActiveRecord = false;
     let isActive = false;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     // 해당 날짜
     let currentdate = '';
@@ -19,7 +20,7 @@
 
     async function getList(date) {
         try {
-            const response = await fetch('http://localhost:8080/api/v1/purchase/list', {
+            const response = await fetch(`${backendUrl}/api/v1/purchase/list`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({date: date})
@@ -180,7 +181,7 @@
             return new Promise(async (resolve) => {
                 try {
                     let purchaseId = 1;
-                    const response = await fetch('http://localhost:8080/api/v1/sales', {
+                    const response = await fetch(`${backendUrl}/api/v1/sales`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({purchaseId: purchaseId})

@@ -1,4 +1,5 @@
 <script>
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     let codeFormData = {
         name: '',
         businessNumber: '',
@@ -38,7 +39,7 @@
     const codeSearch = async () => {
         isCodeClick = true
         try {
-            const response = await fetch('http://localhost:8080/api/v1/company/code-search', {
+            const response = await fetch(`${backendUrl}/api/v1/company/code-search`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -71,7 +72,7 @@
     const idSearch = async () => {
         isIdClick = true
         try {
-            const response = await fetch('http://localhost:8080/api/v1/company/id-search', {
+            const response = await fetch(`${backendUrl}/api/v1/company/id-search`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -104,7 +105,7 @@
     const PwSearch = async () => {
         isPwClick = true
         try {
-            const response = await fetch('http://localhost:8080/api/v1/company/pw-search', {
+            const response = await fetch(`${backendUrl}/api/v1/company/pw-search`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -160,7 +161,7 @@
     const PwModify = async () => {
         isPwClick = true
         try {
-            const response = await fetch('http://localhost:8080/api/v1/company/pw-modify', {
+            const response = await fetch(`${backendUrl}/api/v1/company/pw-modify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

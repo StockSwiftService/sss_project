@@ -9,6 +9,7 @@
     let content = '';
     let searchQuery = '';
     let currentPage = 0;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     let isActive = false;
     let isActiveAdd = false;
@@ -64,7 +65,7 @@
     async function dataLoad() {
     const queryString = window.location.search;
 
-    const res = await fetch(`http://localhost:8080/api/v1/questions${queryString}`, {
+    const res = await fetch(`${backendUrl}/api/v1/questions${queryString}`, {
         credentials: 'include'
     })
     data = await res.json();
@@ -107,7 +108,7 @@
             content: content
         };
 
-        fetch('http://localhost:8080/api/v1/questions/contact', {
+        fetch(`${backendUrl}/api/v1/questions/contact`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

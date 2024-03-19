@@ -4,6 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
+	const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 	onMount(() => {
 		init();
 	});
@@ -56,7 +58,7 @@
 
 	async function changePage(page) {
 		try {
-			const response = await axios.get(`http://localhost:8080/api/articles?page=${page + 1}`);
+			const response = await axios.get(`${backendUrl}/api/articles?page=${page + 1}`);
 			data = response.data;
 
 			goto(`/all_product/${page}`);
@@ -76,7 +78,7 @@
 						{#if article.photo && article.photo[0]}
 							<div class="img-box rel">
 								<img
-									src={`http://localhost:8080/api/gen/${article.photo[0].filePath}`}
+									src={`${backendUrl}/api/gen/${article.photo[0].filePath}`}
 									alt={article.photo[0].origFileName}
 								/>
 								<button

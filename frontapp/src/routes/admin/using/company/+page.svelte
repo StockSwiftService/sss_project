@@ -6,11 +6,12 @@
 	let companyTotal = [];
 	let keyword = '';
 	let isApprove = 'ALL';
+	const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 	const changePage = async (page) => {
 		try {
 			const response = await fetch(
-				`http://localhost:8080/api/v1/company/lists?page=${page}&keyword=${keyword}&isApprove=${isApprove}`,
+				`${backendUrl}/api/v1/company/lists?page=${page}&keyword=${keyword}&isApprove=${isApprove}`,
 				{
 					method: 'GET',
 					headers: {
@@ -44,7 +45,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('http://localhost:8080/api/v1/company/lists', {
+			const response = await fetch(`${backendUrl}/api/v1/company/lists`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'
@@ -106,7 +107,7 @@
 	const approve = async () => {
 		const confirmResult = window.confirm('정말로 활성화 하시겠습니까?');
 		if (confirmResult) {
-			const response = await fetch('http://localhost:8080/api/v1/company/approve', {
+			const response = await fetch(`${backendUrl}/api/v1/company/approve`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -124,7 +125,7 @@
 	const disapprove = async () => {
 		const confirmResult = window.confirm('정말로 비활성화 하시겠습니까?');
 		if (confirmResult) {
-			const response = await fetch('http://localhost:8080/api/v1/company/disapprove', {
+			const response = await fetch(`${backendUrl}/api/v1/company/disapprove`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -142,7 +143,7 @@
 	const reject = async () => {
 		const confirmResult = window.confirm('정말로 반려하시겠습니까?');
 		if (confirmResult) {
-			const response = await fetch('http://localhost:8080/api/v1/company/reject', {
+			const response = await fetch(`${backendUrl}/api/v1/company/reject`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -182,7 +183,7 @@
 			memo: companyMemo
 		};
 
-		const response = await fetch(`http://localhost:8080/api/v1/company/memo`, {
+		const response = await fetch(`${backendUrl}/api/v1/company/memo`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -193,7 +194,7 @@
 		if (response.ok) {
 			try {
 				const response = await fetch(
-					`http://localhost:8080/api/v1/company/lists?page=${resList.number}&keyword=${keyword}&isApprove=${isApprove}`,
+					`${backendUrl}/api/v1/company/lists?page=${resList.number}&keyword=${keyword}&isApprove=${isApprove}`,
 					{
 						method: 'GET',
 						headers: {

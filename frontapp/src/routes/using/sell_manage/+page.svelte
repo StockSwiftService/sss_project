@@ -5,6 +5,7 @@
     import { loginUser } from '../../../stores.js';
 
     export let data;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     let isActive = false;
     let isActive2 = false;
@@ -88,7 +89,7 @@
     let clientSerachInput ="";
 
     async function fetchClients(keyword = '') {
-        const response = await fetch(`http://localhost:8080/api/v1/clients/search?clientName=${keyword}`);
+        const response = await fetch(`${backendUrl}/api/v1/clients/search?clientName=${keyword}`);
         if (response.ok) {
             clients = await response.json();
         } else {
@@ -144,7 +145,7 @@
     async function itemNameKeyUp(event, item) {
         if (event.key === 'Enter') {
             selectItem = item;
-            const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${item.itemName}`);
+            const response = await fetch(`${backendUrl}/api/v1/stocks/search?itemName=${item.itemName}`);
             if (response.ok) {
                 const responseData = await response.json();
                 stocks = responseData.data.stocks;
@@ -168,7 +169,7 @@
     }
 
     async function searchItemNameKeyUp(item) {
-        const response = await fetch(`http://localhost:8080/api/v1/stocks/search?itemName=${itemSerachInput}`);
+        const response = await fetch(`${backendUrl}/api/v1/stocks/search?itemName=${itemSerachInput}`);
         if (response.ok) {
             const responseData = await response.json();
             stocks = responseData.data.stocks;
@@ -284,7 +285,7 @@
                 allPrice: allPrice
             };
 
-            const response = await fetch('http://localhost:8080/api/v1/purchase/create', {
+            const response = await fetch(`${backendUrl}/api/v1/purchase/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -308,7 +309,7 @@
 
     async function modifyForm(purchaseId) {
         activateModalModifi();
-        const response = await fetch(`http://localhost:8080/api/v1/purchase/${purchaseId}`);
+        const response = await fetch(`${backendUrl}/api/v1/purchase/${purchaseId}`);
         if (response.ok) {
             const responseData = await response.json();
             modifyPurchase = responseData.data.purchases;
@@ -350,7 +351,7 @@
                 allPrice: allPrice,
             };
 
-            const response = await fetch(`http://localhost:8080/api/v1/purchase/${modifyPurchase.id}`, {
+            const response = await fetch(`${backendUrl}/api/v1/purchase/${modifyPurchase.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -424,7 +425,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/purchase/approvalRequest', {
+            const response = await fetch(`${backendUrl}/api/v1/purchase/approvalRequest`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -465,7 +466,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/purchase/delete', {
+            const response = await fetch(`${backendUrl}/api/v1/purchase/delete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -571,7 +572,7 @@
     async function dataLoad() {
         const queryString = window.location.search;
 
-        const res = await fetch(`http://localhost:8080/api/v1/purchase${queryString}`, {
+        const res = await fetch(`${backendUrl}/api/v1/purchase${queryString}`, {
             credentials: 'include'
         })
         data = await res.json();
