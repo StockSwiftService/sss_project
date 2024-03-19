@@ -16,7 +16,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
-                .allowedOrigins("https://frontapp-oj4tpflt4-jhseos-projects.vercel.app")
+                .allowedOrigins("https://sss-project-fly.fly.dev")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);
